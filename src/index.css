@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap');
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --font-sans: 'Arimo', ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand tokens (Spec 8) */
+  --color-indigo: #4b4b96;
+  --color-teal: #508278;
+  --color-orange: #f6aa40;
+  --color-peach: #ffd2b4;
+  --color-light-blue: #96d2dc;
+  --color-brown: #503c2d;
+  --color-red: #e6553c;
+  --color-tan-grey: #96a0ab;
+  --color-mint: #ebf5f0;
+
+  /* Tints */
+  --color-peach-1: #faf0e6;
+  --color-peach-2: #fffaf8;
+  --color-orange-1: #fad78c;
+  --color-orange-2: #fff8e6;
+  --color-red-1: #f08778;
+  --color-red-2: #faf0f0;
+  --color-brown-1: #a0968c;
+  --color-brown-2: #e6e6e6;
+  --color-light-blue-1: #b9dce6;
+  --color-light-blue-2: #f0f7fa;
+  --color-teal-1: #82b4a0;
+  --color-teal-2: #ebf5f0;
+  --color-indigo-1: #6e7dc3;
+  --color-indigo-2: #f0f5fa;
+  --color-tan-grey-1: #b4bec3;
+  --color-tan-grey-2: #f0f0f0;
+
+  /* Ink variants that clear 4.5:1 on white and the tinted backgrounds */
+  --color-orange-ink: #8a5a00;
+  --color-red-ink: #b63c26;
+  --color-teal-ink: #3f6a61;
+  --color-light-blue-ink: #2a6572;
+  --color-tan-grey-ink: #5c6670;
+  --color-peach-ink: #503c2d;
+
+  /* Semantic surfaces, redefined for dark mode below */
+  --color-surface: #ffffff;
+  --color-surface-2: #f5f5f5;
+  --color-ink: #000000;
+  --color-ink-2: #4a4a4a;
+  --color-line: rgba(0, 0, 0, 0.08);
+  --color-heading: #508278;
+  --color-heading-2: #4b4b96;
+}
+
+:root {
+  --text-scale: 1;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-surface: #16181c;
+  --color-surface-2: #22252b;
+  --color-ink: #f3f1ec;
+  --color-ink-2: #c3c0b8;
+  --color-line: rgba(255, 255, 255, 0.14);
+  --color-heading: #82b4a0;
+  --color-heading-2: #a9b4e6;
+  --color-mint: #1d2a27;
+  --color-peach-2: #2a221c;
+  --color-orange-2: #2c2516;
+  --color-teal-2: #1d2a27;
+  --color-indigo-2: #20223a;
+  --color-light-blue-2: #1a2a2e;
+  --color-tan-grey-2: #24272b;
+  --color-red-2: #2c1d1a;
+  --color-brown-2: #2a2622;
+  --color-peach-1: #3a2e24;
+  --color-orange-ink: #f6c56b;
+  --color-red-ink: #f08778;
+  --color-teal-ink: #82b4a0;
+  --color-light-blue-ink: #96d2dc;
+  --color-tan-grey-ink: #b4bec3;
+  --color-peach-ink: #ffd2b4;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: calc(16px * var(--text-scale));
+  line-height: 1.5;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+@media (min-width: 768px) {
+  html {
+    font-size: calc(17px * var(--text-scale));
+  }
+}
+:root[data-text-size='large'] { --text-scale: 1.125; }
+:root[data-text-size='larger'] { --text-scale: 1.25; }
+
+body {
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 700;
+  color: var(--color-heading);
+  line-height: 1.25;
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-orange);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+:root[data-reduced-motion='true'] *, :root[data-reduced-motion='true'] *::before, :root[data-reduced-motion='true'] *::after {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media print {
+  .no-print { display: none !important; }
+}
