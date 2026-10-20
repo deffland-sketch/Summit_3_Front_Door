@@ -1,0 +1,68 @@
+# Decisions
+
+One line per technical decision, newest at the bottom. Product questions live in QUESTIONS.md.
+
+- TypeScript pinned to 5.9 instead of the Vite template's 7.0 preview, so Vitest, tsx, and editor tooling behave predictably.
+- Vite 8 + Tailwind v4 via `@tailwindcss/vite`; brand tokens live in `src/index.css` `@theme` and dark mode flips semantic tokens under `[data-theme="dark"]`.
+- React Router 8 (`react-router` package) with routes `/s/:studentId/*`, `/m/:mentorId/*`, `/x/:adultId/*`, `/l/*` per Spec 9.
+- Vitest runs unit tests from `src/**` and `seed/**`; Playwright runs `e2e/**` against `vite preview` on port 4173 (preinstalled Chromium at `/opt/pw-browsers`).
+- `npm test` is unit tests only; `npm run test:e2e` runs Playwright separately so the pre-commit check stays fast.
+- Lint is oxlint (Vite 8 template default); `npm run build` runs `tsc -b` with `strict` on before `vite build`.
+- Path alias `@/` maps to `src/`.
+- CI is one GitHub Actions job: `npm ci`, `npm run build`, `npm test`.
+- Vercel deploy is static with an SPA rewrite in `vercel.json`.
+- Zod 4 schemas, one file per object in `src/model`, with shared enums in `enums.ts`; the whole sandbox is one `SandboxSchema` snapshot and the engine is pure functions over it.
+- Days are ISO dates (`YYYY-MM-DD`) on Slot and Offering; weekday names (`mon` to `fri`) on the standing lists (protected slots, life constraints, adult availability) because those repeat weekly.
+- Times are `HH:mm` strings; helpers convert to minutes for overlap math.
+- IDs are prefixed deterministic strings (`stu_001`, `les_im1_u2_l03`) rather than uuids, per Spec 9, so fixtures diff cleanly.
+- Slots are embedded in their Plan (the Plan is the aggregate root) and keep `plan_id`; a flattening selector serves day-wide queries.
+- Added fields, each noted in Spec 1: Slot.evidence_id and Slot.added_at, Touchpoint.private, Group.name, Settings.level_targets, Settings.changed_at and changed_by. Added two read-only shapes to Spec 1: FutreRecord (the adapter return, Spec 7) and GatheringLogEntry (the Evidence Log line).
+- Courses, units, and lessons are three collections; Course.units holds unit ids.
+- Draft plans have `published_at: null`; the Friday build sets `published_at`, the mentor's Monday confirmation sets `confirmed_by`.
+- Workshop proposals are engine output held in UI state with an accept, change, or decline decision; they are not a stored object.
+- The store is a vanilla Zustand store wrapped by a `SandboxRepositories` interface (`collection(name).upsert` and friends) so a real API drops in behind the same calls.
+- Learning Commons Knowledge Graph v1.15.0 exports were fetched at build time (352 MB nodes, 603 MB relationships, streamed and filtered in under two minutes). Kept the 132 Multi-State mathematics standards IM Math 1 to 3 cite, the 609 learning components beneath them, and the 134 `buildsTowards` edges among them, written to `src/graph/data/lc-math.json` by `seed/lc-import.ts` and committed so the app build needs no network.
+- Math progression edges carry `source: learning_commons, confidence: 1`; cognitive skill, habit, ELA, lesson, experience, credential, and pathway edges are authored at `confidence: 0.7`.
+- IM Math 1 to 3 is the integrated sequence (7 to 8 units each) with lesson titles from the IM course outlines; each math lesson is tagged to two of its unit's standards in rotation and lists the previous lesson as a prerequisite.
+- OpenSciEd and AP courses are authored in `src/graph/authored/courses.ts`, 6 units each, 8 lessons per unit, tagged to two cognitive skills from a per-unit pool; science lessons add a lab mode every fourth lesson and humanities lessons a seminar mode.
+- CCSS ELA is 32 anchor standards plus the grades 9 to 10 band for reading literature, informational text, and writing (62 reference nodes), each with authored `supports` edges into cognitive skills.
+- The 36 cognitive skills use level expectations 3, 4, 5, 6 at Expose, Explore, Pursue, Launch, with three harder skills (Designing processes, Modeling, Counterclaims) one point lower; Summit's rubric gives per-grade expectations, so these are the level translation.
+- Habits of Success use the Building Blocks for Learning structure (5 blocks, 16 habits) with authored builds_toward edges from lower blocks to higher ones.
+- Graph queries (whatServes, whatUnlocks, gapsTo, pathwaysNear, underneath) live in `src/graph/index.ts` as pure functions over an in-memory adjacency map; walks are bounded to three hops and return the edges traversed.
+- `seed/` compiles under its own `tsconfig.seed.json` with Node types; the app tsconfig covers `src/` only.
+- The seed runs the engine: `seed/generate.ts` builds offerings, assignments, evidence, and touchpoints, then calls `proposeWorkshops` (accepting all but three) and `buildAllWeeks` for each of the nine weeks, so every Required slot in the fixture traces to the evidence row the engine read.
+- The sandbox week is Monday 2026-10-19, today is Tuesday 2026-10-20, the week was published Friday 2026-10-16 at 17:00; eight prior weeks run back to 2026-08-24.
+- The day is a 45-minute grid of seven blocks (9:15 to 12:15 and 12:45 to 15:00) around community (8:30 to 9:15), lunch (12:15 to 12:45), and reflection (15:00 to 15:30); offerings span one to four blocks, and a longer offering absorbs the open slots it covers when chosen.
+- Open slots are stored as slots with `offering_id: null` and `entry: chosen`; the UI renders them dashed. The seed has students fill most open slots (guided 75%, shared 70%, owned 65% this week; 90% in past weeks) by picking from the engine's ranked options, leaving the rest open for the demo.
+- RW placements are made by the coordinator (the seed's `placeRw`) and passed into `buildWeek` as `rwPlacements`; a rebuild keeps the previous plan's RW slots. Launch students get the paid work placement four days a week, a college course, and a Friday mentor meeting.
+- Math placements cluster around two anchor lessons per course so shared lesson needs clear the grouping threshold and the demo has workshops; students still spread across every unit and every course at every level.
+- Readiness is a cognitive-skill signal only (three fresh final-product scores at or above the next level's expectation). Math standards are validated by unit assessments, so a content readiness rule produced dozens of false flags and was removed.
+- Overnight adjustments act only on needs created by evidence recorded after the `since` moment; a need the published week already answered is left alone.
+- Caseload flags live in `src/engine/flags.ts` as pure functions (nudge, ready, grew, family, level review) so the mentor and lead screens share one rule set.
+- `public/sandbox/sandbox.json` (about 19 MB, one file, served compressed) is committed so the Vercel build and CI need no seed step; per-source files (`kira.json`, `futre.json`, ...) hold each adapter's slice.
+- Past weeks keep only the slots that happened (open slots never filled are dropped) to hold the fixture size down.
+- Level targets in `src/model/settings.ts` are placeholders tuned to the seed's achieved mix; the Year 1 experience-mix table from How Summit 3.0 Works was not in the specs (see QUESTIONS.md).
+- Screens are React function components under `src/screens/<role>`, each role with its own `*App.tsx` that owns the nav, the locale (`LocaleContext`), and the theme attributes on `<html>` (`data-theme`, `data-text-size`, `data-reduced-motion`).
+- Student writes go through `src/store/actions.ts` (updateSlot, updatePlan, chooseOffering, swapSlot, addEvidence, addTouchpoint, updateStudent); screens never touch the store directly.
+- Today pins the slot that covers 10:30 on the sandbox day as "where to be now", since the demo day has no live clock.
+- Open slots carry `experience_type: IW` as a placeholder; the slot card hides the type chip while the slot is open.
+- Playwright runs the preinstalled Chromium at `/opt/pw-browsers/chromium` via `launchOptions.executablePath`; screenshots land in `e2e/screens/` (ignored by git).
+- Learning Commons standard text carries LaTeX; `plainMath()` in `src/graph/catalog.ts` strips it for names and descriptions.
+- Proposal decisions (accepted, changed, declined with reason) live in the UI store for the session; accepting publishes an Offering through `acceptProposal` and places each student with a why that cites their latest Kira row.
+- "I'm out today" cancels the adult's non-practice offerings for the day and runs the overnight adjuster for that day, so only the displaced students move and each moved slot carries the "New since yesterday" tag.
+- The weekly build (`runWeeklyBuild`) rebuilds every plan for the week keeping the existing RW placements, goals, and focus habits; it writes drafts (published_at null) unless "Publish the week" is pressed, so a rerun never touches a published week.
+- Dashboard alerts are a pure function in `src/engine/alerts.ts` (Spec 5 table), each with the route that resolves it; a source that posted offerings this week counts as fresh even with no evidence rows.
+- Charts use Recharts with brand hex fills (teal for this week, tan grey for targets, indigo on the model dashboard) and an `aria-label` that reads every bar, so color never carries the meaning alone.
+- The Live Board's door roster prints via `window.print()` with the filters hidden by a `no-print` class; the display board at `/board` forces the dark theme and large type.
+- Study group proposals and 1:1 requests live in the UI store until the lead approves one, which writes a Group of kind study_group.
+- Adapters: `src/adapters/stub.ts` builds a `SourceAdapter` for kira, teach_to_one, calendar, partner, and gradebook that reads `/sandbox/{name}.json`; the Futre adapter reads the store's Futre records and writes back only experience reflections (plus an Evidence row of source futre).
+- SandboxControls is a panel in every role's header: pick a student and the sandbox "today", lower or master the active math lesson's Kira score, add a Futre reflection, cancel tomorrow's fullest partner slot, run adjustOvernight, or rebuild one student's week as a draft (keeping what already happened).
+- The "today" override lives in the UI store and every screen reads it through `useToday()`; the fixture's own today stays 2026-10-20.
+- Base styles in `src/index.css` sit in `@layer base` so Tailwind utilities win; the light-mode heading token is `#3f6a61` so 16px bold headings clear 4.5:1 on white.
+- `src/copy/es.ts` is a deep merge of a Spanish draft over `en.ts`, so the key set is identical by construction; `src/copy/copy.test.ts` checks the keys, the needs_review flag, the share of leaves translated, and bans em-dashes, "not X but Y", and deficit words across every string.
+- Lighthouse (devDependency) runs against `vite preview` with `CHROME_PATH=/opt/pw-browsers/chromium`; it is a manual check, not part of `npm test`.
+- Playwright has five specs: one happy path per role plus the sandbox loop (lower a score, run overnight, see the tagged slot, add a Futre reflection, cancel a partner slot).
+- The model map lives in copy (`overview.features`, `explain.items` in `en.ts`), so the Overview screen and the `Explain` popovers read one source; an explainer names its feature id and links to the matching anchor on `/overview`.
+- `Explain` is a real button: hover or focus shows the note, click pins it, Escape or an outside click closes it, `aria-expanded` and `aria-controls` tie it to the note.
+- The model map (`overview.features` and `explain.items`) was rewritten after reading the five documents that shaped the design (How Summit 3.0 Works v3, A Day in Summit 3.0 v2, the Summit 3.0 tech stack note, the Sierra Blueprint v2, the Sierra SDL guide) plus the website source and the Sierra funder deck, and uses their vocabulary: the throughline, the four outcome areas, the eight types with Year 1, Pursue, and Launch targets, the engine behaviors, the five stack layers, the coherence loop, the three modes, the three mentor touchpoints, and the four-stage agency progression that became plan autonomy. No sources section on the page, per Dan.
+- Level targets now carry the illustrative targets from How Summit 3.0 Works (Year 1 for Expose and Explore, then Pursue, then Launch). The seed dropped the invented movement block and widened studio capacity so the week's split moves toward them; the two remaining misses (WC and DI) are recorded in QUESTIONS.md and visible on Time and Talent.
