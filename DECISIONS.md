@@ -55,3 +55,6 @@ One line per technical decision, newest at the bottom. Product questions live in
 - Charts use Recharts with brand hex fills (teal for this week, tan grey for targets, indigo on the model dashboard) and an `aria-label` that reads every bar, so color never carries the meaning alone.
 - The Live Board's door roster prints via `window.print()` with the filters hidden by a `no-print` class; the display board at `/board` forces the dark theme and large type.
 - Study group proposals and 1:1 requests live in the UI store until the lead approves one, which writes a Group of kind study_group.
+- Adapters: `src/adapters/stub.ts` builds a `SourceAdapter` for kira, teach_to_one, calendar, partner, and gradebook that reads `/sandbox/{name}.json`; the Futre adapter reads the store's Futre records and writes back only experience reflections (plus an Evidence row of source futre).
+- SandboxControls is a panel in every role's header: pick a student and the sandbox "today", lower or master the active math lesson's Kira score, add a Futre reflection, cancel tomorrow's fullest partner slot, run adjustOvernight, or rebuild one student's week as a draft (keeping what already happened).
+- The "today" override lives in the UI store and every screen reads it through `useToday()`; the fixture's own today stays 2026-10-20.
