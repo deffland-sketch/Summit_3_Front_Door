@@ -1,7 +1,7 @@
 import type { Evidence, Lesson, Outcome, Sandbox, Student, TraceEdge, TracePart } from '@/model'
 import { en } from '@/copy/en'
 import { byId, latestByOutcome } from '@/lib'
-import { daysBetween } from '@/lib/time'
+import { shortDate, daysBetween } from '@/lib/time'
 import { getGraph, whatServes, describeWalk } from '@/graph'
 import { subjectOfCourse } from '@/graph/catalog'
 import type { Need, NeedsYouItem } from './types'
@@ -40,6 +40,7 @@ export function needs(studentId: string, snap: Sandbox, ctx: NeedsContext = {}):
   const fresh = (e: Evidence) => daysBetween(e.recorded_at, asOf) <= settings.stale_days
 
   const mastered = new Set(snap.assignments.filter((a) => a.student_id === studentId && (a.status === 'mastered' || a.status === 'skipped_on_mastery')).map((a) => a.lesson_id))
+  const refOf = (e: Evidence) => en.why.evidenceRef(e.source, shortDate(e.recorded_at))
   const settingsUsed = { mastery_below_pct: settings.required_rule.mastery_below_pct, within_points: settings.recommended_rule.within_points, stale_days: settings.stale_days, mastered_at: MASTERED_AT }
 
   /** The lesson or experience that serves an outcome: the graph walk, preferring lessons whose prerequisites the student has mastered. */
@@ -96,15 +97,15 @@ export function needs(studentId: string, snap: Sandbox, ctx: NeedsContext = {}):
       seen.add(key)
       const v = Math.round(e.value)
       if (v < settings.required_rule.mastery_below_pct) {
-        out.push(need(student, outcome, lesson, 'required', en.why.requiredContent(outcome.name, v), e.id, settings.required_rule.mastery_below_pct - v, v, null, null, traceOf(rows, e, {}, `${v} is below the required line of ${settings.required_rule.mastery_below_pct}`)))
+        out.push(need(student, outcome, lesson, 'required', en.why.requiredContent(outcome.name, v, refOf(e)), e.id, settings.required_rule.mastery_below_pct - v, v, null, null, traceOf(rows, e, {}, `${v} is below the required line of ${settings.required_rule.mastery_below_pct}`)))
       } else if (v < settings.required_rule.mastery_below_pct + settings.recommended_rule.within_points) {
-        out.push(need(student, outcome, lesson, 'recommended', en.why.recommendedClose(outcome.name), e.id, 1, v, null, null, traceOf(rows, e, {}, `${v} is within ${settings.recommended_rule.within_points} points of the required line`)))
+        out.push(need(student, outcome, lesson, 'recommended', en.why.recommendedClose(outcome.name, v, refOf(e)), e.id, 1, v, null, null, traceOf(rows, e, {}, `${v} is within ${settings.recommended_rule.within_points} points of the required line`)))
       } else if (a.status === 'practiced' && rows.length >= 2 && v < MASTERED_AT) {
-        out.push(need(student, outcome, lesson, 'recommended', en.why.recommendedPracticed(outcome.name), e.id, 2, v, null, null, traceOf(rows, e, {}, `practiced ${rows.length} times without reaching ${MASTERED_AT}`)))
+        out.push(need(student, outcome, lesson, 'recommended', en.why.recommendedPracticed(outcome.name, rows.length, refOf(e)), e.id, 2, v, null, null, traceOf(rows, e, {}, `practiced ${rows.length} times without reaching ${MASTERED_AT}`)))
       } else if (v < MASTERED_AT) {
         const s = servingFor(oid)
         const offeringTitle = s.offering_id ? snap.offerings.find((o) => o.id === s.offering_id)?.title ?? lesson.title : lesson.title
-        out.push(need(student, outcome, lesson, 'in_reach', en.why.inReach(outcome.name, 'mastered', offeringTitle), e.id, MASTERED_AT - v, v, s.text, s.offering_id, traceOf(rows, e, { edges: s.edges, candidates: s.candidates }, `${v} is one step from mastered at ${MASTERED_AT}`)))
+        out.push(need(student, outcome, lesson, 'in_reach', en.why.inReach(outcome.name, 'mastered', offeringTitle, refOf(e), s.text), e.id, MASTERED_AT - v, v, s.text, s.offering_id, traceOf(rows, e, { edges: s.edges, candidates: s.candidates }, `${v} is one step from mastered at ${MASTERED_AT}`)))
       }
     }
   }
@@ -121,11 +122,11 @@ export function needs(studentId: string, snap: Sandbox, ctx: NeedsContext = {}):
     const cogSettings = { level_expectation: exp, next_level_expectation: nextExp }
     if (v < exp) {
       const s = servingFor(oid)
-      out.push(need(student, outcome, null, 'required', en.why.requiredCognitive(outcome.name, v, exp), e.id, exp - v, v, s.text, s.offering_id, traceOf(cogRows, e, { edges: s.edges, candidates: s.candidates, settings: cogSettings }, `${v} is below the ${en.app.levels[student.level]} expectation of ${exp} for this skill`)))
+      out.push(need(student, outcome, null, 'required', en.why.requiredCognitive(outcome.name, v, exp, refOf(e)), e.id, exp - v, v, s.text, s.offering_id, traceOf(cogRows, e, { edges: s.edges, candidates: s.candidates, settings: cogSettings }, `${v} is below the ${en.app.levels[student.level]} expectation of ${exp} for this skill`)))
     } else if (v >= exp && v < nextExp) {
       const s = servingFor(oid)
       const title = s.offering_id ? snap.offerings.find((o) => o.id === s.offering_id)?.title ?? 'this week’s session' : 'a session this week'
-      out.push(need(student, outcome, null, 'in_reach', en.why.inReach(outcome.name, en.app.levels[NEXT[student.level]], title), e.id, nextExp - v, v, s.text, s.offering_id, traceOf(cogRows, e, { edges: s.edges, candidates: s.candidates, settings: cogSettings }, `${v} meets the ${en.app.levels[student.level]} expectation of ${exp} and ${nextExp} is one step away`)))
+      out.push(need(student, outcome, null, 'in_reach', en.why.inReach(outcome.name, en.app.levels[NEXT[student.level]], title, refOf(e), s.text), e.id, nextExp - v, v, s.text, s.offering_id, traceOf(cogRows, e, { edges: s.edges, candidates: s.candidates, settings: cogSettings }, `${v} meets the ${en.app.levels[student.level]} expectation of ${exp} and ${nextExp} is one step away`)))
     }
   }
 
@@ -147,11 +148,16 @@ export function needs(studentId: string, snap: Sandbox, ctx: NeedsContext = {}):
       const nextExp = student.level === 'launch' ? (outcome.level_expectations?.launch ?? 6) + 1 : (outcome.level_expectations?.[NEXT[student.level] as 'explore'] ?? 5)
       const strong = rows.filter((r) => isScore(r) && r.value >= nextExp && MIN_FINAL_PRODUCT_SOURCES.has(r.source))
       if (strong.length >= 3 && !out.some((n) => n.outcome_id === oid && n.kind === 'required')) {
-        out.push(need(student, outcome, null, 'readiness', en.why.readiness(outcome.name), strong[strong.length - 1].id, 0, (strong[strong.length - 1] as Evidence & { value: number }).value, null, null, traceOf(strong, strong[strong.length - 1], {}, `${strong.length} rows at or above the next level (${nextExp}) and no assessment booked`)))
+        out.push(need(student, outcome, null, 'readiness', en.why.readiness(outcome.name, strong.length, refOf(strong[strong.length - 1])), strong[strong.length - 1].id, 0, (strong[strong.length - 1] as Evidence & { value: number }).value, null, null, traceOf(strong, strong[strong.length - 1], {}, `${strong.length} rows at or above the next level (${nextExp}) and no assessment booked`)))
       }
     }
   }
 
+  const byIdEv = new Map(mine.map((e) => [e.id, e]))
+  for (const n of out) {
+    const e = n.evidence_id ? byIdEv.get(n.evidence_id) : undefined
+    n.evidence_ref = e ? refOf(e) : null
+  }
   const rank: Record<string, number> = { required: 0, recommended: 1, in_reach: 2, readiness: 3 }
   return out.sort((a, b) => rank[a.kind] - rank[b.kind] || (a.kind === 'required' ? b.distance - a.distance : a.distance - b.distance))
 }
@@ -178,6 +184,7 @@ function need(
     family: outcome.family === 'durable' ? 'durable' : outcome.family === 'content' ? 'content' : 'cognitive',
     why,
     evidence_id: evidenceId,
+    evidence_ref: null,
     distance,
     value,
     serves,

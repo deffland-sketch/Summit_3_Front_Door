@@ -168,7 +168,7 @@ export function buildWeek(studentId: string, snap: Sandbox, ctx: BuildContext = 
     const ordered = entry === 'recommended' ? [...practiceBlocks.filter((o) => o.day >= dates[2]), ...practiceBlocks.filter((o) => o.day < dates[2])] : practiceBlocks
     const pb = ordered.filter((o) => hasRoom(ledger, o)).find((o) => free(slots, o.day, o.start, o.end) && !collides(o.day, o.start, o.end))
     if (pb) {
-      const why = n.kind === 'required' && n.family === 'content' && n.value !== null ? en.why.requiredContentPractice(n.outcome_name, n.value) : n.why
+      const why = n.kind === 'required' && n.family === 'content' && n.value !== null && n.evidence_ref ? en.why.requiredContentPractice(n.outcome_name, n.value, n.evidence_ref) : n.why
       return Boolean(place({ day: pb.day, start: pb.start, end: pb.end, experience_type: 'PF', offering_id: pb.id, entry, why, evidence_id: n.evidence_id }, pb, needTrace(pb, `${entry}: practice block in the hub, the ${entry === 'recommended' ? 'first from midweek' : 'earliest'} with room`)))
     }
     return false
@@ -183,7 +183,7 @@ export function buildWeek(studentId: string, snap: Sandbox, ctx: BuildContext = 
   // 6. Readiness: an assessment booked for this student.
   for (const n of needs.filter((x) => x.kind === 'readiness')) {
     const a = offerings.find((o) => o.kind === 'assessment' && o.source_ref === `assess:${studentId}` && o.outcomes_served.includes(n.outcome_id) && hasRoom(ledger, o))
-    if (a && free(slots, a.day, a.start, a.end)) place({ day: a.day, start: a.start, end: a.end, experience_type: a.experience_type, offering_id: a.id, entry: 'assigned', why: en.why.assessment(n.outcome_name), evidence_id: n.evidence_id, bring: 'The evidence you want in the room' }, a, { evidence_ids: n.trace.evidence_ids, settings: n.trace.settings, candidates: n.trace.candidates, decision: 'readiness: the mentor booked this assessment (step 6)' })
+    if (a && free(slots, a.day, a.start, a.end)) place({ day: a.day, start: a.start, end: a.end, experience_type: a.experience_type, offering_id: a.id, entry: 'assigned', why: en.why.assessment(n.outcome_name, n.evidence_ref ?? 'your latest strong scores'), evidence_id: n.evidence_id, bring: 'The evidence you want in the room' }, a, { evidence_ids: n.trace.evidence_ids, settings: n.trace.settings, candidates: n.trace.candidates, decision: 'readiness: the mentor booked this assessment (step 6)' })
   }
 
   // 7. Reflection at the end of every day.

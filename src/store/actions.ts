@@ -3,6 +3,8 @@ import type { EngineTrace, Evidence, Offering, Plan, Slot, Student, Touchpoint, 
 import { appStore, repos } from './index'
 import { adjustOvernight, buildAllWeeks, chooseForSlot, makeTrace, newLedger, offeringFromProposal, optionsForSlot, type TraceSink, type WorkshopProposal } from '@/engine'
 import { useUi } from './ui'
+import { en } from '@/copy/en'
+import { shortDate } from '@/lib/time'
 
 let counter = 0
 export const nextId = (prefix: string) => `${prefix}_${Date.now().toString(36)}_${(++counter).toString(36)}`
@@ -122,8 +124,8 @@ export function acceptProposal(p: WorkshopProposal, overrides: Partial<Offering>
     ledger.fill.set(offering.id, (ledger.fill.get(offering.id) ?? 0) + 1)
     const evidenceId = snap.evidence.filter((e) => e.student_id === sid && e.source_ref === p.lesson_id).sort((a, b) => (a.recorded_at < b.recorded_at ? 1 : -1))[0]?.id ?? null
     const outcome = snap.outcomes.find((o) => o.id === offering.outcomes_served[0])
-    const value = snap.evidence.find((e) => e.id === evidenceId)?.value
-    const why = typeof value === 'number' ? `Your ${outcome?.name ?? p.lesson_title} score is ${Math.round(value)}; this workshop is where it moves.` : `${p.lesson_title} is where this moves.`
+    const row = snap.evidence.find((e) => e.id === evidenceId)
+    const why = row && typeof row.value === 'number' ? en.why.requiredContent(outcome?.name ?? p.lesson_title, Math.round(row.value), en.why.evidenceRef(row.source, shortDate(row.recorded_at))) : en.why.acceptedWorkshop(p.lesson_title, p.rationale)
     const slot: Slot = { id: `${plan.id}_ws_${Date.now().toString(36)}_${sid}`, plan_id: plan.id, day: offering.day, start: offering.start, end: offering.end, experience_type: offering.experience_type, offering_id: offering.id, entry: 'required', why, goal: null, status: plan.confirmed_by ? 'confirmed' : 'planned', rating: null, bring: null, evidence_id: evidenceId, added_at: nowIso() }
     repos.collection('plans').upsert({ ...plan, version: plan.version + 1, slots: [...plan.slots.map((s) => (overlapping.includes(s) ? { ...s, status: 'moved' as const } : s)), slot].sort((a, b) => (a.day === b.day ? a.start.localeCompare(b.start) : a.day.localeCompare(b.day))) })
     const slotTrace: TracePart = { evidence_ids: evidenceId ? [evidenceId] : [], settings: { grouping_threshold: snap.settings.grouping_threshold, workshop_max: snap.settings.workshop_size.max }, edges: p.trace.edges.filter((e) => e.from === p.lesson_id || e.to === p.lesson_id), candidates: overlapping.map((s) => ({ id: s.id, label: `${s.experience_type} ${s.day} ${s.start}`, score: null, lost_because: 'moved aside for the accepted workshop' })), decision: `Placed in ${offering.title} on ${offering.day} ${offering.start} because the expert accepted the proposal for ${p.lesson_title}.` }

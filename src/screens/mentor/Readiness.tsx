@@ -37,7 +37,7 @@ export function Readiness({ mentorId }: { mentorId: string }) {
       toast(c.build.noOptions)
       return
     }
-    const slot: Slot = { id: `${plan.id}_assess_${outcomeId}`, plan_id: plan.id, day, start: block.start, end: block.end, experience_type: 'PP', offering_id: offering.id, entry: 'assigned', why: c.why.assessment(idx.outcomes.get(outcomeId)?.name ?? outcomeId), goal: null, status: plan.confirmed_by ? 'confirmed' : 'planned', rating: null, bring: 'The evidence you want in the room', evidence_id: null, added_at: new Date().toISOString() }
+    const slot: Slot = { id: `${plan.id}_assess_${outcomeId}`, plan_id: plan.id, day, start: block.start, end: block.end, experience_type: 'PP', offering_id: offering.id, entry: 'assigned', why: c.why.assessment(idx.outcomes.get(outcomeId)?.name ?? outcomeId, ready.find((r) => r.student.id === studentId && r.need.outcome_id === outcomeId)?.need.evidence_ref ?? 'your latest strong scores'), goal: null, status: plan.confirmed_by ? 'confirmed' : 'planned', rating: null, bring: 'The evidence you want in the room', evidence_id: null, added_at: new Date().toISOString() }
     updatePlan(plan.id, { version: plan.version + 1, slots: [...plan.slots.map((s) => (overlapping.includes(s) ? { ...s, status: 'moved' as const } : s)), slot].sort((a, b) => (a.day === b.day ? a.start.localeCompare(b.start) : a.day.localeCompare(b.day))) })
     toast(c.mentor.booked)
   }

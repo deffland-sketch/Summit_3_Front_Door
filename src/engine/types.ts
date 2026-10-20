@@ -11,6 +11,8 @@ export interface Need {
   family: 'cognitive' | 'content' | 'durable'
   why: string
   evidence_id: string | null
+  /** "the Kira check from Thu Oct 15": the row behind the need, in the words why lines use. */
+  evidence_ref: string | null
   /** For required: how far below; for in_reach: distance to the next level. */
   distance: number
   value: number | null
