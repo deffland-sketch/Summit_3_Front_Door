@@ -51,3 +51,7 @@ One line per technical decision, newest at the bottom. Product questions live in
 - Proposal decisions (accepted, changed, declined with reason) live in the UI store for the session; accepting publishes an Offering through `acceptProposal` and places each student with a why that cites their latest Kira row.
 - "I'm out today" cancels the adult's non-practice offerings for the day and runs the overnight adjuster for that day, so only the displaced students move and each moved slot carries the "New since yesterday" tag.
 - The weekly build (`runWeeklyBuild`) rebuilds every plan for the week keeping the existing RW placements, goals, and focus habits; it writes drafts (published_at null) unless "Publish the week" is pressed, so a rerun never touches a published week.
+- Dashboard alerts are a pure function in `src/engine/alerts.ts` (Spec 5 table), each with the route that resolves it; a source that posted offerings this week counts as fresh even with no evidence rows.
+- Charts use Recharts with brand hex fills (teal for this week, tan grey for targets, indigo on the model dashboard) and an `aria-label` that reads every bar, so color never carries the meaning alone.
+- The Live Board's door roster prints via `window.print()` with the filters hidden by a `no-print` class; the display board at `/board` forces the dark theme and large type.
+- Study group proposals and 1:1 requests live in the UI store until the lead approves one, which writes a Group of kind study_group.
