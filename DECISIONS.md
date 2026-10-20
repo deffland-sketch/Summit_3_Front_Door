@@ -11,3 +11,13 @@ One line per technical decision, newest at the bottom. Product questions live in
 - Path alias `@/` maps to `src/`.
 - CI is one GitHub Actions job: `npm ci`, `npm run build`, `npm test`.
 - Vercel deploy is static with an SPA rewrite in `vercel.json`.
+- Zod 4 schemas, one file per object in `src/model`, with shared enums in `enums.ts`; the whole sandbox is one `SandboxSchema` snapshot and the engine is pure functions over it.
+- Days are ISO dates (`YYYY-MM-DD`) on Slot and Offering; weekday names (`mon` to `fri`) on the standing lists (protected slots, life constraints, adult availability) because those repeat weekly.
+- Times are `HH:mm` strings; helpers convert to minutes for overlap math.
+- IDs are prefixed deterministic strings (`stu_001`, `les_im1_u2_l03`) rather than uuids, per Spec 9, so fixtures diff cleanly.
+- Slots are embedded in their Plan (the Plan is the aggregate root) and keep `plan_id`; a flattening selector serves day-wide queries.
+- Added fields, each noted in Spec 1: Slot.evidence_id and Slot.added_at, Touchpoint.private, Group.name, Settings.level_targets, Settings.changed_at and changed_by. Added two read-only shapes to Spec 1: FutreRecord (the adapter return, Spec 7) and GatheringLogEntry (the Evidence Log line).
+- Courses, units, and lessons are three collections; Course.units holds unit ids.
+- Draft plans have `published_at: null`; the Friday build sets `published_at`, the mentor's Monday confirmation sets `confirmed_by`.
+- Workshop proposals are engine output held in UI state with an accept, change, or decline decision; they are not a stored object.
+- The store is a vanilla Zustand store wrapped by a `SandboxRepositories` interface (`collection(name).upsert` and friends) so a real API drops in behind the same calls.

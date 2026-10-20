@@ -163,6 +163,8 @@ One time slot in a student's plan. The unit of the day.
 | status | enum planned, confirmed, attended, missed, moved, cancelled | |
 | rating | enum got_it, need_more, ready_for_more, nullable | End-of-day rating |
 | bring | string, nullable | What to bring |
+| evidence_id | ref Evidence, nullable | The evidence row that placed this slot, so a Required or Recommended slot traces to its signal (added in build v1) |
+| added_at | datetime, nullable | Set when a slot is added after publish; drives the "New since yesterday" tag (added in build v1) |
 
 ### 8. Touchpoint
 
@@ -177,6 +179,7 @@ A mentor conversation. Not bound to the slot grid. Several a day are normal.
 | duration_min | int | Often 3 to 10 |
 | prompt | string | What the platform teed up, if anything |
 | notes | string | Mentor's words; student can see unless marked private |
+| private | bool | When true the student does not see the notes (added in build v1) |
 | student_note | string, nullable | The student's own line |
 | linked_outcomes | list of ref Outcome | |
 | linked_slot_id | ref Slot, nullable | |
@@ -212,7 +215,7 @@ The grouping rule: when four or more students have the same lesson in needs_work
 | Object | Fields |
 |---|---|
 | Place | id, name, kind (classroom, hub, seminar_room, nook, gym, off_campus, partner_site), capacity, adults_required |
-| Group | id, kind (community, expedition_team, study_group, mentor_group), student_ids, adult_ids, approved_by |
+| Group | id, kind (community, expedition_team, study_group, mentor_group), name, student_ids, adult_ids, approved_by |
 
 ### 12. School Settings
 
@@ -233,6 +236,15 @@ One record per school. Everything the engine treats as a rule lives here so a de
 | stale_days | 14 | Evidence older than this produces a Needs You item, never a need |
 | mentor_min_touchpoints_per_week | 2 | Flag below this |
 | protected_time_visible_as | "Protected time" | Never the program name |
+| level_targets | per level, per experience type share | The experience-mix targets from How Summit 3.0 Works that buildWeek() leans toward (Spec 6) |
+| changed_at, changed_by | datetime, string | Last change and who made it, shown on the Settings screen (Spec 5) |
+
+### 13. Futre Record and Gathering Log (read-only context, added in build v1)
+
+| Object | Fields | Notes |
+|---|---|---|
+| FutreRecord | futre_student_id, student_id, consent, vision {vision_text, vision_board_url, updated_at}, cns {cns_type, cns_text, target_careers[], pathway_id, updated_at}, careers_explored[], experiences[], portfolio {portfolio_url, item_count, latest_item}, caregiver_view_enabled | The shape the Futre adapter returns (Spec 7). Read, never written, except pushCompletion. pathway_id links the CNS to a knowledge-graph Pathway (Spec 10) |
+| GatheringLogEntry | id, source, pulled_at, received, unmapped, refused, stale, message | One line per source per pull, shown in the Evidence Log (Spec 5) and the weekly build (Spec 4) |
 
 ## Relationships in One Picture
 
