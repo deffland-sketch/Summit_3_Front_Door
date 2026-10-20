@@ -221,6 +221,17 @@ export function runWeeklyBuild(publish = false) {
 
 export function patchSettings(patch: Record<string, unknown>, by: string) {
   const before = appStore.getState().settings
-  for (const [k, v] of Object.entries(patch)) useUi.getState().logSetting({ at: nowIso(), by, key: k, from: JSON.stringify((before as Record<string, unknown>)[k]), to: JSON.stringify(v) })
+  for (const [k, v] of Object.entries(patch)) {
+    if (k === 'level_targets') {
+      // Log each changed cell, not the whole table.
+      const next = v as Record<string, Record<string, number>>
+      for (const [level, row] of Object.entries(next)) for (const [type, value] of Object.entries(row)) {
+        const prev = before.level_targets[level as keyof typeof before.level_targets]?.[type as 'DI']
+        if (prev !== value) useUi.getState().logSetting({ at: nowIso(), by, key: `level_targets.${level}.${type}`, from: JSON.stringify(prev), to: JSON.stringify(value) })
+      }
+      continue
+    }
+    useUi.getState().logSetting({ at: nowIso(), by, key: k, from: JSON.stringify((before as Record<string, unknown>)[k]), to: JSON.stringify(v) })
+  }
   appStore.getState().patchSettings(patch as Partial<typeof before>, by)
 }

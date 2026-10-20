@@ -1,7 +1,7 @@
 import type { Offering, Plan, Sandbox, Slot, Student, TraceEdge, TracePart } from '@/model'
 import { en } from '@/copy/en'
 import { byId } from '@/lib'
-import { overlaps, weekDates, weekdayOf } from '@/lib/time'
+import { minutesBetween, overlaps, weekDates, weekdayOf } from '@/lib/time'
 import { PATHWAYS } from '@/graph/authored/pathways'
 import { needs as computeNeeds } from './needs'
 import { collisionsFor } from './collisions'
@@ -138,6 +138,8 @@ export function buildWeek(studentId: string, snap: Sandbox, ctx: BuildContext = 
 
   // 4. Required, then 5. Recommended.
   const practiceBlocks = offerings.filter((o) => o.kind === 'practice' && o.experience_type === 'PF')
+  const WEEK_MINUTES = dates.length * BLOCKS.reduce((m, b) => m + minutesBetween(b.start, b.end), 0)
+  const BLOCK_MINUTES = minutesBetween(BLOCKS[0].start, BLOCKS[0].end)
   const placedLessonsByDay = new Set<string>()
   const placeNeed = (n: Need, entry: 'required' | 'recommended'): boolean => {
     const lesson = n.lesson_id ? lessons.get(n.lesson_id) : null
@@ -162,18 +164,44 @@ export function buildWeek(studentId: string, snap: Sandbox, ctx: BuildContext = 
       if (conf) return Boolean(place({ day: conf.day, start: conf.start, end: conf.end, experience_type: 'PF', offering_id: conf.id, entry, why: n.why, evidence_id: n.evidence_id }, conf, needTrace(conf, `${entry}: a 1:1 conference for ${lesson.title} had room`)))
     }
     // A published offering that serves the outcome (seminar, studio, practice).
-    const serving = offerings
-      .filter((o) => o.kind !== 'community' && o.kind !== 'event' && o.kind !== 'assessment' && o.kind !== 'partner_slot' && o.entry !== 'invited' && (o.outcomes_served.includes(n.outcome_id) || (o.lesson_id && lesson && o.lesson_id === lesson.id)) && hasRoom(ledger, o))
-      .find((o) => free(slots, o.day, o.start, o.end) && !collides(o.day, o.start, o.end))
-    if (serving) return Boolean(place({ day: serving.day, start: serving.start, end: serving.end, experience_type: serving.experience_type, offering_id: serving.id, entry, why: n.why, evidence_id: n.evidence_id }, serving, needTrace(serving, `${entry}: ${serving.title} serves ${n.outcome_name}`)))
-    if (!lesson) tried.push({ id: 'serving', label: `a session serving ${n.outcome_name}`, score: null, lost_because: 'none with room this week' })
+    const servingAll = offerings.filter((o) => o.kind !== 'community' && o.kind !== 'event' && o.kind !== 'assessment' && o.kind !== 'partner_slot' && o.entry !== 'invited' && (o.outcomes_served.includes(n.outcome_id) || (o.lesson_id && lesson && o.lesson_id === lesson.id)) && hasRoom(ledger, o))
+    const firstServing = (list: Offering[]) => list.find((o) => free(slots, o.day, o.start, o.end) && !collides(o.day, o.start, o.end))
+    const placeServing = (serving: Offering, note: string) => Boolean(place({ day: serving.day, start: serving.start, end: serving.end, experience_type: serving.experience_type, offering_id: serving.id, entry, why: n.why, evidence_id: n.evidence_id }, serving, needTrace(serving, `${entry}: ${serving.title} serves ${n.outcome_name}${note}`)))
     // Practice block in the hub: the earliest free one for Required; for Recommended, from midweek on so it follows the Required work.
     const ordered = entry === 'recommended' ? [...practiceBlocks.filter((o) => o.day >= dates[2]), ...practiceBlocks.filter((o) => o.day < dates[2])] : practiceBlocks
-    const pb = ordered.filter((o) => hasRoom(ledger, o)).find((o) => free(slots, o.day, o.start, o.end) && !collides(o.day, o.start, o.end))
-    if (pb) {
+    const practice = () => ordered.filter((o) => hasRoom(ledger, o)).find((o) => free(slots, o.day, o.start, o.end) && !collides(o.day, o.start, o.end))
+    const placePractice = (pb: Offering, note: string) => {
       const why = n.kind === 'required' && n.family === 'content' && n.value !== null && n.evidence_ref ? en.why.requiredContentPractice(n.outcome_name, n.value, n.evidence_ref) : n.why
-      return Boolean(place({ day: pb.day, start: pb.start, end: pb.end, experience_type: 'PF', offering_id: pb.id, entry, why, evidence_id: n.evidence_id }, pb, needTrace(pb, `${entry}: practice block in the hub, the ${entry === 'recommended' ? 'first from midweek' : 'earliest'} with room`)))
+      return Boolean(place({ day: pb.day, start: pb.start, end: pb.end, experience_type: 'PF', offering_id: pb.id, entry, why, evidence_id: n.evidence_id }, pb, needTrace(pb, `${entry}: practice block in the hub, the ${entry === 'recommended' ? 'first from midweek' : 'earliest'} with room${note}`)))
     }
+    if (entry === 'recommended') {
+      // The level target for PF decides the fallback (Spec 6 Rules for buildWeek): over target, a serving seminar or studio comes first; under it, the practice block does.
+      const pfMinutes = slots.filter((s) => s.experience_type === 'PF').reduce((m, s) => m + minutesBetween(s.start, s.end), 0)
+      const pfShare = pfMinutes / WEEK_MINUTES
+      const pfTarget = targets.PF ?? 0
+      const note = `; practice is at ${Math.round(pfShare * 100)}% of the week against a ${Math.round(pfTarget * 100)}% target`
+      // Over target means one more practice block would push the share past it.
+      if ((pfMinutes + BLOCK_MINUTES) / WEEK_MINUTES > pfTarget) {
+        const other = firstServing(servingAll.filter((o) => o.experience_type !== 'PF'))
+        if (other) return placeServing(other, `${note}, so a session of another kind came first`)
+        tried.push({ id: 'serving_other', label: `a seminar or studio serving ${n.outcome_name}`, score: null, lost_because: 'none with room this week, though practice is over target' })
+        const pb = practice()
+        if (pb) return placePractice(pb, `${note}, but nothing of another kind served it`)
+        const any = firstServing(servingAll)
+        if (any) return placeServing(any, note)
+        return false
+      }
+      const pb = practice()
+      if (pb) return placePractice(pb, `${note}, so practice came first`)
+      const any = firstServing(servingAll)
+      if (any) return placeServing(any, `${note}; no practice block had room`)
+      return false
+    }
+    const serving = firstServing(servingAll)
+    if (serving) return placeServing(serving, '')
+    if (!lesson) tried.push({ id: 'serving', label: `a session serving ${n.outcome_name}`, score: null, lost_because: 'none with room this week' })
+    const pb = practice()
+    if (pb) return placePractice(pb, '')
     return false
   }
   for (const n of needs.filter((x) => x.kind === 'required')) placeNeed(n, 'required')
