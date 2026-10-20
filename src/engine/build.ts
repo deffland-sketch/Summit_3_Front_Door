@@ -334,3 +334,33 @@ export function validatePlans(plans: Plan[], snap: Sandbox): PlanViolation[] {
   }
   return v
 }
+
+/** Rebuild every draft plan for the current week, keeping each student's real-world placements, goals, and focus habits, on the existing plan ids (Spec 4 step 4). Pure: returns the plans and their traces. */
+export function rebuildCurrentWeek(snap: Sandbox, ctx: { runId?: string; now?: string } = {}): { plans: Plan[]; traces: TraceSink; placed: number } {
+  const weekStart = snap.meta.week_start
+  const rw = new Map<string, string[]>()
+  const goals = new Map<string, Plan['goals']>()
+  const habits = new Map<string, string[]>()
+  const existing = new Map<string, Plan>()
+  for (const p of snap.plans.filter((x) => x.week_start === weekStart)) {
+    rw.set(p.student_id, p.slots.filter((s) => s.experience_type === 'RW' && s.offering_id && s.status !== 'cancelled').map((s) => s.offering_id!))
+    goals.set(p.student_id, p.goals)
+    habits.set(p.student_id, p.focus_habits)
+    existing.set(p.student_id, p)
+  }
+  const built = buildAllWeeks(snap, { weekStart, rwPlacements: rw, goals, focusHabits: habits, runId: ctx.runId, now: ctx.now })
+  const planIdFor = new Map(built.plans.map((p) => [p.id, existing.get(p.student_id)?.id ?? p.id]))
+  let placed = 0
+  const plans = built.plans.map((p) => {
+    const prev = existing.get(p.student_id)
+    const id = prev?.id ?? p.id
+    placed += p.slots.length
+    return { ...p, id, slots: p.slots.map((s) => ({ ...s, plan_id: id, id: s.id.replace(p.id, id) })), version: (prev?.version ?? 0) + 1, published_at: null, confirmed_by: null }
+  })
+  const traces = built.traces.map((t) => {
+    const from = [...planIdFor.keys()].find((pid) => t.ref_id.startsWith(pid))
+    return from ? { ...t, ref_id: t.ref_id.replace(from, planIdFor.get(from)!) } : t
+  })
+  return { plans, traces, placed }
+}
+

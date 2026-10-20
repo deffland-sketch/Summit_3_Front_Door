@@ -1,7 +1,7 @@
 /** Writes the screens make. Each one goes through the repository so a real API can replace the store. */
 import type { EngineTrace, Evidence, Offering, Plan, Slot, Student, Touchpoint, TracePart } from '@/model'
 import { appStore, repos } from './index'
-import { adjustOvernight, buildAllWeeks, chooseForSlot, makeTrace, newLedger, offeringFromProposal, optionsForSlot, type TraceSink, type WorkshopProposal } from '@/engine'
+import { adjustOvernight, chooseForSlot, makeTrace, newLedger, offeringFromProposal, optionsForSlot, rebuildCurrentWeek, type TraceSink, type WhatIfChange, type WorkshopProposal } from '@/engine'
 import { useUi } from './ui'
 import { en } from '@/copy/en'
 import { shortDate } from '@/lib/time'
@@ -188,36 +188,30 @@ function shiftBack(day: string): string {
 
 /** The architect's weekly build: rebuild every draft plan for the week, keeping RW placements and goals. */
 export function runWeeklyBuild(publish = false) {
-  const snap = snapshot()
-  const weekStart = snap.meta.week_start
-  const rw = new Map<string, string[]>()
-  const goals = new Map<string, Plan['goals']>()
-  const habits = new Map<string, string[]>()
-  for (const p of snap.plans.filter((x) => x.week_start === weekStart)) {
-    rw.set(p.student_id, p.slots.filter((s) => s.experience_type === 'RW' && s.offering_id && s.status !== 'cancelled').map((s) => s.offering_id!))
-    goals.set(p.student_id, p.goals)
-    habits.set(p.student_id, p.focus_habits)
-  }
   const t0 = clock()
+  const snap = snapshot()
   const at = nowIso()
-  const runId = `build_${weekStart}_${at.replace(/\D/g, '').slice(0, 14)}`
-  const { plans, traces } = buildAllWeeks(snap, { weekStart, rwPlacements: rw, goals, focusHabits: habits, runId, now: at })
-  const existing = new Map(snap.plans.filter((x) => x.week_start === weekStart).map((p) => [p.student_id, p]))
-  const planIdFor = new Map(plans.map((p) => [p.id, existing.get(p.student_id)?.id ?? p.id]))
-  let placed = 0
-  for (const p of plans) {
-    const prev = existing.get(p.student_id)
-    placed += p.slots.length
-    repos.collection('plans').upsert({ ...p, id: prev?.id ?? p.id, slots: p.slots.map((s) => ({ ...s, plan_id: prev?.id ?? p.id, id: s.id.replace(p.id, prev?.id ?? p.id) })), version: (prev?.version ?? 0) + 1, published_at: publish ? nowIso() : null, confirmed_by: null })
-  }
-  // Slot ids were rewritten onto the existing plan ids; the traces follow.
-  storeTraces(traces.map((t) => {
-    const from = [...planIdFor.keys()].find((pid) => t.ref_id.startsWith(pid))
-    return from ? { ...t, ref_id: t.ref_id.replace(from, planIdFor.get(from)!) } : t
-  }))
+  const runId = `build_${snap.meta.week_start}_${at.replace(/\D/g, '').slice(0, 14)}`
+  const { plans, traces, placed } = rebuildCurrentWeek(snap, { runId, now: at })
+  for (const p of plans) repos.collection('plans').upsert(publish ? { ...p, published_at: nowIso() } : p)
+  storeTraces(traces)
   logRun('weekly_build', `${snap.evidence.length} evidence rows, ${snap.offerings.filter((o) => o.status === 'published').length} published offerings, and ${snap.students.length} students`, `${plans.length} draft plans with ${placed} slots and ${traces.length} traces`, clock() - t0, snap.evidence.length)
   useUi.getState().setLastBuild(nowIso(), plans.length)
   return plans.length
+}
+
+/** Apply a what-if for real, through the same actions a person would use (Spec 6 What-if). */
+export function applyWhatIf(change: WhatIfChange, by = 'adu_director') {
+  if (change.kind === 'setting') {
+    patchSettings({ [change.key]: change.value }, by)
+    return runWeeklyBuild(false)
+  }
+  if (change.kind === 'score') {
+    const snap = snapshot()
+    addEvidence({ student_id: change.student_id, outcome_id: change.outcome_id, source: 'kira', source_ref: change.lesson_id, value_kind: 'mastery_pct', value: change.value, artifact_url: null, recorded_by: 'system', slot_id: null, recorded_at: `${snap.meta.today}T20:00:00.000Z` })
+    return runOvernight(`${snap.meta.today}T12:00:00.000Z`, snap.meta.today).length
+  }
+  return adultOutToday(change.adult_id, change.day).length
 }
 
 export function patchSettings(patch: Record<string, unknown>, by: string) {
