@@ -75,4 +75,4 @@ For a school still keeping grades beside outcomes: read a Google Sheet gradebook
 
 ## Sandbox Stubs
 
-Each adapter has a stub that reads `/public/sandbox/{name}.json` and returns it as if pulled. The seed writes those files. `health()` returns ok with a fixed lastPull. A sandbox control panel lets a demo driver nudge one source (lower a Kira mastery score, add a Futre reflection, cancel a partner slot) and watch the week respond.
+Each adapter has a stub that reads `/public/sandbox/{name}.json` and returns it as if pulled. The seed writes those files. `health()` returns ok with a fixed lastPull. A sandbox control panel lets a demo driver nudge one source (lower a Kira mastery score, add a Futre reflection, cancel a partner slot) and watch the week respond, and offers a what-if: one setting, one score, or one adult's availability previewed as a side-by-side diff for one student and the school, read-only until Apply (Spec 6 What-if).

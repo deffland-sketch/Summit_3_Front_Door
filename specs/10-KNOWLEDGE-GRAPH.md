@@ -54,6 +54,7 @@ Every edge carries `source` (learning_commons, summit_rubric, authored, futre) a
 | gapsTo(target) | For a Credential or Pathway: `requires` edges not yet satisfied by the student's validated outcomes | My Pathway, mentor Pathway component, level review (Pursue to Launch) |
 | pathwaysNear(student) | Pathways whose required outcomes overlap the student's validated set and whose Career matches a Futre target career | My Pathway suggestions, open-slot ranking for RW |
 | underneath(skill) | ELAStandards and MathComponents with `supports` to the skill | Content expert lesson planning, Progress evidence detail |
+| shortestPath(a, b) | The shortest chain of `builds_toward` edges from outcome a to outcome b, or none | The graph browser's path finder; the why for a multi-hop in-reach walk (Draft Three) |
 
 All walks are bounded to three hops in v1. Results carry the edges traversed so the student's "why" can name them in plain words ("Argument writing builds toward Analyzing arguments, which the newsroom placement asks for").
 
@@ -70,7 +71,8 @@ All walks are bounded to three hops in v1. Results carry the edges traversed so 
 - For every student, whatServes() on their top in-reach outcome returns at least one lesson or experience in the published menu.
 - For every Pursue and Launch student, gapsTo() on their Futre target pathway returns a non-empty, sensible list, and at least one gap is served by an offering this week.
 - underneath() for Argument writing returns at least three ELA anchor standards.
-- A graph browser screen (lead role, under Outcomes) shows any node with its edges, so a visitor can see the structure.
+- A graph browser screen (lead role, under Outcomes) shows any node with its edges, so a visitor can see the structure, and a path finder shows the shortest builds_toward path between any two outcomes (Draft Three).
+- Every walk the engine performs is stored in the output's trace with the edges in order, so the Engine Trace screen can show the path in plain words (Draft Three).
 
 ## Later
 

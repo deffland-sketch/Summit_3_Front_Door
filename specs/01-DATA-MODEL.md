@@ -236,7 +236,7 @@ One record per school. Everything the engine treats as a rule lives here so a de
 | stale_days | 14 | Evidence older than this produces a Needs You item, never a need |
 | mentor_min_touchpoints_per_week | 2 | Flag below this |
 | protected_time_visible_as | "Protected time" | Never the program name |
-| level_targets | per level, per experience type share | The experience-mix targets from How Summit 3.0 Works that buildWeek() leans toward (Spec 6) |
+| level_targets | per level, per experience type share | The experience-mix targets from How Summit 3.0 Works (Year 1 for Expose and Explore, then Pursue, then Launch), editable on the Settings screen; buildWeek() and the ranker read them (Spec 6) |
 | changed_at, changed_by | datetime, string | Last change and who made it, shown on the Settings screen (Spec 5) |
 
 ### 13. Futre Record and Gathering Log (read-only context, added in build v1)
@@ -245,6 +245,24 @@ One record per school. Everything the engine treats as a rule lives here so a de
 |---|---|---|
 | FutreRecord | futre_student_id, student_id, consent, vision {vision_text, vision_board_url, updated_at}, cns {cns_type, cns_text, target_careers[], pathway_id, updated_at}, careers_explored[], experiences[], portfolio {portfolio_url, item_count, latest_item}, caregiver_view_enabled | The shape the Futre adapter returns (Spec 7). Read, never written, except pushCompletion. pathway_id links the CNS to a knowledge-graph Pathway (Spec 10) |
 | GatheringLogEntry | id, source, pulled_at, received, unmapped, refused, stale, message | One line per source per pull, shown in the Evidence Log (Spec 5) and the weekly build (Spec 4) |
+
+### 14. Engine Trace (added in draft three)
+
+| Field | Type | Notes |
+|---|---|---|
+| id | uuid | |
+| kind | enum need, proposal, slot, move, level_review | Which engine output this explains |
+| subject_id | ref Student or proposal id | |
+| ref_id | string | The slot id, outcome id, proposal id, or move the trace explains |
+| evidence_ids | list of ref Evidence | The rows the engine read |
+| settings | map | The settings that mattered (required_rule, grouping_threshold, max_overnight_moves, level_targets for the level, ...) |
+| edges | list of {from, to, type, source} | Graph edges walked, in order |
+| candidates | list of {id, label, score nullable, lost_because nullable} | What else was considered and why it lost |
+| decision | string | One line |
+| run_id | string | The engine run that produced it (also a gathering log line) |
+| at | datetime | |
+
+Traces for placed slots and overnight moves are stored; traces for needs, proposals, and level reviews are recomputed on demand because those functions are pure.
 
 ## Relationships in One Picture
 
