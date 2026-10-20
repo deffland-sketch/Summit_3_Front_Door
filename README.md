@@ -12,6 +12,7 @@ npm run dev          # http://localhost:5173
 npm run build        # tsc -b && vite build
 npm test             # Vitest unit tests, then the Playwright scenario suite (needs a build first)
 npm run test:unit    # Vitest only: model, graph, engine, seed, copy
+npm run audit        # write audit/engine-audit-<date>.md for a real teacher and coordinator to mark up
 npm run test:e2e     # Playwright: one happy path per role plus the sandbox loop
 npm run seed         # regenerate public/sandbox/*.json (deterministic)
 ```

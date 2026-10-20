@@ -14,7 +14,8 @@
     "seed": "tsx --tsconfig tsconfig.seed.json seed/generate.ts",
     "typecheck": "tsc -b",
     "test:unit": "vitest run",
-    "test:scenarios": "playwright test tests/scenarios"
+    "test:scenarios": "playwright test tests/scenarios",
+    "audit": "tsx --tsconfig tsconfig.seed.json scripts/audit.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

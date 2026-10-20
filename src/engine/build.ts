@@ -166,7 +166,11 @@ export function buildWeek(studentId: string, snap: Sandbox, ctx: BuildContext = 
     // A published offering that serves the outcome (seminar, studio, practice).
     const servingAll = offerings.filter((o) => o.kind !== 'community' && o.kind !== 'event' && o.kind !== 'assessment' && o.kind !== 'partner_slot' && o.entry !== 'invited' && (o.outcomes_served.includes(n.outcome_id) || (o.lesson_id && lesson && o.lesson_id === lesson.id)) && hasRoom(ledger, o))
     const firstServing = (list: Offering[]) => list.find((o) => free(slots, o.day, o.start, o.end) && !collides(o.day, o.start, o.end))
-    const placeServing = (serving: Offering, note: string) => Boolean(place({ day: serving.day, start: serving.start, end: serving.end, experience_type: serving.experience_type, offering_id: serving.id, entry, why: n.why, evidence_id: n.evidence_id }, serving, needTrace(serving, `${entry}: ${serving.title} serves ${n.outcome_name}${note}`)))
+    const placeServing = (serving: Offering, note: string) => {
+      // A Required content need placed in a session that is not a workshop says so in its why.
+      const why = serving.kind !== 'workshop' && n.kind === 'required' && n.family === 'content' && n.value !== null && n.evidence_ref ? en.why.requiredContentSession(n.outcome_name, n.value, n.evidence_ref, serving.title) : n.why
+      return Boolean(place({ day: serving.day, start: serving.start, end: serving.end, experience_type: serving.experience_type, offering_id: serving.id, entry, why, evidence_id: n.evidence_id }, serving, needTrace(serving, `${entry}: ${serving.title} serves ${n.outcome_name}${note}`)))
+    }
     // Practice block in the hub: the earliest free one for Required; for Recommended, from midweek on so it follows the Required work.
     const ordered = entry === 'recommended' ? [...practiceBlocks.filter((o) => o.day >= dates[2]), ...practiceBlocks.filter((o) => o.day < dates[2])] : practiceBlocks
     const practice = () => ordered.filter((o) => hasRoom(ledger, o)).find((o) => free(slots, o.day, o.start, o.end) && !collides(o.day, o.start, o.end))

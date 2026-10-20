@@ -4,8 +4,9 @@ import type { EngineTrace as Trace, TracePart } from '@/model'
 import { useCopy } from '@/copy'
 import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot } from '@/app/hooks'
-import { Card, Chip, Empty, H1, H2, H3, inputClass } from '@/components/ui'
-import { needs, proposeWorkshops, suggestLevelReview } from '@/engine'
+import { Button, Card, Chip, Empty, H1, H2, H3, inputClass } from '@/components/ui'
+import { engineAudit, needs, proposeWorkshops, suggestLevelReview } from '@/engine'
+import { useUi } from '@/store/ui'
 import { getGraph } from '@/graph'
 import { dayPart } from '@/lib/time'
 
@@ -64,6 +65,20 @@ export function EngineTrace() {
   const snap = useSnapshot()
   const idx = useIndexes()
   const [params, setParams] = useSearchParams()
+  const toast = useUi((u) => u.toast)
+  const downloadAudit = () => {
+    const name = `engine-audit-${snap.meta.today}.md`
+    const blob = new Blob([engineAudit(snap)], { type: 'text/markdown' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = name
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+    toast(c.lead.auditWritten(name))
+  }
   const slotParam = params.get('slot')
   const proposalParam = params.get('proposal')
   const slotPlan = slotParam ? snap.plans.find((p) => p.slots.some((s) => s.id === slotParam)) : undefined
@@ -87,6 +102,11 @@ export function EngineTrace() {
         <H1>{c.lead.trace} <Explain id="lead.trace" /></H1>
         <p className="text-sm text-ink-2">{c.lead.traceLede}</p>
       </div>
+      <Card as="section">
+        <H2>{c.lead.audit}</H2>
+        <p className="text-sm text-ink-2">{c.lead.auditLede}</p>
+        <div className="mt-2"><Button kind="secondary" onClick={downloadAudit}>{c.lead.auditDownload}</Button></div>
+      </Card>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="text-sm">
           <span className="font-bold">{c.lead.traceStudent}</span>
