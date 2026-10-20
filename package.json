@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "seed": "tsx seed/generate.ts",
+    "seed": "tsx --tsconfig tsconfig.seed.json seed/generate.ts",
     "typecheck": "tsc -b"
   },
   "dependencies": {

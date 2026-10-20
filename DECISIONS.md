@@ -30,3 +30,15 @@ One line per technical decision, newest at the bottom. Product questions live in
 - Habits of Success use the Building Blocks for Learning structure (5 blocks, 16 habits) with authored builds_toward edges from lower blocks to higher ones.
 - Graph queries (whatServes, whatUnlocks, gapsTo, pathwaysNear, underneath) live in `src/graph/index.ts` as pure functions over an in-memory adjacency map; walks are bounded to three hops and return the edges traversed.
 - `seed/` compiles under its own `tsconfig.seed.json` with Node types; the app tsconfig covers `src/` only.
+- The seed runs the engine: `seed/generate.ts` builds offerings, assignments, evidence, and touchpoints, then calls `proposeWorkshops` (accepting all but three) and `buildAllWeeks` for each of the nine weeks, so every Required slot in the fixture traces to the evidence row the engine read.
+- The sandbox week is Monday 2026-10-19, today is Tuesday 2026-10-20, the week was published Friday 2026-10-16 at 17:00; eight prior weeks run back to 2026-08-24.
+- The day is a 45-minute grid of seven blocks (9:15 to 12:15 and 12:45 to 15:00) around community (8:30 to 9:15), lunch (12:15 to 12:45), and reflection (15:00 to 15:30); offerings span one to four blocks, and a longer offering absorbs the open slots it covers when chosen.
+- Open slots are stored as slots with `offering_id: null` and `entry: chosen`; the UI renders them dashed. The seed has students fill most open slots (guided 75%, shared 70%, owned 65% this week; 90% in past weeks) by picking from the engine's ranked options, leaving the rest open for the demo.
+- RW placements are made by the coordinator (the seed's `placeRw`) and passed into `buildWeek` as `rwPlacements`; a rebuild keeps the previous plan's RW slots. Launch students get the paid work placement four days a week, a college course, and a Friday mentor meeting.
+- Math placements cluster around two anchor lessons per course so shared lesson needs clear the grouping threshold and the demo has workshops; students still spread across every unit and every course at every level.
+- Readiness is a cognitive-skill signal only (three fresh final-product scores at or above the next level's expectation). Math standards are validated by unit assessments, so a content readiness rule produced dozens of false flags and was removed.
+- Overnight adjustments act only on needs created by evidence recorded after the `since` moment; a need the published week already answered is left alone.
+- Caseload flags live in `src/engine/flags.ts` as pure functions (nudge, ready, grew, family, level review) so the mentor and lead screens share one rule set.
+- `public/sandbox/sandbox.json` (about 19 MB, one file, served compressed) is committed so the Vercel build and CI need no seed step; per-source files (`kira.json`, `futre.json`, ...) hold each adapter's slice.
+- Past weeks keep only the slots that happened (open slots never filled are dropped) to hold the fixture size down.
+- Level targets in `src/model/settings.ts` are placeholders tuned to the seed's achieved mix; the Year 1 experience-mix table from How Summit 3.0 Works was not in the specs (see QUESTIONS.md).
