@@ -223,11 +223,11 @@ export function needsYou(snap: Sandbox, ctx: NeedsContext = {}): NeedsYouItem[] 
     const age = daysBetween(latest.recorded_at, asOf)
     if (age > snap.settings.stale_days) {
       const o = outcomes.get(lesson.outcomes_served[0])
-      items.push({ kind: 'stale', student_id: a.student_id, outcome_id: o?.id ?? null, lesson_id: a.lesson_id, text: en.needsYou.stale(o?.name ?? lesson.title, age), subject })
+      items.push({ kind: 'stale', student_id: a.student_id, outcome_id: o?.id ?? null, lesson_id: a.lesson_id, text: en.needsYou.stale(o?.name ?? lesson.title, age, en.why.sources[latest.source] ?? latest.source, shortDate(latest.recorded_at)), subject, source: latest.source, last_row_at: latest.recorded_at })
     } else if (typeof latest.value === 'number' && latest.value >= 95 && a.status === 'active') {
-      items.push({ kind: 'opt_out', student_id: a.student_id, outcome_id: null, lesson_id: a.lesson_id, text: en.needsYou.optOut(lesson.title), subject })
+      items.push({ kind: 'opt_out', student_id: a.student_id, outcome_id: null, lesson_id: a.lesson_id, text: en.needsYou.optOut(lesson.title), subject, source: latest.source, last_row_at: latest.recorded_at })
     } else if (a.status === 'practiced' && rows.length >= 2 && typeof latest.value === 'number' && latest.value < MASTERED_AT && latest.value >= snap.settings.required_rule.mastery_below_pct) {
-      items.push({ kind: 'flag_required', student_id: a.student_id, outcome_id: null, lesson_id: a.lesson_id, text: en.needsYou.flagRequired(lesson.title), subject })
+      items.push({ kind: 'flag_required', student_id: a.student_id, outcome_id: null, lesson_id: a.lesson_id, text: en.needsYou.flagRequired(lesson.title), subject, source: latest.source, last_row_at: latest.recorded_at })
     }
   }
   return items

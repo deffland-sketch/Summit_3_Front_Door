@@ -29,6 +29,9 @@ export interface NeedsYouItem {
   lesson_id: string | null
   text: string
   subject: 'math' | 'science' | 'english' | 'history'
+  /** The source that sent the last row and when, so the expert knows which pipe went quiet. */
+  source: string
+  last_row_at: string
 }
 
 export interface WorkshopProposal {

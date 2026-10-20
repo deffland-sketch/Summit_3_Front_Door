@@ -2,7 +2,6 @@
 
 Ranked. The builder works top to bottom and stops at the first line it cannot complete, noting why in QUESTIONS.md. Format, one issue per line: priority (P0 blocks the demo, P1 wrong behavior, P2 rough edge), spec file and section the change lives in, one sentence of the problem, one sentence of done. Example: P1 | specs/02-STUDENT-FRONT-DOOR.md Progress Screen Rules | In-reach outcomes show scores instead of bands | Progress shows a band against the level expectation and never a raw score.
 
-P2 | specs/04-SUPPLY-PUBLISHING.md Needs You | Stale-evidence items say how many days, but not which source went quiet or when its last row arrived | Each Needs You item names the source and the date of its last row.
 P2 | specs/04-SUPPLY-PUBLISHING.md The Weekly Build | The hub load table shows counts but not whether the hub has the adults it requires | Hub cells show red when the adults in the hub that block fall below the place's adults_required.
 P2 | specs/05-ADMIN-VIEW.md Evidence Log | Engine runs (weekly build, overnight, out today, accepted proposals) leave no entry in the gathering log | Every engine run appends a log line with what it read, what it wrote, and how long it took.
 P2 | specs/04-SUPPLY-PUBLISHING.md Publishing Rules | The engine never proposes cancelling a partner slot below capacity_min two days out | The dashboard alert for an under-filled partner slot offers a cancel action that runs the overnight adjuster for the displaced students.

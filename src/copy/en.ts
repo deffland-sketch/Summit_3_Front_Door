@@ -77,7 +77,7 @@ export const en = {
     launchCheckIn: 'Your weekly mentor meeting.',
   },
   needsYou: {
-    stale: (name: string, days: number) => `No fresh evidence on ${name} in ${days} days. Look and decide.`,
+    stale: (name: string, days: number, source: string, day: string) => `No fresh evidence on ${name} in ${days} days; the last row was ${source} on ${day}. Look and decide.`,
     optOut: (lesson: string) => `${lesson}: mastery looks complete. Confirm the skip.`,
     flagRequired: (lesson: string) => `${lesson}: practiced twice without mastery. Flag for a Required slot?`,
   },
