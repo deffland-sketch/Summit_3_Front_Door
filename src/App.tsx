@@ -1,8 +1,26 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
+import { SandboxLoader } from './app/SandboxLoader'
+import { Landing } from './app/Landing'
+import { StudentApp } from './screens/student/StudentApp'
+import { MentorApp } from './screens/mentor/MentorApp'
+import { ExpertApp } from './screens/expert/ExpertApp'
+import { LeadApp } from './screens/lead/LeadApp'
+import { DisplayBoard } from './screens/lead/DisplayBoard'
+
 export default function App() {
   return (
-    <main className="mx-auto max-w-[1100px] p-4">
-      <h1 className="text-2xl">Summit 3.0 Front Door</h1>
-      <p>Scaffold. Screens arrive in later phases.</p>
-    </main>
+    <BrowserRouter>
+      <SandboxLoader>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/s/:studentId/*" element={<StudentApp />} />
+          <Route path="/m/:mentorId/*" element={<MentorApp />} />
+          <Route path="/x/:adultId/*" element={<ExpertApp />} />
+          <Route path="/l/*" element={<LeadApp />} />
+          <Route path="/board" element={<DisplayBoard />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </SandboxLoader>
+    </BrowserRouter>
   )
 }

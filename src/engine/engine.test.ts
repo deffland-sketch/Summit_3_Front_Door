@@ -160,9 +160,10 @@ describe('engine (Spec 6 acceptance)', () => {
   })
 
   it('ranks two to five options for an open slot with a why for each', () => {
-    const plan = snap.plans.find((p) => p.week_start === snap.meta.week_start && p.slots.some((s) => s.offering_id === null && s.entry === 'chosen'))!
+    const isOpen = (s: { offering_id: string | null; entry: string; day: string; start: string }) => s.offering_id === null && s.entry === 'chosen' && s.day > snap.meta.today && s.start === '09:15'
+    const plan = snap.plans.find((p) => p.week_start === snap.meta.week_start && p.slots.some(isOpen))!
     const student = snap.students.find((s) => s.id === plan.student_id)!
-    const slot = plan.slots.find((s) => s.offering_id === null && s.entry === 'chosen')!
+    const slot = plan.slots.find(isOpen)!
     const options = optionsForSlot(plan, slot, student, snap, newLedger(snap))
     expect(options.length).toBeGreaterThanOrEqual(2)
     expect(options.length).toBeLessThanOrEqual(5)

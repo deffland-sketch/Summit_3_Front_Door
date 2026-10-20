@@ -42,3 +42,9 @@ One line per technical decision, newest at the bottom. Product questions live in
 - `public/sandbox/sandbox.json` (about 19 MB, one file, served compressed) is committed so the Vercel build and CI need no seed step; per-source files (`kira.json`, `futre.json`, ...) hold each adapter's slice.
 - Past weeks keep only the slots that happened (open slots never filled are dropped) to hold the fixture size down.
 - Level targets in `src/model/settings.ts` are placeholders tuned to the seed's achieved mix; the Year 1 experience-mix table from How Summit 3.0 Works was not in the specs (see QUESTIONS.md).
+- Screens are React function components under `src/screens/<role>`, each role with its own `*App.tsx` that owns the nav, the locale (`LocaleContext`), and the theme attributes on `<html>` (`data-theme`, `data-text-size`, `data-reduced-motion`).
+- Student writes go through `src/store/actions.ts` (updateSlot, updatePlan, chooseOffering, swapSlot, addEvidence, addTouchpoint, updateStudent); screens never touch the store directly.
+- Today pins the slot that covers 10:30 on the sandbox day as "where to be now", since the demo day has no live clock.
+- Open slots carry `experience_type: IW` as a placeholder; the slot card hides the type chip while the slot is open.
+- Playwright runs the preinstalled Chromium at `/opt/pw-browsers/chromium` via `launchOptions.executablePath`; screenshots land in `e2e/screens/` (ignored by git).
+- Learning Commons standard text carries LaTeX; `plainMath()` in `src/graph/catalog.ts` strips it for names and descriptions.

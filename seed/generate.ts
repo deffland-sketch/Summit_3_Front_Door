@@ -608,7 +608,7 @@ function buildWeekFor(weekStart: string, suffix: string, asOf: string, published
     const missedAll = !isCurrent && rng.chance(0.15)
     let randomMisses = 0
     const slots: Slot[] = p.slots.map((sl) => {
-      const done = !isCurrent || sl.day < TODAY || (sl.day === TODAY && sl.end <= '10:45')
+      const done = (!isCurrent || sl.day < TODAY || (sl.day === TODAY && sl.end <= '10:45')) && sl.offering_id !== null
       if (!done) return { ...sl, status: p.confirmed_by ? 'confirmed' : 'planned' }
       let missed = isCurrent ? (nudgeStudents.includes(s) && sl.day === '2026-10-19' && sl.entry !== 'whole_group' && sl.entry !== 'protected' ? rng.chance(0.6) : rng.chance(0.03)) : missedAll ? rng.chance(0.3) : rng.chance(0.06)
       if (isCurrent && missed && !nudgeStudents.includes(s)) {

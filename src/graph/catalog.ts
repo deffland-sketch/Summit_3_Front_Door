@@ -46,9 +46,20 @@ export function mathDomainOf(code: string): string {
   return MATH_DOMAINS[key] ?? 'Mathematics'
 }
 
+/** Strip the export's LaTeX markup so names read on a phone. */
+export function plainMath(text: string): string {
+  return text
+    .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '$1/$2')
+    .replace(/\\sqrt\{([^}]*)\}/g, 'sqrt($1)')
+    .replace(/\\(cdot|times)/g, 'x')
+    .replace(/\\[a-zA-Z]+/g, '')
+    .replace(/\$/g, '')
+    .replace(/[{}]/g, '')
+}
+
 function shortName(description: string): string {
-  const first = description.split(/(?<=[a-z0-9])\. /)[0]
-  const clean = first.replace(/\*/g, '').trim()
+  const first = plainMath(description).split(/(?<=[a-z0-9])\. /)[0]
+  const clean = first.replace(/\*/g, '').replace(/^\(\+\)\s*/, '').trim()
   return clean.length > 96 ? clean.slice(0, 93).trimEnd() + '...' : clean
 }
 
@@ -60,7 +71,7 @@ export function mathOutcomes(): Outcome[] {
     family: 'content',
     domain: mathDomainOf(s.code),
     name: shortName(s.description),
-    description: s.description,
+    description: plainMath(s.description),
     level_expectations: null,
     validation: 'standard_mastery',
     prerequisites: prereqs.get(s.id) ?? [],
