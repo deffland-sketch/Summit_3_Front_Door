@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { useCopy } from '@/copy'
+import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { Button, Card, H1, inputClass } from '@/components/ui'
@@ -49,6 +50,7 @@ export function LiveBoard() {
         <select aria-label={c.lead.filterFamily} className={inputClass} value={family} onChange={(e) => setFamily(e.target.value)}><option value="">{c.lead.filterFamily}: {c.app.all}</option>{['cognitive', 'content', 'durable'].map((f) => <option key={f} value={f}>{c.app.families[f]}</option>)}</select>
         <Button kind="secondary" onClick={() => { setPrint(true); setTimeout(() => window.print(), 50) }}>{c.lead.printRoster}</Button>
         <Link to="/board" target="_blank" className="rounded-lg border border-indigo px-3 py-2 font-bold text-indigo dark:text-indigo-1">{c.lead.board}</Link>
+        <Assumed q={13} />
       </div>
       {print ? <h2 className="text-xl">{c.lead.doorRoster} · {dayName(day)}</h2> : null}
       {hours.map((h) => (

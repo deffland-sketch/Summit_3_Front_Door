@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router'
 import { useCopy } from '@/copy'
 import { useSnapshot, useToday } from '@/app/hooks'
-import { Button, Chevron, Field, inputClass } from './ui'
+import { Button, Chevron, Field, Toggle, inputClass } from './ui'
 import { useUi } from '@/store/ui'
 import { addEvidence, runOvernight, upsertOffering, updatePlan } from '@/store/actions'
 import { repos } from '@/store'
@@ -19,6 +19,8 @@ export function SandboxControls({ studentId }: { studentId?: string }) {
   const toast = useUi((u) => u.toast)
   const setToday = useUi((u) => u.setTodayOverride)
   const moves = useUi((u) => u.moves)
+  const showAssumptions = useUi((u) => u.showAssumptions)
+  const setShowAssumptions = useUi((u) => u.setShowAssumptions)
   const [open, setOpen] = useState(false)
   const routeStudent = location.pathname.match(/\/(?:s|student)\/(stu_\d+)/)?.[1]
   const [picked, setPicked] = useState('')
@@ -116,6 +118,7 @@ export function SandboxControls({ studentId }: { studentId?: string }) {
             <Button kind="secondary" onClick={futre}>{c.sandbox.addFutre}</Button>
             <Button kind="danger" onClick={cancelPartner}>{c.sandbox.cancelPartner}</Button>
           </div>
+          <Toggle label={c.sandbox.showAssumptions} on={showAssumptions} onChange={setShowAssumptions} />
           {moves.length ? (
             <div>
               <p className="font-bold">{c.sandbox.lastMoves} ({moves.length})</p>

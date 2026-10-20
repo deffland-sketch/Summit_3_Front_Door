@@ -32,6 +32,9 @@ export interface UiState {
   setOutToday: (adultId: string, day: string) => void
   settingsLog: { at: string; by: string; key: string; from: string; to: string }[]
   logSetting: (e: UiState['settingsLog'][number]) => void
+  /** Sandbox setting: show the "assumed" chip on elements that rest on an open QUESTIONS.md item. Default on. */
+  showAssumptions: boolean
+  setShowAssumptions: (v: boolean) => void
 }
 
 let toastId = 0
@@ -58,4 +61,6 @@ export const useUi = create<UiState>((set) => ({
   setOutToday: (adultId, day) => set((s) => ({ outToday: { ...s.outToday, [adultId]: day } })),
   settingsLog: [],
   logSetting: (e) => set((s) => ({ settingsLog: [e, ...s.settingsLog] })),
+  showAssumptions: true,
+  setShowAssumptions: (v) => set({ showAssumptions: v }),
 }))

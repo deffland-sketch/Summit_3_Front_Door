@@ -1,4 +1,5 @@
 import { useCopy } from '@/copy'
+import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
 import { useStudentData } from '@/app/hooks'
 import { Card, Empty, Field, H1, H2, inputClass, Toggle } from '@/components/ui'
@@ -92,6 +93,7 @@ export function Me({ studentId }: { studentId: string }) {
                 <option key={k} value={k}>{v}</option>
               ))}
             </select>
+            <Assumed q={11} className="mt-1" />
           </Field>
           <Field label={c.me.textSize}>
             <select className={inputClass} value={student.text_size} onChange={(e) => set({ text_size: e.target.value as 'default' })}>

@@ -10,7 +10,8 @@ Everything here is invented. Nothing is written to a real system.
 npm install
 npm run dev          # http://localhost:5173
 npm run build        # tsc -b && vite build
-npm test             # Vitest: model, graph, engine, seed, copy
+npm test             # Vitest unit tests, then the Playwright scenario suite (needs a build first)
+npm run test:unit    # Vitest only: model, graph, engine, seed, copy
 npm run test:e2e     # Playwright: one happy path per role plus the sandbox loop
 npm run seed         # regenerate public/sandbox/*.json (deterministic)
 ```
@@ -58,6 +59,16 @@ Also worth a look: the display board at `/board` (large type, rooms only, never 
 
 **Phase 10, Polish.** Done with one caveat. Dark mode (student toggle and system preference), text size, reduced motion, and the Spanish draft (`src/copy/es.ts`, every key, marked `needs_review`) are in. Lighthouse accessibility on Today scores 100 after the contrast fix (96 before it). The caveat: the Spanish is a machine draft and no Spanish speaker has read it, and stored why lines on slots stay in English (see QUESTIONS.md).
 
+## How to Improve This
+
+One rule: spec before code. A problem becomes a line in the relevant spec under `specs/`, then a line in `ISSUES.md` that cites it, then a build run. Nothing gets fixed from a request that does not cite a spec line.
+
+- `LOOP.md` describes the three cycles (use, critique, build), the four measures per draft, and the two-session rule (a builder works `ISSUES.md`; a separate reviewer writes `REVIEW.md`; merge only when nothing is marked High).
+- `ISSUES.md` is the ranked work for the next build run, one line per issue in the format at the top of the file.
+- `tests/scenarios/` is the scenario suite, the memory of everything that ever broke. `scenarios.md` indexes the twenty situations; `npm test` runs them after the unit tests, so a red scenario fails the build. Add one for every real issue found.
+- `prompts/builder.md`, `prompts/reviewer.md`, and `prompts/critique.md` are the three session prompts to paste into Claude Code.
+- `QUESTIONS.md` is the product backlog. Until a question is answered and becomes a spec line, the screen elements that depend on it carry a small "assumed" chip with the question number (on by default; switch it off in Sandbox controls).
+
 ## Layout
 
 ```
@@ -72,6 +83,8 @@ src/screens          student, mentor, expert, lead
 src/components       SlotCard, WeekGrid, OutcomeBand, EvidenceList, FlagDot, TouchpointChip, SandboxControls, ...
 src/copy             en.ts, es.ts
 e2e/                 Playwright happy paths
+tests/scenarios/     the scenario suite (see scenarios.md)
+prompts/             builder, reviewer, and critique session prompts
 ```
 
 ## Licenses and Sources

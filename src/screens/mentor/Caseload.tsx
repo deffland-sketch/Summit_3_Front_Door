@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { useCopy } from '@/copy'
+import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { caseloadFlags, needs } from '@/engine'
@@ -104,7 +105,7 @@ export function Caseload({ mentorId }: { mentorId: string }) {
         </table>
       </Card>
       <section aria-labelledby="moves">
-        <H2 id="moves">{c.mentor.overnightMoves} <Explain id="mentor.caseload.moves" /></H2>
+        <H2 id="moves">{c.mentor.overnightMoves} <Explain id="mentor.caseload.moves" /> <Assumed q={17} /></H2>
         {myMoves.length ? (
           <ul className="mt-2 space-y-1 text-sm">
             {myMoves.map((m, i) => (

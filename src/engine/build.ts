@@ -148,8 +148,9 @@ export function buildWeek(studentId: string, snap: Sandbox, ctx: BuildContext = 
       .filter((o) => o.kind !== 'community' && o.kind !== 'event' && o.kind !== 'assessment' && o.kind !== 'partner_slot' && o.entry !== 'invited' && (o.outcomes_served.includes(n.outcome_id) || (o.lesson_id && lesson && o.lesson_id === lesson.id)) && hasRoom(ledger, o))
       .find((o) => free(slots, o.day, o.start, o.end) && !collides(o.day, o.start, o.end))
     if (serving) return Boolean(place({ day: serving.day, start: serving.start, end: serving.end, experience_type: serving.experience_type, offering_id: serving.id, entry, why: n.why, evidence_id: n.evidence_id }, serving))
-    // Practice block in the hub, the earliest free one.
-    const pb = practiceBlocks.filter((o) => hasRoom(ledger, o)).find((o) => free(slots, o.day, o.start, o.end) && !collides(o.day, o.start, o.end))
+    // Practice block in the hub: the earliest free one for Required; for Recommended, from midweek on so it follows the Required work.
+    const ordered = entry === 'recommended' ? [...practiceBlocks.filter((o) => o.day >= dates[2]), ...practiceBlocks.filter((o) => o.day < dates[2])] : practiceBlocks
+    const pb = ordered.filter((o) => hasRoom(ledger, o)).find((o) => free(slots, o.day, o.start, o.end) && !collides(o.day, o.start, o.end))
     if (pb) {
       const why = n.kind === 'required' && n.family === 'content' && n.value !== null ? en.why.requiredContentPractice(n.outcome_name, n.value) : n.why
       return Boolean(place({ day: pb.day, start: pb.start, end: pb.end, experience_type: 'PF', offering_id: pb.id, entry, why, evidence_id: n.evidence_id }, pb))
