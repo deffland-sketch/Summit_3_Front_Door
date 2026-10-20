@@ -13,6 +13,7 @@ export * from './place'
 export * from './settings'
 export * from './futre'
 export * from './gathering-log'
+export * from './trace'
 
 import { z } from 'zod'
 import { StudentSchema } from './student'
@@ -28,6 +29,7 @@ import { GroupSchema, PlaceSchema } from './place'
 import { SchoolSettingsSchema } from './settings'
 import { FutreRecordSchema } from './futre'
 import { GatheringLogEntrySchema } from './gathering-log'
+import { EngineTraceSchema } from './trace'
 
 /** The whole sandbox as one snapshot. The engine is pure functions over this. */
 export const SandboxSchema = z.object({
@@ -54,5 +56,6 @@ export const SandboxSchema = z.object({
   settings: SchoolSettingsSchema,
   futre: z.array(FutreRecordSchema),
   gathering_log: z.array(GatheringLogEntrySchema),
+  traces: z.array(EngineTraceSchema).default([]),
 })
 export type Sandbox = z.infer<typeof SandboxSchema>

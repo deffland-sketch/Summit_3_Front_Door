@@ -1,4 +1,4 @@
-import type { Offering, Sandbox } from '@/model'
+import type { Offering, Sandbox, TracePart } from '@/model'
 import { en } from '@/copy/en'
 import { byId } from '@/lib'
 import { weekDates } from '@/lib/time'
@@ -25,13 +25,17 @@ export function proposeWorkshops(snap: Sandbox, opts: { weekStart?: string; asOf
   const units = byId(snap.units)
   const settings = snap.settings
   const groups = new Map<string, Set<string>>()
+  const needEvidence = new Map<string, string[]>()
 
   for (const a of snap.assignments) {
     if (a.status === 'needs_workshop') groups.set(a.lesson_id, new Set([...(groups.get(a.lesson_id) ?? []), a.student_id]))
   }
   for (const s of snap.students) {
     for (const n of needs(s.id, snap, { weekStart, asOf: opts.asOf })) {
-      if (n.kind === 'required' && n.lesson_id) groups.set(n.lesson_id, new Set([...(groups.get(n.lesson_id) ?? []), s.id]))
+      if (n.kind === 'required' && n.lesson_id) {
+        groups.set(n.lesson_id, new Set([...(groups.get(n.lesson_id) ?? []), s.id]))
+        if (n.evidence_id) needEvidence.set(n.lesson_id, [...(needEvidence.get(n.lesson_id) ?? []), n.evidence_id])
+      }
     }
   }
 
@@ -73,12 +77,19 @@ export function proposeWorkshops(snap: Sandbox, opts: { weekStart?: string; asOf
       const experts = snap.adults.filter((a) => a.capacities.includes('content_expert') && a.subjects.some((c) => SUBJECT_COURSE_PREFIX[subject].includes(c)))
       const places = snap.places.filter((p) => (kind === 'workshop' ? p.kind === 'classroom' && p.capacity >= chunk.length : p.kind === 'nook' || p.kind === 'classroom'))
       let best: { day: string; start: string; end: string; adult: string; place: string; collisions: { student_id: string; reason: string }[] } | null = null
+      const considered: TracePart['candidates'] = []
       for (const day of dates) {
         for (const b of BLOCKS) {
           const adult = experts.find((a) => adultFree(a.id, day, b.start, b.end, snap, used))
-          if (!adult) continue
+          if (!adult) {
+            considered.push({ id: `${day} ${b.start}`, label: `${day} ${b.start}`, score: null, lost_because: 'no content expert free' })
+            continue
+          }
           const place = places.find((p) => placeFree(p.id, day, b.start, b.end, snap, used))
-          if (!place) continue
+          if (!place) {
+            considered.push({ id: `${day} ${b.start}`, label: `${day} ${b.start}`, score: null, lost_because: 'no room free' })
+            continue
+          }
           const collisions: { student_id: string; reason: string }[] = []
           for (const sid of chunk) {
             const st = snap.students.find((s) => s.id === sid)!
@@ -86,6 +97,7 @@ export function proposeWorkshops(snap: Sandbox, opts: { weekStart?: string; asOf
               collisions.push({ student_id: sid, reason: r })
             }
           }
+          considered.push({ id: `${day} ${b.start}`, label: `${day} ${b.start} with ${adult.display_name} in ${place.name}`, score: -collisions.length, lost_because: collisions.length ? `${collisions.length} collisions` : null })
           if (!best || collisions.length < best.collisions.length) best = { day, start: b.start, end: b.end, adult: adult.id, place: place.id, collisions }
           if (collisions.length === 0) break
         }
@@ -133,6 +145,17 @@ export function proposeWorkshops(snap: Sandbox, opts: { weekStart?: string; asOf
           (best && best.collisions.length ? en.proposals.collisions(best.collisions.length) : en.proposals.noCollisions),
         collisions: best?.collisions ?? [],
         kind,
+        trace: {
+          evidence_ids: needEvidence.get(lessonId) ?? [],
+          settings: { grouping_threshold: settings.grouping_threshold, workshop_min: settings.workshop_size.min, workshop_max: settings.workshop_size.max },
+          edges: [],
+          candidates: (() => {
+            const all = considered.map((c) => (best && c.id === `${best.day} ${best.start}` ? { ...c, lost_because: null } : c.lost_because ? c : { ...c, lost_because: 'a time with fewer collisions came first' }))
+            // The pick always shows, then the first eleven losers.
+            return [...all.filter((c) => c.lost_because === null), ...all.filter((c) => c.lost_because !== null)].slice(0, 12)
+          })(),
+          decision: best ? `${chunk.length} students share ${lesson.title}; ${best.day} ${best.start} had ${best.collisions.length} collisions` : `no free adult and room this week`,
+        },
       })
     }
   }

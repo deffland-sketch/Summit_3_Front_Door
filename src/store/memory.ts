@@ -51,6 +51,7 @@ export const EMPTY_SANDBOX: Sandbox = {
   },
   futre: [],
   gathering_log: [],
+  traces: [],
 }
 
 function upsertInto<T extends { id: string }>(list: T[], item: T): T[] {
@@ -106,6 +107,7 @@ export function repositoriesFor(store: StoreApi<MemoryState>): SandboxRepositori
       settings: s.settings,
       futre: s.futre,
       gathering_log: s.gathering_log,
+      traces: s.traces,
     }
   }
   return {

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router'
 import { useCopy } from '@/copy'
 import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
@@ -48,7 +49,7 @@ export function ProposedWorkshops({ adultId }: { adultId: string }) {
               <p className="text-sm text-ink-2">
                 {idx.courses.get(p.course_id)?.title} · {c.expert.suggested}: {dayName(p.day)} {p.start} to {p.end} · {idx.places.get(p.place_id ?? '')?.name} · {idx.adults.get(p.adult_id ?? '')?.display_name}
               </p>
-              <p className="text-sm">{p.why}</p>
+              <p className="text-sm">{p.why} <Link to={`/l/trace?proposal=${p.id}`} className="text-xs text-indigo underline dark:text-indigo-1">{c.lead.whyThis}</Link></p>
               <p className="mt-1 text-sm font-bold">{c.expert.students} ({p.student_ids.length})</p>
               <ul className="flex flex-wrap gap-1 text-sm">
                 {p.student_ids.map((sid) => (

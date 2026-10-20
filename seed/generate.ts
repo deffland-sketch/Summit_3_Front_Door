@@ -4,7 +4,7 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import type {
-  Adult, Assignment, Course, Evidence, FutreRecord, GatheringLogEntry, Group, Lesson, Level, Offering, Place, Plan, Sandbox, Slot, Student, Touchpoint, Unit, Weekday,
+  Adult, Assignment, Course, EngineTrace, Evidence, FutreRecord, GatheringLogEntry, Group, Lesson, Level, Offering, Place, Plan, Sandbox, Slot, Student, Touchpoint, Unit, Weekday,
 } from '../src/model'
 import { DEFAULT_SETTINGS, SandboxSchema } from '../src/model'
 import { allOutcomes, buildCatalog } from '../src/graph/catalog'
@@ -510,11 +510,12 @@ addTouchpoint(familyStudent, 'family', isoAt('2026-10-19', '16:00'), { mentor_id
 
 // ---------- plans: past weeks and this week ----------
 const plans: Plan[] = []
+const traces: EngineTrace[] = []
 const gatheringLog: GatheringLogEntry[] = []
 const baseSnapshot = (): Sandbox => ({
   meta: { seed: SEED, generated_at: new Date(0).toISOString(), week_start: WEEK_START, today: TODAY, graph_source: 'learning_commons v1.15.0' },
   students, adults, outcomes, offerings, plans, evidence, touchpoints, courses, units, lessons, assignments, places, groups,
-  settings: DEFAULT_SETTINGS, futre, gathering_log: gatheringLog,
+  settings: DEFAULT_SETTINGS, futre, gathering_log: gatheringLog, traces,
 })
 
 /** The coordinator places students into RW offerings by level and pathway. */
@@ -593,7 +594,10 @@ function buildWeekFor(weekStart: string, suffix: string, asOf: string, published
   const goals = new Map(students.map((s) => [s.id, goalsFor(s)]))
   const snap2 = baseSnapshot()
   resetSlotCounter()
-  const { plans: built, ledger } = buildAllWeeks(snap2, { weekStart, asOf, rwPlacements, goals, focusHabits })
+  const built_ = buildAllWeeks(snap2, { weekStart, asOf, rwPlacements, goals, focusHabits, runId: `build_${weekStart}`, now: publishedAt })
+  const { plans: built, ledger } = built_
+  // Only the current week keeps its slot traces; past weeks are history and the fixture stays small.
+  if (isCurrent) traces.push(...built_.traces)
   // Students fill open slots (per plan_autonomy). Past weeks: everything; this week: most, leaving a few open.
   for (const plan of built) {
     const s = students.find((x) => x.id === plan.student_id)!
@@ -606,7 +610,7 @@ function buildWeekFor(weekStart: string, suffix: string, asOf: string, published
       const opts = optionsForSlot(p, live, s, snap2, ledger).filter((o) => !o.reasons.includes('collides'))
       if (!opts.length) continue
       const pick = s.plan_autonomy === 'guided' ? opts[0] : rng.pick(opts.slice(0, 3))
-      p = chooseForSlot(p, live, pick.offering, ledger)
+      p = chooseForSlot(p, live, pick.offering, ledger, undefined, isCurrent ? traces : undefined, opts, { runId: `pick_${weekStart}`, now: publishedAt })
     }
     p = { ...p, built_by: s.plan_autonomy === 'owned' ? 'student' : 'engine', published_at: publishedAt, confirmed_by: isCurrent ? (rng.chance(0.9) ? s.mentor_id : null) : s.mentor_id, version: isCurrent ? 1 : 1 }
     // Statuses: past weeks attended with ratings; this week Monday attended and Tuesday morning done.
@@ -626,6 +630,17 @@ function buildWeekFor(weekStart: string, suffix: string, asOf: string, published
     })
     // Past weeks keep only the slots that happened; open slots never filled are dropped to keep the fixture small.
     plans.push({ ...p, slots: isCurrent ? slots : slots.filter((sl) => sl.offering_id !== null || sl.entry === 'protected') })
+    if (isCurrent) {
+      // A chosen offering absorbs the open slots it spans; their traces go with them. The newest trace per slot stays.
+      const live = new Set(slots.map((sl) => sl.id))
+      const seen = new Set<string>()
+      for (let i = traces.length - 1; i >= 0; i--) {
+        const t = traces[i]
+        if (!t.ref_id.startsWith(p.id)) continue
+        if (!live.has(t.ref_id) || seen.has(t.ref_id)) traces.splice(i, 1)
+        else seen.add(t.ref_id)
+      }
+    }
     // Evidence from attended slots: adult observations and student reflections.
     for (const sl of slots) {
       if (sl.status !== 'attended' || !sl.offering_id) continue

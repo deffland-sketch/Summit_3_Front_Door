@@ -1,4 +1,4 @@
-import type { ExperienceType, Offering, Slot } from '@/model'
+import type { EngineTrace, ExperienceType, Offering, Slot, TracePart } from '@/model'
 
 export type NeedKind = 'required' | 'recommended' | 'in_reach' | 'readiness'
 
@@ -17,6 +17,7 @@ export interface Need {
   /** The graph walk that found a serving lesson or experience, in plain words. */
   serves: string | null
   serving_offering_id: string | null
+  trace: TracePart
 }
 
 export interface NeedsYouItem {
@@ -43,6 +44,7 @@ export interface WorkshopProposal {
   why: string
   collisions: { student_id: string; reason: string }[]
   kind: 'workshop' | 'conference'
+  trace: TracePart
 }
 
 export interface OvernightMove {
@@ -51,6 +53,7 @@ export interface OvernightMove {
   slot: Slot
   replaced_slot_id: string | null
   why: string
+  trace: TracePart
 }
 
 export interface RankedOption {
@@ -65,11 +68,21 @@ export interface LevelReviewSuggestion {
   from: string
   to: string
   reasons: string[]
+  trace: TracePart
 }
 
 export interface CapacityLedger {
   /** offering id -> number placed */
   fill: Map<string, number>
+}
+
+/** Where engine functions push the traces of stored outputs (placed slots, moves). */
+export type TraceSink = EngineTrace[]
+
+let traceCounter = 0
+export function makeTrace(kind: EngineTrace['kind'], subjectId: string, refId: string, part: TracePart, runId: string, at: string): EngineTrace {
+  traceCounter++
+  return { id: `tr_${runId}_${traceCounter}`, kind, subject_id: subjectId, ref_id: refId, run_id: runId, at, ...part }
 }
 
 export const BLOCKS: { start: string; end: string }[] = [

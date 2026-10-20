@@ -71,3 +71,9 @@ One line per technical decision, newest at the bottom. Product questions live in
 - The "assumed" chip is `src/components/Assumed.tsx`, keyed by QUESTIONS.md item number, gated by the UI-store setting `showAssumptions` (default on) that SandboxControls toggles; it is placed by hand on the elements that rest on open questions, since the questions are prose.
 - The engineering loop ships on its own branch and pull request (base: the prototype branch) so the PR diff holds only the loop files.
 - Recommended practice slots are placed from Wednesday on (Required ones take the earliest block), so a Recommended session follows the Required work in the same week and stays live for the student to swap and the mentor to change on Monday. Found by scenario 08.
+- Engine traces (Spec 1 object 14, Spec 6 Traceability) are append-only in the `traces` collection; the newest trace per ref id wins on read. Slot and move traces are stored with the run; need, proposal, and level-review traces are recomputed on demand because those functions are pure, and an accepted proposal stores its trace at acceptance keyed by the new offering.
+- The seed stores slot traces for the current week only (4,271 rows, about 2.4 MB in the fixture); past weeks are history. A chosen offering absorbs the open slots it spans, and their traces go with them.
+- A trace's candidate list is capped at twelve entries with the chosen candidate always first, so a proposal that weighed thirty times still names its pick.
+- Every engine run (weekly build, overnight, out today, accepted proposal) appends a gathering log line with source `engine:<run>`; the Evidence Log lists those under Engine runs, apart from the source pulls.
+- The "Why this" link on a slot card or proposal card goes to the lead's Engine Trace screen (`/l/trace?slot=` or `?proposal=`), which resolves the student from the slot's plan.
+
