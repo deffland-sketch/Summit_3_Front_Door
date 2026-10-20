@@ -13,6 +13,8 @@ export interface Alert {
   detail: string
   /** Route that resolves it. */
   to: string
+  /** An action the dashboard offers in place, when the engine has a proposal (Spec 4: cancel an under-filled partner slot). */
+  action?: 'cancel_partner'
 }
 
 /** Spec 5 dashboard alerts, each linked to where to fix it. */
@@ -44,7 +46,7 @@ export function alerts(snap: Sandbox): Alert[] {
   for (const o of snap.offerings) {
     if (o.experience_type !== 'RW' || o.status !== 'published' || o.day < today) continue
     const fill = ledger.fill.get(o.id) ?? 0
-    if (fill < o.capacity_min && daysBetween(today, o.day) <= 2) out.push({ kind: 'partner_unfilled', severity: 'medium', subject_id: o.id, subject_name: o.title, detail: `${o.day} ${o.start}: ${fill} of ${o.capacity_min} minimum`, to: '/l/partners' })
+    if (fill < o.capacity_min && daysBetween(today, o.day) <= 2) out.push({ kind: 'partner_unfilled', severity: 'medium', subject_id: o.id, subject_name: o.title, detail: `${o.day} ${o.start}: ${fill} of ${o.capacity_min} minimum; the engine proposes cancelling it and moving the ${fill} placed`, to: '/l/partners', action: 'cancel_partner' })
   }
   for (const a of snap.adults) {
     if (a.capacities.includes('partner') || a.capacities.includes('leader') || a.capacities.includes('case_manager')) continue

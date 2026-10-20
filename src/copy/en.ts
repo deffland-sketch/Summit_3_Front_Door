@@ -472,6 +472,8 @@ export const en = {
     alertKinds: { unfilled_required: 'Required need with no slot', protected_short: 'Protected minutes short', hub_over: 'Hub over capacity', partner_unfilled: 'Partner slot unfilled', no_touchpoint: 'No touchpoint in five days', adult_load: 'Adult over or under', stale_evidence: 'Stale evidence' } as Record<string, string>,
     severity: { high: 'High', medium: 'Medium', low: 'Low' } as Record<string, string>,
     fix: 'Open',
+    cancelPartner: 'Cancel and move the students',
+    partnerCancelled: (title: string, n: number) => `${title} cancelled. ${n} ${n === 1 ? 'student' : 'students'} moved with a why and the New since yesterday tag.`,
     noAlerts: 'Nothing needs a decision right now.',
     studyGroups: 'Study group proposals to approve',
     approve: 'Approve',

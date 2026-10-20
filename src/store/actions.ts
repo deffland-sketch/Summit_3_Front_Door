@@ -164,6 +164,20 @@ export function adultOutToday(adultId: string, day: string) {
   return moves
 }
 
+/** The lead accepts the engine's proposal to cancel an under-filled partner slot: cancel it and move the displaced students (Spec 4 Publishing Rules). */
+export function cancelPartnerSlot(offeringId: string) {
+  const t0 = clock()
+  const snap = snapshot()
+  const o = snap.offerings.find((x) => x.id === offeringId)
+  if (!o || o.status !== 'published') return []
+  repos.collection('offerings').upsert({ ...o, status: 'cancelled' })
+  const displaced = snap.plans.filter((p) => p.week_start === snap.meta.week_start && p.slots.some((s) => s.offering_id === o.id && (s.status === 'planned' || s.status === 'confirmed'))).length
+  // Displacement-only, like an out-today event: moves land on the slot's day or later.
+  const moves = runOvernight(nowIso(), o.day, true, `cancel_${o.id}`, true)
+  logRun('out_today', `one partner slot, ${o.title} on ${o.day}, with ${displaced} students placed`, `one cancellation and ${moves.length} moves`, clock() - t0, displaced)
+  return moves
+}
+
 /** Run overnight adjustments and apply the new plan versions. */
 export function runOvernight(since?: string, today?: string, sameDay = false, runId?: string, quiet = false) {
   const t0 = clock()
