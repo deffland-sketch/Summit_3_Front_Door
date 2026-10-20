@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { Button, Card, Empty, H1, inputClass } from '@/components/ui'
 import { addEvidence, updateSlot } from '@/store/actions'
@@ -20,11 +21,11 @@ export function RosterNotes({ adultId }: { adultId: string }) {
   const [notes, setNotes] = useState<Record<string, string>>({})
   const session = sessions.find((o) => o.id === sessionId) ?? sessions[0]
   const roster = session ? rosterFor(snap, session.id) : []
-  if (!sessions.length) return <div><H1>{c.expert.rosterNotes}</H1><Empty>{c.app.none}</Empty></div>
+  if (!sessions.length) return <div><H1>{c.expert.rosterNotes} <Explain id="expert.roster" /></H1><Empty>{c.app.none}</Empty></div>
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.expert.rosterNotes}</H1>
+        <H1>{c.expert.rosterNotes} <Explain id="expert.roster" /></H1>
         <p className="text-sm text-ink-2">{c.expert.rosterLede}</p>
       </div>
       <label className="block text-sm">

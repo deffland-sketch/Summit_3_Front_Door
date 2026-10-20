@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useSnapshot } from '@/app/hooks'
 import { Card, Chip, H1, H2, Stat } from '@/components/ui'
 import { TYPE_ORDER } from '@/components/types'
@@ -41,7 +42,7 @@ export function ModelDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.lead.model}</H1>
+        <H1>{c.lead.model} <Explain id="lead.model" /></H1>
         <p className="text-sm text-ink-2">{c.lead.modelLede}</p>
       </div>
       <ul className="grid grid-cols-2 gap-2 md:grid-cols-5">

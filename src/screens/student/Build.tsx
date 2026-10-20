@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useStudentData } from '@/app/hooks'
 import { Button, Card, Empty, H1, H2, inputClass, Chip } from '@/components/ui'
 import { TypeChip, WhyLine } from '@/components/SlotCard'
@@ -94,7 +95,7 @@ export function Build({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.build.title}</H1>
+        <H1>{c.build.title} <Explain id="student.build" /></H1>
         <p className="mt-1 max-w-prose text-sm">{c.build.lede[student.plan_autonomy]}</p>
         <p className="text-xs text-ink-2">
           {c.build.autonomy}: {c.app.autonomy[student.plan_autonomy]}
@@ -130,7 +131,7 @@ export function Build({ studentId }: { studentId: string }) {
       </section>
 
       <section aria-labelledby="open">
-        <H2 id="open">{c.build.openSlots}</H2>
+        <H2 id="open">{c.build.openSlots} <Explain id="student.build.options" /></H2>
         {openSlots.length ? (
           <div className="mt-2 grid gap-4 md:grid-cols-[1fr_2fr]">
             <ul className="space-y-1">

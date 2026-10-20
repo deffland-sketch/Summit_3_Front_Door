@@ -1,4 +1,5 @@
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useStudentData } from '@/app/hooks'
 import { Card, Empty, Field, H1, H2, inputClass, Toggle } from '@/components/ui'
 import { updateStudent } from '@/store/actions'
@@ -20,7 +21,7 @@ export function Me({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.me.title}</H1>
+        <H1>{c.me.title} <Explain id="student.me" /></H1>
         <p className="text-sm text-ink-2">{c.me.lede}</p>
       </div>
       <Card>

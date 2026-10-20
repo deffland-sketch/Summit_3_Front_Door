@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { Button, Card, Empty, H1, inputClass } from '@/components/ui'
 import { FlagDot } from '@/components/FlagDot'
@@ -22,7 +23,7 @@ export function Family({ mentorId }: { mentorId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.mentor.family}</H1>
+        <H1>{c.mentor.family} <Explain id="mentor.family" /></H1>
         <p className="text-sm text-ink-2">{c.mentor.familyLede}</p>
       </div>
       <ul className="space-y-2">

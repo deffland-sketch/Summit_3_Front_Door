@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { Card, H1, H2, inputClass } from '@/components/ui'
 import { getGraph, neighborhood, type GraphNode } from '@/graph'
 
@@ -18,7 +19,7 @@ export function GraphBrowser() {
   return (
     <div className="space-y-4">
       <div>
-        <H1>{c.lead.graph}</H1>
+        <H1>{c.lead.graph} <Explain id="lead.graph" /></H1>
         <p className="text-sm text-ink-2">{c.lead.graphLede} {graph.source_label}.</p>
       </div>
       <ul className="flex flex-wrap gap-2 text-xs" aria-label={c.lead.nodeTypes}>

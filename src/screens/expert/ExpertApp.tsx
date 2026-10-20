@@ -20,6 +20,7 @@ export function ExpertApp() {
   const base = `/x/${adult.id}`
   const isArchitect = adult.capacities.includes('system_architect')
   const nav = [
+    { to: '/overview', label: c.overview.nav },
     { to: base, label: c.nav.expert.offerings, end: true },
     { to: `${base}/proposed`, label: c.nav.expert.proposed },
     { to: `${base}/needs-you`, label: c.nav.expert.needsYou },

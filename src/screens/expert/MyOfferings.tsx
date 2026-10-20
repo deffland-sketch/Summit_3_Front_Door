@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { Button, Card, Chip, Empty, H1, H2 } from '@/components/ui'
 import { TypeChip } from '@/components/SlotCard'
@@ -24,7 +25,7 @@ export function MyOfferings({ adultId }: { adultId: string }) {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <H1>{c.expert.offerings}</H1>
+          <H1>{c.expert.offerings} <Explain id="expert.offerings" /></H1>
           <p className="text-sm text-ink-2">{c.expert.offeringsLede}</p>
         </div>
         {outToday[adultId] === today ? (

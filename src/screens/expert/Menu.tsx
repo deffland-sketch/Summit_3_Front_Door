@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { Button, Card, Chip, H1 } from '@/components/ui'
 import { TYPE_STYLE, TYPE_ORDER } from '@/components/types'
@@ -20,7 +21,7 @@ export function Menu() {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.expert.menu}</H1>
+        <H1>{c.expert.menu} <Explain id="expert.menu" /></H1>
         <p className="text-sm text-ink-2">{c.expert.menuLede}</p>
       </div>
       <div className="flex gap-1" role="group" aria-label={c.week.swipeHint}>

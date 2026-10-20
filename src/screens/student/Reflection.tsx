@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useStudentData } from '@/app/hooks'
 import { Button, Card, Empty, H1, H2, inputClass } from '@/components/ui'
 import { addEvidence, addTouchpoint, updateSlot } from '@/store/actions'
@@ -44,7 +45,7 @@ export function Reflection({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.reflection.title}</H1>
+        <H1>{c.reflection.title} <Explain id="student.reflection" /></H1>
         <p className="text-sm text-ink-2">{c.reflection.lede}</p>
       </div>
       <Card accent="border-t-peach" className="space-y-3">

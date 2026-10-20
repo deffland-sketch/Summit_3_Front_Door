@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { Button, Card, Chip, Empty, H1, H2, Stat } from '@/components/ui'
 import { TYPE_STYLE, TYPE_ORDER } from '@/components/types'
@@ -36,7 +37,7 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.lead.dashboard}</H1>
+        <H1>{c.lead.dashboard} <Explain id="lead.dashboard" /></H1>
         <p className="text-sm text-ink-2">{c.lead.dashboardLede}</p>
       </div>
       <section aria-labelledby="now">

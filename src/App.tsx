@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { SandboxLoader } from './app/SandboxLoader'
 import { Landing } from './app/Landing'
+import { Overview } from './app/Overview'
 import { StudentApp } from './screens/student/StudentApp'
 import { MentorApp } from './screens/mentor/MentorApp'
 import { ExpertApp } from './screens/expert/ExpertApp'
@@ -13,6 +14,7 @@ export default function App() {
       <SandboxLoader>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/overview" element={<Overview />} />
           <Route path="/s/:studentId/*" element={<StudentApp />} />
           <Route path="/m/:mentorId/*" element={<MentorApp />} />
           <Route path="/x/:adultId/*" element={<ExpertApp />} />

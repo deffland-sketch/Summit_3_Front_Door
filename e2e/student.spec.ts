@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test('student happy path: landing, today, required why, evidence, progress, build', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Summit 3.0 Front Door')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Summit 3.0 Front Door')
   await page.getByLabel('With a real-world slot today').check()
   const first = page.getByRole('link', { name: /Explore/ }).first()
   await first.click()
@@ -12,7 +12,7 @@ test('student happy path: landing, today, required why, evidence, progress, buil
   await expect(page.getByRole('heading', { name: 'In reach' })).toBeVisible()
   await page.screenshot({ path: 'e2e/screens/student-progress.png', fullPage: true })
   await page.getByRole('link', { name: 'Build My Week' }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Build My Week')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Build My Week')
   await page.screenshot({ path: 'e2e/screens/student-build.png', fullPage: true })
   await page.getByRole('link', { name: 'My Week', exact: true }).click()
   await page.screenshot({ path: 'e2e/screens/student-week.png', fullPage: true })

@@ -30,10 +30,10 @@ export const SchoolSettingsSchema = z.object({
 export type SchoolSettings = z.infer<typeof SchoolSettingsSchema>
 
 export const DEFAULT_LEVEL_TARGETS: LevelTargets = {
-  expose: { DI: 0.06, PF: 0.24, DD: 0.1, IW: 0.16, PP: 0.02, RG: 0.09, RW: 0.1, WC: 0.23 },
-  explore: { DI: 0.05, PF: 0.22, DD: 0.09, IW: 0.15, PP: 0.03, RG: 0.09, RW: 0.15, WC: 0.22 },
-  pursue: { DI: 0.04, PF: 0.16, DD: 0.08, IW: 0.14, PP: 0.04, RG: 0.09, RW: 0.25, WC: 0.2 },
-  launch: { DI: 0.01, PF: 0.04, DD: 0.03, IW: 0.05, PP: 0.03, RG: 0.08, RW: 0.62, WC: 0.14 },
+  expose: { DI: 0.15, PF: 0.2, DD: 0.1, IW: 0.25, PP: 0.05, RG: 0.1, RW: 0.05, WC: 0.1 },
+  explore: { DI: 0.15, PF: 0.2, DD: 0.1, IW: 0.25, PP: 0.05, RG: 0.1, RW: 0.05, WC: 0.1 },
+  pursue: { DI: 0.1, PF: 0.15, DD: 0.1, IW: 0.2, PP: 0.05, RG: 0.1, RW: 0.25, WC: 0.05 },
+  launch: { DI: 0.05, PF: 0.05, DD: 0.05, IW: 0.1, PP: 0.05, RG: 0.1, RW: 0.55, WC: 0.05 },
 }
 
 export const DEFAULT_SETTINGS: SchoolSettings = {

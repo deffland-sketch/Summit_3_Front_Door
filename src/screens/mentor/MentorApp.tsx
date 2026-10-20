@@ -18,6 +18,7 @@ export function MentorApp() {
   const c = COPY.en
   const base = `/m/${mentor.id}`
   const nav = [
+    { to: '/overview', label: c.overview.nav },
     { to: base, label: c.nav.mentor.caseload, end: true },
     { to: `${base}/touchpoints`, label: c.nav.mentor.touchpoints },
     { to: `${base}/confirm`, label: c.nav.mentor.confirm },

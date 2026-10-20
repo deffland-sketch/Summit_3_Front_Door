@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot } from '@/app/hooks'
 import { Button, Card, Empty, H1, H2, inputClass } from '@/components/ui'
 import { dayName } from '@/components/WeekGrid'
@@ -35,7 +36,7 @@ export function ProposedWorkshops({ adultId }: { adultId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.expert.proposed}</H1>
+        <H1>{c.expert.proposed} <Explain id="expert.proposed" /></H1>
         <p className="text-sm text-ink-2">{c.expert.proposedLede}</p>
       </div>
       {mine.length ? (

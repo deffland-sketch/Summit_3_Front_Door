@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot } from '@/app/hooks'
 import { Button, Card, Chip, H1, H2 } from '@/components/ui'
 import { needs, proposeWorkshops, newLedger } from '@/engine'
@@ -38,7 +39,7 @@ export function WeeklyBuild({ adultId }: { adultId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.expert.build}</H1>
+        <H1>{c.expert.build} <Explain id="expert.build" /></H1>
         <p className="text-sm text-ink-2">{c.expert.buildLede}</p>
       </div>
       <Card accent="border-t-tan-grey">

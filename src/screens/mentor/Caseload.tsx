@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { caseloadFlags, needs } from '@/engine'
 import { FlagDot } from '@/components/FlagDot'
@@ -40,7 +41,7 @@ export function Caseload({ mentorId }: { mentorId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.mentor.caseload}</H1>
+        <H1>{c.mentor.caseload} <Explain id="mentor.caseload" /></H1>
         <p className="text-sm text-ink-2">{c.mentor.caseloadLede(rows.length)}</p>
       </div>
       <div className="flex flex-wrap gap-2 text-sm">
@@ -103,7 +104,7 @@ export function Caseload({ mentorId }: { mentorId: string }) {
         </table>
       </Card>
       <section aria-labelledby="moves">
-        <H2 id="moves">{c.mentor.overnightMoves}</H2>
+        <H2 id="moves">{c.mentor.overnightMoves} <Explain id="mentor.caseload.moves" /></H2>
         {myMoves.length ? (
           <ul className="mt-2 space-y-1 text-sm">
             {myMoves.map((m, i) => (

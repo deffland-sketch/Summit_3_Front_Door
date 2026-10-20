@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useStudentData } from '@/app/hooks'
 import { Button, Card, Chevron, Empty, H1, H2, H3 } from '@/components/ui'
 import { OutcomeBand } from '@/components/OutcomeBand'
@@ -73,12 +74,12 @@ export function Progress({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.progress.title}</H1>
+        <H1>{c.progress.title} <Explain id="student.progress" /></H1>
         <p className="text-sm text-ink-2">{c.progress.building}</p>
       </div>
 
       <section aria-labelledby="inreach">
-        <H2 id="inreach">{c.progress.inReach}</H2>
+        <H2 id="inreach">{c.progress.inReach} <Explain id="student.progress.inreach" /></H2>
         <p className="text-sm text-ink-2">{c.progress.inReachLede}</p>
         <ul className="mt-2 grid gap-3 md:grid-cols-3">
           {inReach.length ? (

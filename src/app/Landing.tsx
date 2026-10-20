@@ -25,6 +25,11 @@ export function Landing() {
       <H1>{c.landing.title}</H1>
       <p className="mt-2 max-w-prose">{c.landing.lede}</p>
       <p className="mt-1 text-sm text-ink-2">{c.landing.sandboxNote}</p>
+      <p className="mt-3">
+        <Link to="/overview" className="inline-block rounded-lg bg-orange px-4 py-2 text-sm font-bold text-black hover:bg-orange-1">
+          {c.overview.title}
+        </Link>
+      </p>
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         <Card as="section" accent="border-t-indigo">
           <H2 id="pick-student">{c.landing.pickStudent}</H2>

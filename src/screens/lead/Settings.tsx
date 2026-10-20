@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useSnapshot } from '@/app/hooks'
 import { Button, Card, Field, H1, H2, inputClass, Toggle } from '@/components/ui'
 import { patchSettings, runWeeklyBuild } from '@/store/actions'
@@ -18,7 +19,7 @@ export function Settings() {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.lead.settings}</H1>
+        <H1>{c.lead.settings} <Explain id="lead.settings" /></H1>
         <p className="text-sm text-ink-2">{c.lead.settingsLede} {c.lead.lastChange}: {format(parseISO(s.changed_at), 'MMM d, h:mm a')} · {s.changed_by}.</p>
       </div>
       <Card className="grid gap-3 md:grid-cols-3">

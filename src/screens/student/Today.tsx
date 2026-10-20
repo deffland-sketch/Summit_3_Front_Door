@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useStudentData } from '@/app/hooks'
 import { SlotCard } from '@/components/SlotCard'
 import { EvidenceList } from '@/components/EvidenceList'
@@ -92,7 +93,7 @@ export function Today({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.today.greeting(firstName(student.display_name))}</H1>
+        <H1>{c.today.greeting(firstName(student.display_name))} <Explain id="student.today" /></H1>
         <p className="text-ink-2">{c.today.dayLine(dayName(today))}</p>
       </div>
       {todaysTouchpoints.length || followUps.length ? (
@@ -114,7 +115,7 @@ export function Today({ studentId }: { studentId: string }) {
         </section>
       ) : null}
       <section aria-labelledby="now">
-        <H2 id="now">{isLaunch ? c.slot.onCampus : c.slot.whereNow}</H2>
+        <H2 id="now">{isLaunch ? c.slot.onCampus : c.slot.whereNow} <Explain id="student.today.now" /></H2>
         <div className="mt-2 space-y-2">
           {isLaunch ? campus.map((s) => card(s, s.id === current?.id)) : current ? card(current, true) : <Empty>{daySlots.length ? c.today.nothingNow : c.slot.noSlotsToday}</Empty>}
         </div>

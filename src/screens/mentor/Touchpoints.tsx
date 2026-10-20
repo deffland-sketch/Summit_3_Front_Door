@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { Button, Card, Empty, H1, H2, inputClass } from '@/components/ui'
 import { touchpointKindLabel } from '@/components/TouchpointChip'
@@ -17,7 +18,7 @@ export function Touchpoints({ mentorId }: { mentorId: string }) {
   const todays = snap.touchpoints.filter((t) => t.mentor_id === mentorId && t.when.slice(0, 10) === today).sort((a, b) => a.when.localeCompare(b.when))
   return (
     <div className="space-y-6">
-      <H1>{c.mentor.touchpointsToday}</H1>
+      <H1>{c.mentor.touchpointsToday} <Explain id="mentor.touchpoints" /></H1>
       <Card>
         <H2 id="quick">{c.mentor.quickAdd}</H2>
         <div className="mt-2 flex flex-wrap gap-2">

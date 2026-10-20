@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useStudentData } from '@/app/hooks'
 import { Button, Empty, H1, H2 } from '@/components/ui'
 import { dayName } from '@/components/WeekGrid'
@@ -41,7 +42,7 @@ export function Courses({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.courses.title}</H1>
+        <H1>{c.courses.title} <Explain id="student.courses" /></H1>
         <p className="text-sm text-ink-2">{c.courses.lede}</p>
       </div>
       <ul className="flex flex-wrap gap-3 text-xs" aria-label="Legend">

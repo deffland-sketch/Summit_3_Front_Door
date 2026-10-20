@@ -17,6 +17,7 @@ import { SandboxControls } from '@/components/SandboxControls'
 export function LeadApp() {
   const c = COPY.en
   const nav = [
+    { to: '/overview', label: c.overview.nav },
     { to: '/l', label: c.nav.lead.dashboard, end: true },
     { to: '/l/live', label: c.nav.lead.live },
     { to: '/l/outcomes', label: c.nav.lead.outcomes },

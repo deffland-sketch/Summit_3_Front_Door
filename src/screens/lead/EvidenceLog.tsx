@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useSnapshot } from '@/app/hooks'
 import { Card, Chip, H1, H2 } from '@/components/ui'
 import { getGraph } from '@/graph'
@@ -21,7 +22,7 @@ export function EvidenceLog() {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.lead.evidenceLog}</H1>
+        <H1>{c.lead.evidenceLog} <Explain id="lead.evidence" /></H1>
         <p className="text-sm text-ink-2">{c.lead.evidenceLede}</p>
       </div>
       <Card>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { Button, Card, H1, inputClass } from '@/components/ui'
 import { TYPE_STYLE } from '@/components/types'
@@ -36,7 +37,7 @@ export function LiveBoard() {
   return (
     <div className="space-y-4">
       <div className="no-print">
-        <H1>{c.lead.live}</H1>
+        <H1>{c.lead.live} <Explain id="lead.live" /></H1>
         <p className="text-sm text-ink-2">{c.lead.liveLede}</p>
       </div>
       <div className="no-print flex flex-wrap gap-2 text-sm">

@@ -17,6 +17,10 @@ npm run seed         # regenerate public/sandbox/*.json (deterministic)
 
 The app loads `public/sandbox/sandbox.json` (about 19 MB, served compressed) into an in-memory store behind a repository interface. The specs live in `specs/`, read them in order. `DECISIONS.md` records every technical call in one line each; `QUESTIONS.md` records every product question with the assumption taken and where it lives in the code.
 
+## The Map to the Model
+
+`/overview` (the orange button on the landing page, and "How This Maps" in every role's nav) lists each feature of the Summit 3.0 model with where it lives in the prototype. The small orange `?` next to every screen title, and next to the sections that matter most, opens the same note for that screen: the model feature it carries and how.
+
 ## Demo Script (10 Minutes)
 
 1. **Land on the role switcher.** Tick "With a real-world slot today" and pick a student at Explore level. The page is the student's Today.

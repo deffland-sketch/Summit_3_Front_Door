@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot } from '@/app/hooks'
 import { Card, Chip, H1, H2 } from '@/components/ui'
 import { dayName } from '@/components/WeekGrid'
@@ -24,7 +25,7 @@ export function Partners() {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.lead.partners}</H1>
+        <H1>{c.lead.partners} <Explain id="lead.partners" /></H1>
         <p className="text-sm text-ink-2">{c.lead.partnersLede}</p>
       </div>
       {data.map(({ p, offs, cap, fill }) => (

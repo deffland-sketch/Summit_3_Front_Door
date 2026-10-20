@@ -19,6 +19,7 @@ export function StudentApp() {
   const c = COPY[student.locale]
   const base = `/s/${student.id}`
   const nav = [
+    { to: '/overview', label: c.overview.nav },
     { to: base, label: c.nav.student.today, end: true },
     { to: `${base}/week`, label: c.nav.student.week },
     { to: `${base}/build`, label: c.nav.student.build },

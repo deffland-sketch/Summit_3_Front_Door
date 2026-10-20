@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot } from '@/app/hooks'
 import { Card, H1, H2, Stat } from '@/components/ui'
 import { COGNITIVE_DOMAINS } from '@/graph/authored/cognitive-skills'
@@ -53,7 +54,7 @@ export function Outcomes() {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.lead.outcomes}</H1>
+        <H1>{c.lead.outcomes} <Explain id="lead.outcomes" /></H1>
         <p className="text-sm text-ink-2">{c.lead.outcomesLede}</p>
       </div>
       <ul className="grid grid-cols-2 gap-2 md:grid-cols-6">

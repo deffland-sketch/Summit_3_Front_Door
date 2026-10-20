@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useStudentData } from '@/app/hooks'
 import { WeekGrid, TypeLegend } from '@/components/WeekGrid'
 import { TouchpointChip } from '@/components/TouchpointChip'
@@ -19,7 +20,7 @@ export function Week({ studentId }: { studentId: string }) {
   return (
     <div className="space-y-4">
       <div>
-        <H1>{c.week.title}</H1>
+        <H1>{c.week.title} <Explain id="student.week" /></H1>
         <p className="text-sm text-ink-2">
           {c.week.version(plan.version)} · {plan.confirmed_by ? c.week.confirmedBy(idx.adults.get(plan.confirmed_by)?.display_name ?? '') : c.week.awaiting}
         </p>

@@ -2,13 +2,13 @@ import { expect, test } from '@playwright/test'
 
 test('mentor happy path: caseload, student, habits touchpoint shows on the student Today', async ({ page }) => {
   await page.goto('/m/adu_mentor_1')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Caseload')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Caseload')
   await page.screenshot({ path: 'e2e/screens/mentor-caseload.png', fullPage: true })
   const first = page.getByRole('link', { name: /.+/ }).filter({ has: page.locator('text=/^[A-Z][a-z]+ [A-Z]/') }).first()
   const studentLink = page.locator('table a').first()
   const name = await studentLink.textContent()
   await studentLink.click()
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(name ?? '')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(name ?? '')
   await page.getByRole('button', { name: 'Habits', exact: true }).click()
   await page.getByLabel('Notes (the student sees these unless marked private)').fill('Focus habit showed up in the studio block.')
   await page.getByRole('button', { name: 'Save touchpoint' }).click()
@@ -19,7 +19,7 @@ test('mentor happy path: caseload, student, habits touchpoint shows on the stude
   await page.goto('/m/adu_mentor_1/confirm')
   await page.screenshot({ path: 'e2e/screens/mentor-confirm.png', fullPage: true })
   await page.getByRole('link', { name: 'Readiness' }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Readiness')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Readiness')
   await page.screenshot({ path: 'e2e/screens/mentor-readiness.png', fullPage: true })
   void first
 })

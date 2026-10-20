@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot } from '@/app/hooks'
 import { Button, Card, Empty, H1 } from '@/components/ui'
 import { needsYou } from '@/engine'
@@ -28,7 +29,7 @@ export function NeedsYou({ adultId }: { adultId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.expert.needsYou}</H1>
+        <H1>{c.expert.needsYou} <Explain id="expert.needsyou" /></H1>
         <p className="text-sm text-ink-2">{c.expert.needsYouLede}</p>
       </div>
       {open.length ? (

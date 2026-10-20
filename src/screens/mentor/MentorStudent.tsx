@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useStudentData } from '@/app/hooks'
 import { Button, Card, Empty, Field, H1, H2, H3, inputClass } from '@/components/ui'
 import { FlagDot } from '@/components/FlagDot'
@@ -51,7 +52,7 @@ export function MentorStudent({ mentorId }: { mentorId: string }) {
           <Link to={`/m/${mentorId}`} className="text-indigo underline dark:text-indigo-1">{c.mentor.caseload}</Link>
           <Link to={`/s/${student.id}`} className="text-indigo underline dark:text-indigo-1">{c.mentor.viewAsStudent}</Link>
         </p>
-        <H1>{student.display_name}</H1>
+        <H1>{student.display_name} <Explain id="mentor.student" /></H1>
         <p className="flex flex-wrap items-center gap-3 text-sm text-ink-2">
           {c.app.levels[student.level]} · {c.app.autonomy[student.plan_autonomy]}
           {flags.map((f) => <FlagDot key={f.kind} kind={f.kind} detail={f.detail} />)}

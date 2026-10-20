@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot } from '@/app/hooks'
 import { Button, Card, Empty, H1 } from '@/components/ui'
 import { TypeChip } from '@/components/SlotCard'
@@ -24,7 +25,7 @@ export function StandingSessions({ adultId }: { adultId: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.expert.standing}</H1>
+        <H1>{c.expert.standing} <Explain id="expert.standing" /></H1>
         <p className="text-sm text-ink-2">{c.expert.standingLede}</p>
       </div>
       {groups.length ? (

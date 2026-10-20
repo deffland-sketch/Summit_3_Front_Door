@@ -1,4 +1,5 @@
 import { useCopy } from '@/copy'
+import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot } from '@/app/hooks'
 import { Card, H1 } from '@/components/ui'
 import { dayName } from '@/components/WeekGrid'
@@ -15,7 +16,7 @@ export function Events() {
   return (
     <div className="space-y-6">
       <div>
-        <H1>{c.lead.events}</H1>
+        <H1>{c.lead.events} <Explain id="lead.events" /></H1>
         <p className="text-sm text-ink-2">{c.lead.eventsLede} {protectedCount} protected slots this week stay where they are.</p>
       </div>
       <Card>
