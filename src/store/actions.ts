@@ -158,7 +158,8 @@ export function adultOutToday(adultId: string, day: string) {
     }
   }
   useUi.getState().setOutToday(adultId, day)
-  const moves = runOvernight(`${day}T00:00:00.000Z`, day === snap.meta.today ? snap.meta.today : day, true, `out_${adultId}_${day}`, true)
+  // An out-today run moves only the students the cancellations displaced: evidence is read as of now, so no new row counts as new.
+  const moves = runOvernight(nowIso(), day === snap.meta.today ? snap.meta.today : day, true, `out_${adultId}_${day}`, true)
   logRun('out_today', `${cancelled} offerings led by ${adultId} on ${day}`, `${cancelled} cancellations and ${moves.length} moves`, clock() - t0, cancelled)
   return moves
 }

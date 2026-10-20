@@ -80,6 +80,10 @@ export function adjustOvernight(snap: Sandbox, ctx: OvernightContext): { plans: 
         ledger.fill.set(ro.id, (ledger.fill.get(ro.id) ?? 0) + 1)
         replacement.entry = o.entry === 'required' ? 'required' : 'chosen'
         replacement.why = en.why.movedTo(o.title, ro.title, options[0].builds[0] ?? null)
+        // The option may have come from the open slots after the cancelled one; a longer or later offering absorbs them.
+        for (const x of next.slots) {
+          if (x.id !== s.id && x.offering_id === null && x.entry === 'chosen' && live(x) && x.day === replacement.day && overlaps(x.start, x.end, replacement.start, replacement.end)) x.status = 'moved'
+        }
       }
       next = { ...next, slots: [...next.slots, replacement] }
       const trace: TracePart = { evidence_ids: [], settings: { max_overnight_moves: settings.max_overnight_moves, cancelled_offering: o.id }, edges: [], candidates: options.slice(0, 5).map((r, i) => ({ id: r.offering.id, label: r.offering.title, score: r.score, lost_because: i === 0 ? null : 'ranked lower' })), decision: `${o.title} was cancelled; moved to ${options[0]?.offering.title ?? 'an open slot'}` }
