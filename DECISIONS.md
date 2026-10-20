@@ -21,3 +21,12 @@ One line per technical decision, newest at the bottom. Product questions live in
 - Draft plans have `published_at: null`; the Friday build sets `published_at`, the mentor's Monday confirmation sets `confirmed_by`.
 - Workshop proposals are engine output held in UI state with an accept, change, or decline decision; they are not a stored object.
 - The store is a vanilla Zustand store wrapped by a `SandboxRepositories` interface (`collection(name).upsert` and friends) so a real API drops in behind the same calls.
+- Learning Commons Knowledge Graph v1.15.0 exports were fetched at build time (352 MB nodes, 603 MB relationships, streamed and filtered in under two minutes). Kept the 132 Multi-State mathematics standards IM Math 1 to 3 cite, the 609 learning components beneath them, and the 134 `buildsTowards` edges among them, written to `src/graph/data/lc-math.json` by `seed/lc-import.ts` and committed so the app build needs no network.
+- Math progression edges carry `source: learning_commons, confidence: 1`; cognitive skill, habit, ELA, lesson, experience, credential, and pathway edges are authored at `confidence: 0.7`.
+- IM Math 1 to 3 is the integrated sequence (7 to 8 units each) with lesson titles from the IM course outlines; each math lesson is tagged to two of its unit's standards in rotation and lists the previous lesson as a prerequisite.
+- OpenSciEd and AP courses are authored in `src/graph/authored/courses.ts`, 6 units each, 8 lessons per unit, tagged to two cognitive skills from a per-unit pool; science lessons add a lab mode every fourth lesson and humanities lessons a seminar mode.
+- CCSS ELA is 32 anchor standards plus the grades 9 to 10 band for reading literature, informational text, and writing (62 reference nodes), each with authored `supports` edges into cognitive skills.
+- The 36 cognitive skills use level expectations 3, 4, 5, 6 at Expose, Explore, Pursue, Launch, with three harder skills (Designing processes, Modeling, Counterclaims) one point lower; Summit's rubric gives per-grade expectations, so these are the level translation.
+- Habits of Success use the Building Blocks for Learning structure (5 blocks, 16 habits) with authored builds_toward edges from lower blocks to higher ones.
+- Graph queries (whatServes, whatUnlocks, gapsTo, pathwaysNear, underneath) live in `src/graph/index.ts` as pure functions over an in-memory adjacency map; walks are bounded to three hops and return the edges traversed.
+- `seed/` compiles under its own `tsconfig.seed.json` with Node types; the app tsconfig covers `src/` only.
