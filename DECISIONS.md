@@ -48,3 +48,6 @@ One line per technical decision, newest at the bottom. Product questions live in
 - Open slots carry `experience_type: IW` as a placeholder; the slot card hides the type chip while the slot is open.
 - Playwright runs the preinstalled Chromium at `/opt/pw-browsers/chromium` via `launchOptions.executablePath`; screenshots land in `e2e/screens/` (ignored by git).
 - Learning Commons standard text carries LaTeX; `plainMath()` in `src/graph/catalog.ts` strips it for names and descriptions.
+- Proposal decisions (accepted, changed, declined with reason) live in the UI store for the session; accepting publishes an Offering through `acceptProposal` and places each student with a why that cites their latest Kira row.
+- "I'm out today" cancels the adult's non-practice offerings for the day and runs the overnight adjuster for that day, so only the displaced students move and each moved slot carries the "New since yesterday" tag.
+- The weekly build (`runWeeklyBuild`) rebuilds every plan for the week keeping the existing RW placements, goals, and focus habits; it writes drafts (published_at null) unless "Publish the week" is pressed, so a rerun never touches a published week.
