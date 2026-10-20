@@ -59,6 +59,7 @@ export function ProposedWorkshops({ adultId }: { adultId: string }) {
                   </li>
                 ))}
               </ul>
+              <p className="mt-2 text-sm"><span className="font-bold">{c.proposals.ifDeclined}.</span> {p.if_declined.map((d) => `${idx.students.get(d.student_id)?.display_name}: ${d.text}`).join('; ')}.</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Button onClick={() => accept(p)}>{c.expert.accept}</Button>
                 <Button kind="secondary" onClick={() => { setChangeFor(changeFor === p.id ? null : p.id); setDeclineFor(null) }} ariaExpanded={changeFor === p.id}>{c.expert.change}</Button>

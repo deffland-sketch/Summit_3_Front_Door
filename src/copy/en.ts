@@ -720,9 +720,19 @@ export const en = {
   },
   proposals: {
     why: (lesson: string, n: number) => `${n} ${n === 1 ? 'student needs' : 'students need'} ${lesson} this week.`,
-    collisions: (n: number) => `${n} collisions; the best time available.`,
-    noCollisions: 'No collisions with protected time, placements, or life constraints.',
+    collisions: (n: number) => `${n} ${n === 1 ? 'slot moves' : 'slots move'} aside if you accept; listed by student below.`,
+    noCollisions: 'Overlaps nothing on any of their weeks.',
+    noTime: 'No time this week has a free expert and room clear of their placements, protected time, and life constraints; pick one with Change.',
     conference: (lesson: string, n: number) => `${n} ${n === 1 ? 'student needs' : 'students need'} ${lesson}; a 1:1 conference fits better than a workshop.`,
+    rationale: (n: number, lesson: string, source: string, lo: number, hi: number, first: string, last: string, line: number) =>
+      `${n === 1 ? 'One student' : `${n} students`} ${n === 1 ? 'is' : 'are'} on ${lesson} with every prerequisite mastered; ${n === 1 ? 'the latest' : 'their latest'} ${source} ${n === 1 ? 'check reads' : 'checks read'} ${lo === hi ? lo : `${lo} to ${hi}`} (${first === last ? first : `${first} to ${last}`}), below the required line of ${line}.`,
+    rationaleAssigned: (n: number, lesson: string) => `${n === 1 ? 'One student was' : `${n} students were`} marked needs a workshop on ${lesson} by the content expert, with every prerequisite mastered.`,
+    splitPrerequisite: (n: number, from: string) => `${n === 1 ? 'One of them comes' : `${n} of them come`} from ${from}; this lesson is the prerequisite still open, so the group splits here.`,
+    splitHard: (name: string) => `${name} has a placement, protected time, or life constraint at every time the others could meet, so this is a conference of their own.`,
+    ifDeclined: 'If you decline',
+    fallbackConference: (day: string, start: string) => `the 1:1 conference already on the menu ${day} ${start}`,
+    fallbackPractice: (title: string, day: string, start: string) => `${title} ${day} ${start}, self-directed`,
+    fallbackNone: 'self-directed practice; no block with room this week',
   },
 }
 export type Copy = typeof en

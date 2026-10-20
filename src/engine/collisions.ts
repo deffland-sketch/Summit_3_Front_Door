@@ -9,6 +9,8 @@ export function collisionsFor(student: Student, day: string, start: string, end:
   for (const c of student.life_constraints) if (c.day === wd && overlaps(c.start, c.end, start, end)) reasons.push(`life: ${c.label}`)
   for (const s of existing) {
     if (s.day !== day || s.status === 'cancelled' || s.status === 'moved') continue
+    // An open slot is there to be filled; it never collides.
+    if (s.offering_id === null && s.entry === 'chosen') continue
     if (overlaps(s.start, s.end, start, end)) {
       const o = s.offering_id ? snap.offerings.find((x) => x.id === s.offering_id) : null
       reasons.push(s.experience_type === 'RW' ? 'placement' : s.entry === 'protected' ? 'protected' : `slot: ${o?.title ?? s.experience_type}`)

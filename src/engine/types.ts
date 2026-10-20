@@ -42,6 +42,10 @@ export interface WorkshopProposal {
   start: string
   end: string
   why: string
+  /** One line a teacher would accept: the shared evidence in plain words (Spec 6 rule 9). */
+  rationale: string
+  /** Where each student goes if the expert declines (Spec 6 rule 9). */
+  if_declined: { student_id: string; text: string }[]
   collisions: { student_id: string; reason: string }[]
   kind: 'workshop' | 'conference'
   trace: TracePart

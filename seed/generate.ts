@@ -582,7 +582,7 @@ function buildWeekFor(weekStart: string, suffix: string, asOf: string, published
   // Engine proposals: accept most, leave some for the Proposed Workshops screen this week.
   const proposals = proposeWorkshops(snap, { weekStart, asOf })
   const workshops = proposals.filter((p) => p.kind === 'workshop')
-  const keep = isCurrent ? 3 : 0
+  const keep = isCurrent ? 4 : 0
   const accepted = workshops.slice(0, Math.max(0, workshops.length - keep))
   for (const p of accepted) {
     if (p.adult_id && p.place_id) off(offeringFromProposal(p, snap, { id: `off_ws_${p.lesson_id}_${p.day}_${p.start.replace(':', '')}${suffix}`.toLowerCase() }))

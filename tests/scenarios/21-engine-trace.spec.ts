@@ -52,7 +52,7 @@ test('21 every engine output carries a trace: evidence read, settings applied, e
     expect(p.trace.evidence_ids.length, p.id).toBeGreaterThanOrEqual(p.student_ids.length)
     expect(p.trace.settings.grouping_threshold).toBe(snap.settings.grouping_threshold)
     expect(p.trace.candidates.length, `${p.id} considered times`).toBeGreaterThan(0)
-    expect(p.trace.candidates.some((k) => k.lost_because === null), `${p.id} names its pick`).toBe(true)
+    if (p.adult_id) expect(p.trace.candidates.some((k) => k.lost_because === null), `${p.id} names its pick`).toBe(true)
   }
   // Level review flags carry their evidence too.
   const reviews = snap.students.map((s) => suggestLevelReview(s.id, snap)).filter((r) => r !== null)
