@@ -434,15 +434,18 @@ function weekOfferings(weekStart: string, suffix: string): Offering[] {
   // Partner slots (RW).
   const partner = (title: string, pid: string, placeId: string, days: number[], start: string, end: string, cap: number, template: string, kind: Offering['kind'] = 'partner_slot') => {
     const t = EXPERIENCE_TEMPLATES.find((x) => x.id === template)!
-    for (const d of days) base({ experience_type: 'RW', kind, title, lesson_id: null, outcomes_served: t.teaches, adult_ids: [pid], place_id: placeId, day: dates[d], start, end, capacity_min: Math.max(1, Math.floor(cap / 3)), capacity_max: cap, entry: 'assigned', source: kind === 'college_course' ? 'calendar' : 'partner', source_ref: template, standing: true, status: 'published' })
+    for (const d of days) base({ experience_type: 'RW', kind, title, lesson_id: null, outcomes_served: t.teaches, adult_ids: [pid], place_id: placeId, day: dates[d], start, end, capacity_min: Math.max(1, Math.floor(cap / 3)), capacity_max: cap, entry: t.level === 'expose' ? 'open' : 'assigned', source: kind === 'college_course' ? 'calendar' : 'partner', source_ref: template, standing: true, status: 'published' })
   }
   partner('Parks field crew', 'adu_partner_parks', 'pl_parks', [0, 1, 2, 3, 4], '12:45', '15:00', 10, 'XT.PARKS.TRAIL')
-  partner('Water-quality study', 'adu_partner_parks', 'pl_parks', [1, 3], '09:15', '12:15', 12, 'XT.PARKS.WATER', 'expedition')
+  partner('Water-quality study', 'adu_partner_parks', 'pl_parks', [1, 3], '09:15', '12:15', 16, 'XT.PARKS.WATER', 'expedition')
   partner('Newsroom reporting', 'adu_partner_news', 'pl_news', [0, 2, 4], '09:15', '12:15', 6, 'XT.NEWS.LOCAL')
   partner('Hospital patient services', 'adu_partner_hospital', 'pl_hospital', [1, 3], '09:15', '12:15', 6, 'XT.HOSP.VOLUNTEER')
   partner('Hospital lab observation', 'adu_partner_hospital', 'pl_hospital', [2, 4], '09:15', '12:15', 6, 'XT.HOSP.LAB')
   partner('Junior naturalist program', 'adu_partner_parks', 'pl_parks', [2, 4], '09:15', '12:15', 10, 'XT.PARKS.NATURALIST', 'expedition')
   partner('Student podcast production', 'adu_partner_news', 'pl_news', [1, 3], '12:45', '15:00', 6, 'XT.NEWS.PODCAST')
+  // Two short expose-level experiences that students can choose into an open afternoon (Spec 6 Graph in the Engine).
+  partner('Newsroom shadow visit', 'adu_partner_news', 'pl_news', [1, 3], '13:30', '14:15', 8, 'XT.NEWS.SHADOW')
+  partner('Water-quality data lab', 'adu_partner_parks', 'pl_parks', [2, 4], '13:30', '14:15', 8, 'XT.PARKS.WATER', 'expedition')
   partner('Intro to computer science', 'adu_partner_college', 'pl_college', [0, 2], '12:45', '14:15', 15, 'XT.COLLEGE.INTRO_CS', 'college_course')
   partner('Intro statistics', 'adu_partner_college', 'pl_college', [1, 3], '12:45', '14:15', 15, 'XT.COLLEGE.STATS', 'college_course')
   partner('College composition', 'adu_partner_college', 'pl_college', [0, 2, 4], '09:15', '10:45', 15, 'XT.COLLEGE.COMP', 'college_course')
@@ -523,7 +526,8 @@ function placeRw(weekStart: string, weekOffs: Offering[]): Map<string, string[]>
   const rw = weekOffs.filter((o) => o.experience_type === 'RW' && o.status === 'published')
   const fill = new Map<string, number>()
   const out = new Map<string, string[]>()
-  const room = (o: Offering) => (fill.get(o.id) ?? 0) < o.capacity_max
+  // Open (expose-level) experiences keep a few seats for students to choose in Build My Week.
+  const room = (o: Offering) => (fill.get(o.id) ?? 0) < (o.entry === 'open' ? Math.max(1, o.capacity_max - 3) : o.capacity_max)
   const takeIt = (sid: string, o: Offering) => {
     fill.set(o.id, (fill.get(o.id) ?? 0) + 1)
     out.set(sid, [...(out.get(sid) ?? []), o.id])
@@ -607,7 +611,8 @@ function buildWeekFor(weekStart: string, suffix: string, asOf: string, published
       const live = p.slots.find((x) => x.id === slot.id)
       if (!live || live.offering_id) continue
       if (!rng.chance(fillRate)) continue
-      const opts = optionsForSlot(p, live, s, snap2, ledger).filter((o) => !o.reasons.includes('collides'))
+      // Seed-time picks leave the open real-world seats for the demo (Build My Week shows them with the gap they teach).
+      const opts = optionsForSlot(p, live, s, snap2, ledger).filter((o) => !o.reasons.includes('collides') && o.offering.experience_type !== 'RW')
       if (!opts.length) continue
       const pick = s.plan_autonomy === 'guided' ? opts[0] : rng.pick(opts.slice(0, 3))
       p = chooseForSlot(p, live, pick.offering, ledger, undefined, isCurrent ? traces : undefined, opts, { runId: `pick_${weekStart}`, now: publishedAt })

@@ -5,6 +5,7 @@ import { adjustOvernight, buildAllWeeks, chooseForSlot, makeTrace, newLedger, of
 import { useUi } from './ui'
 import { en } from '@/copy/en'
 import { shortDate } from '@/lib/time'
+import { PATHWAYS } from '@/graph/authored/pathways'
 
 let counter = 0
 export const nextId = (prefix: string) => `${prefix}_${Date.now().toString(36)}_${(++counter).toString(36)}`
@@ -22,6 +23,10 @@ export function storeTraces(traces: EngineTrace[]) {
 /** Every engine run leaves a gathering log line: what it read, what it wrote, how long it took (Spec 5 Evidence Log). */
 export function logRun(run: 'weekly_build' | 'overnight' | 'out_today' | 'accept_proposal' | 'choose', read: string, wrote: string, ms: number, rows: number) {
   repos.collection('gathering_log').upsert({ id: nextId('run'), source: `engine:${run}`, pulled_at: nowIso(), received: rows, unmapped: 0, refused: 0, stale: false, message: `Read ${read}. Wrote ${wrote}. ${Math.max(1, Math.round(ms))} ms.` })
+}
+function pathwayName(snap: ReturnType<typeof snapshot>, studentId: string): string {
+  const f = snap.futre.find((x) => x.student_id === studentId)
+  return PATHWAYS.find((p) => p.id === f?.cns.pathway_id)?.title ?? 'pathway'
 }
 const clock = () => (typeof performance !== 'undefined' ? performance.now() : Date.now())
 
@@ -74,7 +79,9 @@ export function chooseOffering(planId: string, slotId: string, offering: Offerin
   const student = snap.students.find((s) => s.id === plan.student_id)
   const traces: TraceSink = []
   const options = student ? optionsForSlot(plan, slot, student, snap, ledger) : []
-  const next = chooseForSlot(plan, slot, offering, ledger, undefined, traces, options)
+  const picked = options.find((r) => r.offering.id === offering.id)
+  const why = picked?.gap ? en.why.chosenGap(offering.title, picked.gap, pathwayName(snap, plan.student_id)) : picked?.pathway ? en.why.chosenNear(offering.title, picked.pathway) : undefined
+  const next = chooseForSlot(plan, slot, offering, ledger, why, traces, options)
   repos.collection('plans').upsert({ ...next, version: plan.published_at ? plan.version + 1 : plan.version })
   storeTraces(traces)
 }

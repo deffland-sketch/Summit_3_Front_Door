@@ -36,7 +36,9 @@ test('23 fifty why lines across needs, placed slots, and overnight moves each na
   partner.status = 'cancelled'
   const student = snap.students.find((s) => {
     const plan = snap.plans.find((x) => x.student_id === s.id && x.week_start === snap.meta.week_start)!
-    return plan.slots.some((x) => x.offering_id === null && x.entry === 'chosen' && x.day > snap.meta.today) && snap.assignments.some((a) => a.student_id === s.id && a.status === 'active' && a.lesson_id.startsWith('les_im'))
+    const open = plan.slots.some((x) => x.offering_id === null && x.entry === 'chosen' && x.day > snap.meta.today)
+    const quiet = !needs(s.id, snap).some((x) => x.kind === 'required' || x.kind === 'recommended')
+    return open && quiet && snap.assignments.some((a) => a.student_id === s.id && a.status === 'active' && a.lesson_id.startsWith('les_im'))
   })!
   const asg = snap.assignments.find((a) => a.student_id === student.id && a.status === 'active' && a.lesson_id.startsWith('les_im'))!
   const lesson = snap.lessons.find((l) => l.id === asg.lesson_id)!

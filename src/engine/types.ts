@@ -1,4 +1,4 @@
-import type { EngineTrace, ExperienceType, Offering, Slot, TracePart } from '@/model'
+import type { EngineTrace, ExperienceType, Offering, Slot, TraceEdge, TracePart } from '@/model'
 
 export type NeedKind = 'required' | 'recommended' | 'in_reach' | 'readiness'
 
@@ -67,6 +67,12 @@ export interface RankedOption {
   score: number
   reasons: string[]
   builds: string[]
+  /** The graph edges the ranker walked for this option (gap on the Futre pathway, pathway nearby). */
+  edges: TraceEdge[]
+  /** The name of the pathway gap this offering teaches, when it does. */
+  gap: string | null
+  /** The pathway this offering leads toward, when the bonus applied. */
+  pathway: string | null
 }
 
 export interface LevelReviewSuggestion {

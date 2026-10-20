@@ -1,4 +1,4 @@
-import type { Offering, Plan, Sandbox, Slot, Student, TracePart } from '@/model'
+import type { Offering, Plan, Sandbox, Slot, Student, TraceEdge, TracePart } from '@/model'
 import { en } from '@/copy/en'
 import { byId } from '@/lib'
 import { overlaps, weekDates, weekdayOf } from '@/lib/time'
@@ -129,8 +129,11 @@ export function buildWeek(studentId: string, snap: Sandbox, ctx: BuildContext = 
   for (const oid of ctx.rwPlacements ?? []) {
     const o = offerings.find((x) => x.id === oid)
     if (!o || !free(slots, o.day, o.start, o.end)) continue
-    const why = pathway && (o.outcomes_served.some((x) => pathway.requires.includes(x)) || o.source_ref.startsWith('XT.')) ? en.why.rwPathway(o.title, pathway.title) : en.why.rwPlacement(o.title)
-    place({ day: o.day, start: o.start, end: o.end, experience_type: 'RW', offering_id: o.id, entry: 'assigned', why }, o, { decision: 'placement confirmed by the coordinator, kept across rebuilds (step 3)', edges: pathway ? [{ from: o.source_ref, to: pathway.id, type: 'leads_to', source: 'authored' }] : [] })
+    const taught = o.outcomes_served[0] ? snap.outcomes.find((x) => x.id === o.outcomes_served[0]) : undefined
+    const onPathway = pathway && (o.outcomes_served.some((x) => pathway.requires.includes(x)) || o.source_ref.startsWith('XT.'))
+    const why = onPathway ? en.why.rwPathway(o.title, pathway.title) : en.why.rwPlacement(o.title, taught?.name ?? null)
+    const edges: TraceEdge[] = onPathway ? [{ from: o.source_ref, to: pathway.id, type: 'leads_to', source: 'authored' }] : taught ? [{ from: o.source_ref, to: taught.id, type: 'teaches', source: 'authored' }] : []
+    place({ day: o.day, start: o.start, end: o.end, experience_type: 'RW', offering_id: o.id, entry: 'assigned', why }, o, { decision: 'placement confirmed by the coordinator, kept across rebuilds (step 3)', edges })
   }
 
   // 4. Required, then 5. Recommended.
@@ -229,7 +232,8 @@ export function optionsForSlot(plan: Plan, slot: Slot, student: Student, snap: S
 /** Fill an open slot with a chosen offering; a longer offering absorbs the open slots it spans. */
 export function chooseForSlot(plan: Plan, slot: Slot, offering: Offering, ledger: CapacityLedger, why = en.why.chosen, traces?: TraceSink, options?: RankedOption[], run: { runId?: string; now?: string } = {}): Plan {
   if (!take(ledger, offering)) return plan
-  traces?.push(makeTrace('slot', plan.student_id, slot.id, { evidence_ids: [], settings: { plan_autonomy: 'student pick' }, edges: [], candidates: (options ?? []).map((r) => ({ id: r.offering.id, label: r.offering.title, score: r.score, lost_because: r.offering.id === offering.id ? null : 'the student picked another' })), decision: `the student chose ${offering.title}${(options ?? []).length ? ` from ${(options ?? []).length} ranked options` : ''}` }, run.runId ?? 'pick', run.now ?? new Date().toISOString()))
+  const picked = (options ?? []).find((r) => r.offering.id === offering.id)
+  traces?.push(makeTrace('slot', plan.student_id, slot.id, { evidence_ids: [], settings: { plan_autonomy: 'student pick' }, edges: picked?.edges ?? [], candidates: (options ?? []).map((r) => ({ id: r.offering.id, label: r.offering.title, score: r.score, lost_because: r.offering.id === offering.id ? null : 'the student picked another' })), decision: `the student chose ${offering.title}${(options ?? []).length ? ` from ${(options ?? []).length} ranked options` : ''}` }, run.runId ?? 'pick', run.now ?? new Date().toISOString()))
   const absorbed = plan.slots.filter((s) => s.id !== slot.id && s.day === offering.day && s.offering_id === null && s.entry === 'chosen' && overlaps(s.start, s.end, offering.start, offering.end))
   const slots = plan.slots
     .filter((s) => !absorbed.includes(s))

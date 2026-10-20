@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useCopy } from '@/copy'
 import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot } from '@/app/hooks'
-import { Card, H1, H2, Stat } from '@/components/ui'
+import { Card, H1, H2, LinkButton, Stat } from '@/components/ui'
 import { COGNITIVE_DOMAINS } from '@/graph/authored/cognitive-skills'
 import { HABIT_BLOCKS } from '@/graph/authored/habits'
 import { latestByOutcome } from '@/lib'
@@ -56,6 +56,7 @@ export function Outcomes() {
       <div>
         <H1>{c.lead.outcomes} <Explain id="lead.outcomes" /></H1>
         <p className="text-sm text-ink-2">{c.lead.outcomesLede}</p>
+        <div className="mt-2"><LinkButton to="/l/graph">{c.lead.openGraph}</LinkButton></div>
       </div>
       <ul className="grid grid-cols-2 gap-2 md:grid-cols-6">
         {data.byLevel.map((r) => <li key={r.l}><Stat label={c.app.levels[r.l]} value={r.n} /></li>)}

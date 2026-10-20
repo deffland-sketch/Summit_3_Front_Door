@@ -113,6 +113,7 @@ export function buildGraph(outcomes: Outcome[] = allOutcomes(), lessons: Lesson[
   for (const p of PATHWAYS) {
     for (const r of p.requires) link(g, { from: p.id, to: r, type: 'requires', source: 'authored', confidence: 0.7 })
     for (const c of p.career_ids) link(g, { from: p.id, to: c, type: 'leads_to', source: 'authored', confidence: 0.7 })
+    for (const x of p.experiences) link(g, { from: x, to: p.id, type: 'member_of', source: 'authored', confidence: 0.7 })
   }
 
   g.counts.nodes = g.nodes.size
@@ -189,6 +190,53 @@ export function pathwaysNear(g: KnowledgeGraph, validated: Set<string>, targetCa
     out.push({ pathway: n, overlap, matches_career: matches, gaps: req.length - overlap })
   }
   return out.sort((a, b) => Number(b.matches_career) - Number(a.matches_career) || b.overlap - a.overlap || a.gaps - b.gaps)
+}
+
+/** The shortest chain of builds_toward edges from outcome a to outcome b (breadth first, at most eight hops), or null. */
+export function shortestPath(g: KnowledgeGraph, a: string, b: string, maxHops = 8): Walk | null {
+  if (!g.nodes.has(a) || !g.nodes.has(b)) return null
+  if (a === b) return { node: g.nodes.get(a)!, via: [] }
+  const prev = new Map<string, GraphEdge>()
+  let frontier = [a]
+  const seen = new Set([a])
+  for (let hop = 0; hop < maxHops && frontier.length; hop++) {
+    const next: string[] = []
+    for (const id of frontier) {
+      for (const e of outOf(g, id, 'builds_toward')) {
+        if (seen.has(e.to)) continue
+        seen.add(e.to)
+        prev.set(e.to, e)
+        if (e.to === b) {
+          const via: GraphEdge[] = []
+          for (let cur = b; cur !== a; ) {
+            const edge = prev.get(cur)!
+            via.unshift(edge)
+            cur = edge.from
+          }
+          return { node: g.nodes.get(b)!, via }
+        }
+        next.push(e.to)
+      }
+    }
+    frontier = next
+  }
+  return null
+}
+
+/** Pathways an experience template is part of, directly or through a credential it leads to. */
+export function pathwaysOf(g: KnowledgeGraph, templateId: string): Walk[] {
+  const walks: Walk[] = []
+  for (const e of outOf(g, templateId, 'member_of')) walks.push({ node: g.nodes.get(e.to)!, via: [e] })
+  for (const e of outOf(g, templateId, 'leads_to')) {
+    const cred = g.nodes.get(e.to)!
+    if (cred.type === 'Pathway') walks.push({ node: cred, via: [e] })
+    if (cred.type !== 'Credential') continue
+    for (const r of inOf(g, cred.id, 'requires')) {
+      const p = g.nodes.get(r.from)!
+      if (p.type === 'Pathway') walks.push({ node: p, via: [e, r] })
+    }
+  }
+  return dedupe(walks)
 }
 
 /** ELA standards and math components with a supports edge into the outcome. */

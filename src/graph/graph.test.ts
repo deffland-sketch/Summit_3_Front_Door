@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { allOutcomes, buildCatalog, LC_MATH } from './catalog'
-import { buildGraph, gapsTo, pathwaysNear, underneath, whatServes, whatUnlocks } from './index'
+import { buildGraph, gapsTo, pathwaysNear, pathwaysOf, shortestPath, underneath, whatServes, whatUnlocks } from './index'
 
 const catalog = buildCatalog()
 const outcomes = allOutcomes()
@@ -70,6 +70,25 @@ describe('knowledge graph', () => {
     expect(none.length).toBeGreaterThan(3)
     const some = gapsTo(graph, 'PW.NURSING', new Set(['CS.ANA.INTERPRET', 'CS.PRD.PRECISION', 'CR.BLS']))
     expect(some.length).toBeLessThan(none.length)
+  })
+
+  it('shortestPath follows builds_toward only, finds a two-hop chain, and returns null when nothing connects', () => {
+    const one = [...graph.edges].find((e) => e.type === 'builds_toward')!
+    const direct = shortestPath(graph, one.from, one.to)!
+    expect(direct.via).toHaveLength(1)
+    const second = (graph.out.get(one.to) ?? []).find((e) => e.type === 'builds_toward' && e.to !== one.from)
+    if (second) {
+      const two = shortestPath(graph, one.from, second.to)!
+      expect(two.via.length).toBeLessThanOrEqual(2)
+      for (const e of two.via) expect(e.type).toBe('builds_toward')
+    }
+    expect(shortestPath(graph, one.to, 'PW.NURSING')).toBeNull()
+    expect(shortestPath(graph, 'nope', one.to)).toBeNull()
+  })
+
+  it('pathwaysOf finds the pathway an experience template is part of', () => {
+    const p = pathwaysOf(graph, 'XT.NEWS.LOCAL')
+    expect(p.some((w) => w.node.id === 'PW.JOURNALISM')).toBe(true)
   })
 
   it('pathwaysNear ranks a matching career first', () => {

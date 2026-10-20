@@ -58,11 +58,16 @@ export function needs(studentId: string, snap: Sandbox, ctx: NeedsContext = {}):
       })
       .sort((a, b) => Number(a.prereqOpen) - Number(b.prereqOpen) || Number(!a.offering) - Number(!b.offering))
     for (const r of ranked) {
-      const lost = chosen ? 'another served it first' : r.prereqOpen ? 'its prerequisite is still open' : null
+      // A lesson with an open prerequisite loses on that first; after a pick, the rest lost to it.
+      const lost = r.prereqOpen ? 'its prerequisite is still open' : chosen ? 'another served it first' : null
       if (!chosen && !r.prereqOpen) chosen = r.w
       candidates.push({ id: r.w.node.id, label: r.w.node.name, score: null, lost_because: chosen === r.w ? null : lost })
     }
-    if (!chosen && ranked[0]) chosen = ranked[0].w
+    if (!chosen && ranked[0]) {
+      // Nothing ready: the first serving lesson stands, and its open prerequisite stays on the record.
+      chosen = ranked[0].w
+      candidates[0] = { ...candidates[0], lost_because: null, label: `${candidates[0].label} (prerequisite still open; nothing readier serves this)` }
+    }
     if (chosen) for (const e of chosen.via) edges.push({ from: e.from, to: e.to, type: e.type, source: e.source })
     const offering = chosen ? ranked.find((r) => r.w === chosen)?.offering : undefined
     return { text: chosen ? describeWalk(graph, chosen) : null, offering_id: offering?.id ?? null, edges, candidates: candidates.slice(0, 6) }
