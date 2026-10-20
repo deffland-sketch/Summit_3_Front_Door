@@ -40,6 +40,16 @@ export function needs(studentId: string, snap: Sandbox, ctx: NeedsContext = {}):
   const fresh = (e: Evidence) => daysBetween(e.recorded_at, asOf) <= settings.stale_days
 
   const mastered = new Set(snap.assignments.filter((a) => a.student_id === studentId && (a.status === 'mastered' || a.status === 'skipped_on_mastery')).map((a) => a.lesson_id))
+  // This week's published menu, indexed once so the graph walks below never scan every offering.
+  const menu = snap.offerings.filter((o) => o.status === 'published' && o.day >= weekStart)
+  const byLesson = new Map<string, typeof menu[number]>()
+  const byTemplate = new Map<string, typeof menu[number]>()
+  const menuByOutcome = new Map<string, typeof menu[number]>()
+  for (const o of menu) {
+    if (o.lesson_id && !byLesson.has(o.lesson_id)) byLesson.set(o.lesson_id, o)
+    if (!byTemplate.has(o.source_ref)) byTemplate.set(o.source_ref, o)
+    for (const oid of o.outcomes_served) if (!menuByOutcome.has(oid)) menuByOutcome.set(oid, o)
+  }
   const refOf = (e: Evidence) => en.why.evidenceRef(e.source, shortDate(e.recorded_at))
   const settingsUsed = { mastery_below_pct: settings.required_rule.mastery_below_pct, within_points: settings.recommended_rule.within_points, stale_days: settings.stale_days, mastered_at: MASTERED_AT }
 
@@ -53,7 +63,7 @@ export function needs(studentId: string, snap: Sandbox, ctx: NeedsContext = {}):
       .map((w) => {
         const lesson = w.node.type === 'Lesson' ? lessons.get(w.node.id) : null
         const prereqOpen = lesson ? lesson.prerequisites.some((pid) => !mastered.has(pid)) : false
-        const offering = snap.offerings.find((o) => o.status === 'published' && o.day >= weekStart && ((o.lesson_id && lesson && o.lesson_id === lesson.id) || (w.node.type === 'ExperienceTemplate' && o.source_ref === w.node.id) || o.outcomes_served.includes(outcomeId)))
+        const offering = (lesson ? byLesson.get(lesson.id) : undefined) ?? (w.node.type === 'ExperienceTemplate' ? byTemplate.get(w.node.id) : undefined) ?? menuByOutcome.get(outcomeId)
         return { w, prereqOpen, offering }
       })
       .sort((a, b) => Number(a.prereqOpen) - Number(b.prereqOpen) || Number(!a.offering) - Number(!b.offering))
