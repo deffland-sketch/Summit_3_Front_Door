@@ -55,6 +55,8 @@ export function plainMath(text: string): string {
     .replace(/\\[a-zA-Z]+/g, '')
     .replace(/\$/g, '')
     .replace(/[{}]/g, '')
+    .replace(/\s*\u2014\s*/g, ', ')
+    .replace(/\s*\u2013\s*/g, ' to ')
 }
 
 function shortName(description: string): string {

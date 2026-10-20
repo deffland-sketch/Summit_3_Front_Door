@@ -71,7 +71,7 @@ describe('engine (Spec 6 acceptance)', () => {
       const n = needs(s.id, snap)
       expect(n.length, s.id).toBeGreaterThan(0)
       for (const r of n.filter((x) => x.kind === 'required')) expect(r.evidence_id && ids.has(r.evidence_id)).toBe(true)
-      for (const r of n) expect(r.why).not.toMatch(/failing|behind|at risk|—/)
+      for (const r of n) expect(r.why).not.toMatch(/failing|behind|at risk|\u2014/)
     }
   })
 

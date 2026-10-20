@@ -49,7 +49,7 @@
   --color-ink: #000000;
   --color-ink-2: #4a4a4a;
   --color-line: rgba(0, 0, 0, 0.08);
-  --color-heading: #508278;
+  --color-heading: #3f6a61;
   --color-heading-2: #4b4b96;
 }
 
@@ -85,6 +85,7 @@
   --color-peach-ink: #ffd2b4;
 }
 
+@layer base {
 html {
   font-family: var(--font-sans);
   font-size: calc(16px * var(--text-scale));
@@ -112,6 +113,8 @@ h1, h2, h3, h4 {
   color: var(--color-heading);
   line-height: 1.25;
   margin: 0;
+}
+
 }
 
 :focus-visible {
