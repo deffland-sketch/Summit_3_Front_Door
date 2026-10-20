@@ -1,7 +1,9 @@
 import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: '.',
+  testMatch: /(e2e|tests\/scenarios)\/.*\.spec\.ts$/,
+  testIgnore: [/node_modules/, /dist/],
   timeout: 60_000,
   retries: 0,
   use: {

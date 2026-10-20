@@ -1,0 +1,28 @@
+# Scenario Suite
+
+The memory of everything that ever broke. One spec per situation, run by `npm test`; a red scenario fails the build. Every scenario names the student or adult, the starting state, the action, and the three things that must be true afterward. Add a scenario for every real issue found from now on.
+
+UI scenarios drive the built app in Chromium against the committed sandbox fixture. Engine scenarios load the same fixture into the in-memory store and call the engine and store actions directly.
+
+| # | File | Who | Starting state | Action | Must be true afterward |
+|---|---|---|---|---|---|
+| 01 | `01-expose-today.spec.ts` | The first Expose student | The published week, Tuesday | Open Today | A community slot at 8:30; a reflection slot at 3:00; every slot shown carries a why |
+| 02 | `02-explore-today.spec.ts` | The first Explore student with a real-world slot today | The published week, Tuesday | Open Today | A real-world slot is on the day; the pinned slot says why it is theirs; a Required slot, if any, opens to its evidence |
+| 03 | `03-pursue-today.spec.ts` | The first Pursue student | The published week | Open Today, then My Week | The week has at least two real-world slots; the level reads Pursue; no grade level appears anywhere on the page |
+| 04 | `04-launch-today.spec.ts` | The first Launch student | The published week | Open Today | "On site today" leads the page; a paid placement is listed; the on-campus section is short |
+| 05 | `05-lowered-score-overnight.spec.ts` | A student with no Required or Recommended need and an open slot ahead | Published week, active math lesson at or above 85 | Lower the Kira score to 41, run adjustOvernight | Exactly one move for that student; its slot is Required with "41" in the why; no other student moves |
+| 06 | `06-mastered-drops-required.spec.ts` | A student with a Required math slot from a low Kira score | Published week | Mark the lesson mastered, rebuild the week | The Required slot for that lesson is gone; the lesson reads mastered; the week still has community and reflection every day |
+| 07 | `07-build-guided.spec.ts` | A guided student | Published week with open slots | Open Build My Week, pick an open slot | Ranked options appear with a reason chip; the full menu is not offered; choosing fills the slot |
+| 08 | `08-build-shared.spec.ts` | A shared or owned student | Published week with a live Recommended slot | Open Build My Week | The full menu is offered; a Recommended slot can be swapped only with a reason; the swap shows "You chose this" |
+| 09 | `09-build-owned.spec.ts` | An owned student | Published week | Open Build My Week | The lede says the whole week is theirs; Required slots are not swappable; open slots offer the full menu |
+| 10 | `10-expert-out-today.spec.ts` | Renee Castillo, math | Published week, her Tuesday offerings have rosters | Mark "I'm out today" | Her Tuesday offerings are cancelled; only students who were in them get a new plan version; each moved slot carries New since yesterday |
+| 11 | `11-proposal-accepted.spec.ts` | Renee Castillo | Three or more engine proposals waiting | Accept the first proposal | A published workshop offering exists for that lesson; every placed student has a Required slot in it; the roster shows on My Offerings |
+| 12 | `12-habits-touchpoint.spec.ts` | Jordan Lee and her first mentee | Published week | Add a Habits touchpoint | The touchpoint is saved; it links the focus habits; it shows as a marker on the student's Today |
+| 13 | `13-readiness-booking.spec.ts` | A mentor with a student flagged ready | Three strong scores, no assessment booked | Book an assessment | An assessment offering exists for that student; a slot for it is on the week; the readiness flag clears |
+| 14 | `14-partner-slot-cancelled.spec.ts` | The demo driver | Tomorrow's fullest partner slot has students | Cancel it from Sandbox controls | The offering is cancelled; the displaced students get a replacement with a why; no student who was not in it moves |
+| 15 | `15-grouping-threshold.spec.ts` | The school lead | Threshold 4 | Change it to 6 in Settings | The proposal count hint changes; the count never goes up; the setting log records the change |
+| 16 | `16-launch-week-mostly-rw.spec.ts` | Every Launch student | Published week | Read the plan | Real-world minutes are the largest share and above half of placed minutes; one reflection slot each day; a Friday mentor meeting |
+| 17 | `17-equity-recurring.spec.ts` | The school lead | Eight weeks of history | Open Equity Snapshot | At least one recurring Required student is listed; at least one student with no real-world slot in four weeks; each name links to the mentor's view |
+| 18 | `18-display-board.spec.ts` | The display board | Tuesday 10:30 | Open /board | Rooms and counts only; no student names; none of IEP, MLL, 504, Protected, or a program name appears |
+| 19 | `19-graph-pursue.spec.ts` | Every Pursue student with a pathway | The knowledge graph | whatServes on the top in-reach outcome and gapsTo on the Futre pathway | whatServes returns a lesson or experience in the published menu; gapsTo is non-empty; at least one gap is served by an offering this week |
+| 20 | `20-spanish-keys.spec.ts` | The copy files | en.ts and es.ts | Walk every leaf | Every English key exists in Spanish; most leaves differ; the file is marked needs_review |

@@ -562,6 +562,11 @@ export const en = {
     score: 'New score',
     nothingToCancel: 'No partner slot tomorrow to cancel.',
     lastMoves: 'Last moves',
+    showAssumptions: 'Show assumed chips (open questions)',
+  },
+  assumed: {
+    label: 'assumed',
+    title: (n: number) => `Rests on an open question, QUESTIONS.md item ${n}. Dan answers in weekly batches; each answer becomes a spec line.`,
   },
   overview: {
     title: 'How This Maps to Summit 3.0',

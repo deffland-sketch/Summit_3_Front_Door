@@ -383,6 +383,7 @@ const off = (o: Omit<Offering, 'id'> & { id?: string }): Offering => {
   offerings.push(full)
   return full
 }
+const mathStandardIds = outcomes.filter((o) => o.id.startsWith('CCSS.HS')).map((o) => o.id)
 const skillsOf = (cid: string, n = 3) => [...new Set(unitsByCourse(cid).flatMap((u) => u.outcomes_served))].slice(0, n)
 
 function weekOfferings(weekStart: string, suffix: string): Offering[] {
@@ -403,8 +404,8 @@ function weekOfferings(weekStart: string, suffix: string): Offering[] {
       base({ experience_type: 'PF', kind: 'practice', title: 'Practice hub', lesson_id: null, outcomes_served: ['HOS.SELF_DIRECTION'], adult_ids: bi < 4 ? ['adu_math', 'adu_coach'] : ['adu_coach', 'adu_science'], place_id: 'pl_commons', day, start: b.start, end: b.end, capacity_min: 0, capacity_max: 24, entry: 'open', source: 'front_door', source_ref: 'practice_hub', standing: true, status: 'published' })
     })
     // Kira self-paced modules and Teach to One roadmap sessions.
-    base({ experience_type: 'PF', kind: 'practice', title: 'Kira self-paced: math modules', lesson_id: null, outcomes_served: ['CCSS.HSA-REI.B.3', 'CCSS.HSF-IF.A.1', 'CCSS.HSA-SSE.A.1'], adult_ids: ['adu_math'], place_id: 'pl_room_103', day, start: '10:00', end: '10:45', capacity_min: 0, capacity_max: 16, entry: 'open', source: 'kira', source_ref: 'kira_math_modules', standing: true, status: 'published' })
-    base({ experience_type: 'PF', kind: 'practice', title: 'Kira self-paced: science modules', lesson_id: null, outcomes_served: ['CS.ANA.INTERPRET', 'CS.ANA.MODEL'], adult_ids: ['adu_science'], place_id: 'pl_room_103', day, start: '13:30', end: '14:15', capacity_min: 0, capacity_max: 16, entry: 'open', source: 'kira', source_ref: 'kira_science_modules', standing: true, status: 'published' })
+    base({ experience_type: 'PF', kind: 'practice', title: 'Kira self-paced: math modules', lesson_id: null, outcomes_served: mathStandardIds, adult_ids: ['adu_math'], place_id: 'pl_room_103', day, start: '10:00', end: '10:45', capacity_min: 0, capacity_max: 16, entry: 'open', source: 'kira', source_ref: 'kira_math_modules', standing: true, status: 'published' })
+    base({ experience_type: 'PF', kind: 'practice', title: 'Kira self-paced: science modules', lesson_id: null, outcomes_served: ['CS.ANA.INTERPRET', 'CS.ANA.MODEL', 'CS.INQ.QUESTION', 'CS.INQ.HYPOTH', 'CS.INQ.DESIGN', 'CS.INQ.COLLECT', 'CS.ANA.JUSTIFY', 'CS.ANA.CONNECT', 'CS.ANA.COMPARE', 'CS.ANA.CRITIQUE'], adult_ids: ['adu_science'], place_id: 'pl_room_103', day, start: '13:30', end: '14:15', capacity_min: 0, capacity_max: 16, entry: 'open', source: 'kira', source_ref: 'kira_science_modules', standing: true, status: 'published' })
     base({ experience_type: 'PF', kind: 'practice', title: 'Teach to One roadmap session', lesson_id: null, outcomes_served: ['CCSS.HSA-REI.C.6', 'CCSS.HSF-LE.A.2', 'CCSS.HSA-REI.B.4'], adult_ids: ['adu_math'], place_id: 'pl_room_102', day, start: '09:15', end: '10:00', capacity_min: 0, capacity_max: 16, entry: 'open', source: 'teach_to_one', source_ref: 'tto_roadmap_am', standing: true, status: 'published' })
     base({ experience_type: 'PF', kind: 'practice', title: 'Teach to One roadmap session', lesson_id: null, outcomes_served: ['CCSS.HSS-ID.A.2', 'CCSS.HSF-IF.B.4', 'CCSS.HSG-SRT.C.8'], adult_ids: ['adu_math'], place_id: 'pl_room_102', day, start: '10:45', end: '11:30', capacity_min: 0, capacity_max: 16, entry: 'open', source: 'teach_to_one', source_ref: 'tto_roadmap_mid', standing: true, status: 'published' })
     // Seminars (DD), studios (IW), movement (WC).
@@ -417,6 +418,9 @@ function weekOfferings(weekStart: string, suffix: string): Offering[] {
     base({ experience_type: 'IW', kind: 'studio', title: 'Expedition project studio', lesson_id: null, outcomes_served: ['CS.ANA.MODEL', 'CS.PRD.MMWRITTEN', 'CS.INQ.QUESTION', 'HOS.AGENCY'], adult_ids: ['adu_coordinator'], place_id: 'pl_gym', day, start: '09:15', end: '10:45', capacity_min: 2, capacity_max: 30, entry: 'open', source: 'front_door', source_ref: 'studio_expedition', standing: true, status: 'published' })
     base({ experience_type: 'IW', kind: 'studio', title: 'Math modeling studio', lesson_id: null, outcomes_served: ['CS.ANA.MODEL', 'CCSS.HSA-CED.A.2', 'CCSS.HSF-IF.B.4'], adult_ids: ['adu_math'], place_id: 'pl_room_104', day, start: '11:30', end: '12:15', capacity_min: 2, capacity_max: 8, entry: 'open', source: 'front_door', source_ref: 'studio_math', standing: true, status: 'published' })
     base({ experience_type: 'IW', kind: 'studio', title: 'Expedition project studio (afternoon)', lesson_id: null, outcomes_served: ['CS.ANA.MODEL', 'CS.PRD.MMWRITTEN', 'CS.INQ.DESIGN', 'HOS.SELF_DIRECTION'], adult_ids: [mentorIds[(['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) + 3) % 4]], place_id: 'pl_gym', day, start: '13:30', end: '15:00', capacity_min: 2, capacity_max: 30, entry: 'open', source: 'front_door', source_ref: 'studio_expedition_pm', standing: true, status: 'published' })
+    base({ experience_type: 'DD', kind: 'seminar', title: 'Close reading seminar', lesson_id: null, outcomes_served: ['CS.TXT.THEME', 'CS.TXT.POV', 'CS.TXT.DEV', 'CS.TXT.STRUCT', 'CS.TXT.WORD'], adult_ids: ['adu_english'], place_id: 'pl_sem_b', day, start: '09:15', end: '10:00', capacity_min: 3, capacity_max: 10, entry: 'open', source: 'front_door', source_ref: 'seminar_close_reading', standing: true, status: 'published' })
+    base({ experience_type: 'IW', kind: 'studio', title: 'Research and sources studio', lesson_id: null, outcomes_served: ['CS.SRC.SELECT', 'CS.SRC.CONTEXT', 'CS.SRC.SYNTH', 'CS.INQ.QUESTION', 'CS.WRI.THESIS', 'CS.WRI.NARRATIVE'], adult_ids: ['adu_history'], place_id: 'pl_room_104', day, start: '10:00', end: '10:45', capacity_min: 2, capacity_max: 8, entry: 'open', source: 'front_door', source_ref: 'studio_research', standing: true, status: 'published' })
+    base({ experience_type: 'PP', kind: 'studio', title: 'Presentation lab', lesson_id: null, outcomes_served: ['CS.PRD.STYLE', 'CS.PRD.ORAL', 'CS.PRD.MMWRITTEN', 'CS.PRD.MMORAL', 'CS.PRD.CONVENTIONS', 'CS.PRD.PRECISION', 'CS.SPK.PREP', 'CS.SPK.NORMS', 'CS.WRI.EVSELECT', 'CS.WRI.INTROCONC'], adult_ids: ['adu_coach'], place_id: 'pl_nook_2', day, start: '12:45', end: '13:30', capacity_min: 1, capacity_max: 6, entry: 'open', source: 'front_door', source_ref: 'presentation_lab', standing: true, status: 'published' })
     base({ experience_type: 'DD', kind: 'seminar', title: 'Book talk', lesson_id: null, outcomes_served: ['CS.TXT.THEME', 'CS.SPK.DISCUSS', 'CS.SPK.NORMS'], adult_ids: [mentorIds[['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) % 4]], place_id: 'pl_sem_b', day, start: '10:45', end: '11:30', capacity_min: 3, capacity_max: 10, entry: 'open', source: 'front_door', source_ref: 'book_talk', standing: true, status: 'published' })
     base({ experience_type: 'IW', kind: 'studio', title: 'Project studio: final products', lesson_id: null, outcomes_served: ['CS.WRI.ORG', 'CS.WRI.EVINTEGRATE', 'CS.PRD.STYLE', 'CS.ANA.JUSTIFY'], adult_ids: [mentorIds[(['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) + 1) % 4]], place_id: 'pl_room_101', day, start: '10:45', end: '12:15', capacity_min: 4, capacity_max: 24, entry: 'open', source: 'front_door', source_ref: 'studio_products', standing: true, status: 'published' })
     base({ experience_type: 'IW', kind: 'studio', title: 'Science lab studio', lesson_id: null, outcomes_served: ['CS.INQ.DESIGN', 'CS.INQ.COLLECT', 'CS.ANA.INTERPRET', 'CS.ANA.MODEL'], adult_ids: ['adu_science'], place_id: 'pl_room_102', day, start: '12:45', end: '14:15', capacity_min: 4, capacity_max: 16, entry: 'open', source: 'front_door', source_ref: 'studio_lab', standing: true, status: 'published' })
@@ -446,7 +450,7 @@ function weekOfferings(weekStart: string, suffix: string): Offering[] {
   partner('Electrical pre-apprenticeship', 'adu_partner_electric', 'pl_electric', [0, 1, 2, 3, 4], '12:45', '15:00', 6, 'XT.WORK.TRADES')
   partner('Paid work placement', 'adu_coordinator', 'pl_offcampus', [0, 1, 2, 3], '09:15', '12:15', 12, 'XT.WORK.PAID')
   partner('Paid work placement', 'adu_coordinator', 'pl_offcampus', [0, 1, 2, 3], '12:45', '15:00', 12, 'XT.WORK.PAID')
-  partner('Launch mentor meeting', 'adu_coordinator', 'pl_nook_1', [4], '09:15', '10:00', 2, 'XT.SCHOOL.DEFENSE')
+  partner('Launch mentor meeting', 'adu_coordinator', 'pl_sem_b', [4], '09:15', '10:00', 12, 'XT.SCHOOL.DEFENSE')
   return made
 }
 
@@ -537,11 +541,12 @@ function placeRw(weekStart: string, weekOffs: Offering[]): Map<string, string[]>
     const pw = PATHWAYS.find((p) => p.id === studentPathway.get(s.id))
     const prefer = (o: Offering) => (pw && pw.experiences.includes(o.source_ref) ? 0 : 1) + rng.next() * 0.5
     if (s.level === 'launch') {
-      for (const o of rw.filter((o) => o.source_ref === 'XT.WORK.PAID')) if (room(o) && !clash(s.id, o)) takeIt(s.id, o)
-      const course = rw.filter((o) => o.kind === 'college_course' && o.day === weekDates(weekStart)[4]).sort((a, b) => prefer(a) - prefer(b))[0]
-      if (course && room(course) && !clash(s.id, course)) takeIt(s.id, course)
+      // The weekly mentor meeting comes first; the paid placement and a Friday college course fit around it.
       const mm = rw.find((o) => o.source_ref === 'XT.SCHOOL.DEFENSE')
       if (mm && room(mm)) takeIt(s.id, mm)
+      for (const o of rw.filter((o) => o.source_ref === 'XT.WORK.PAID')) if (room(o) && !clash(s.id, o)) takeIt(s.id, o)
+      const course = rw.filter((o) => o.kind === 'college_course' && o.day === weekDates(weekStart)[4]).sort((a, b) => prefer(a) - prefer(b)).find((o) => room(o) && !clash(s.id, o))
+      if (course) takeIt(s.id, course)
       continue
     }
     const want = s.level === 'pursue' ? rng.int(2, 3) : s.level === 'explore' ? (rng.chance(0.4) ? 2 : 1) : rng.chance(0.55) ? 1 : 0

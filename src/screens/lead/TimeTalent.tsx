@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useCopy } from '@/copy'
+import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
 import { useSnapshot } from '@/app/hooks'
 import { Card, Chip, H1, H2, Stat } from '@/components/ui'
@@ -40,7 +41,7 @@ export function TimeTalent() {
       </div>
       <Card as="section">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <H2>{c.lead.studentHours}</H2>
+          <H2>{c.lead.studentHours} <Assumed q={6} /> <Assumed q={19} /></H2>
           <Chip className={data.within ? 'bg-teal-2 text-teal-ink' : 'bg-orange-2 text-orange-ink'}>{data.within ? c.lead.withinTen : c.lead.outsideTen}</Chip>
         </div>
         <div className="mt-2 h-72" role="img" aria-label={data.rows.map((r) => `${r.label}: ${r.actual}% this week, target ${r.target}%`).join('; ')}>

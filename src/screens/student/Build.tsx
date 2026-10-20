@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useCopy } from '@/copy'
+import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
 import { useIndexes, useStudentData } from '@/app/hooks'
 import { Button, Card, Empty, H1, H2, inputClass, Chip } from '@/components/ui'
@@ -131,7 +132,7 @@ export function Build({ studentId }: { studentId: string }) {
       </section>
 
       <section aria-labelledby="open">
-        <H2 id="open">{c.build.openSlots} <Explain id="student.build.options" /></H2>
+        <H2 id="open">{c.build.openSlots} <Explain id="student.build.options" /> <Assumed q={4} /></H2>
         {openSlots.length ? (
           <div className="mt-2 grid gap-4 md:grid-cols-[1fr_2fr]">
             <ul className="space-y-1">
@@ -153,7 +154,7 @@ export function Build({ studentId }: { studentId: string }) {
                   </ol>
                   {student.plan_autonomy !== 'guided' ? (
                     <details className="mt-3">
-                      <summary className="cursor-pointer text-sm font-bold text-indigo dark:text-indigo-1">{c.build.fullMenu}</summary>
+                      <summary className="cursor-pointer text-sm font-bold text-indigo dark:text-indigo-1">{c.build.fullMenu} <Assumed q={5} /></summary>
                       <ol className="mt-2 space-y-2">
                         {fullMenu.filter((o) => !options.some((r) => r.offering.id === o.id)).map((o) => (
                           <OptionCard key={o.id} o={o} builds={o.outcomes_served.map((x) => idx.outcomes.get(x)?.name ?? '').filter(Boolean).slice(0, 3)} />

@@ -8,11 +8,13 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run && playwright test tests/scenarios",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test e2e",
     "seed": "tsx --tsconfig tsconfig.seed.json seed/generate.ts",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "test:unit": "vitest run",
+    "test:scenarios": "playwright test tests/scenarios"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { useCopy } from '@/copy'
+import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { Button, Card, Chip, Empty, H1, H2, Stat } from '@/components/ui'
@@ -76,7 +77,7 @@ export function Dashboard() {
         ) : <Empty>{c.lead.noAlerts}</Empty>}
       </section>
       <section aria-labelledby="groups">
-        <H2 id="groups">{c.lead.studyGroups}</H2>
+        <H2 id="groups">{c.lead.studyGroups} <Assumed q={14} /></H2>
         {groups.length ? (
           <ul className="mt-2 space-y-1 text-sm">
             {groups.map((g, i) => (

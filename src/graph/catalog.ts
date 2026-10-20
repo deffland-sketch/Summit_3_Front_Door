@@ -1,5 +1,5 @@
 import type { Course, Lesson, Outcome, Unit } from '@/model'
-import lcMath from './data/lc-math.json'
+import lcMath from './data/lc-math.json' with { type: 'json' }
 import { IM_COURSES } from './authored/im-sequence'
 import { AUTHORED_COURSES } from './authored/courses'
 import { cognitiveOutcomes } from './authored/cognitive-skills'

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
 import { useIndexes, useStudentData } from '@/app/hooks'
 import { SlotCard } from '@/components/SlotCard'
@@ -110,7 +111,7 @@ export function Today({ studentId }: { studentId: string }) {
       ) : null}
       {isLaunch && onSite.length ? (
         <section aria-labelledby="onsite">
-          <H2 id="onsite">{c.slot.onSite}</H2>
+          <H2 id="onsite">{c.slot.onSite} <Assumed q={7} /></H2>
           <div className="mt-2 space-y-2">{onSite.map((s) => card(s, s.id === current?.id))}</div>
         </section>
       ) : null}

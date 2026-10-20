@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useCopy } from '@/copy'
+import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
 import { useSnapshot } from '@/app/hooks'
 import { Card, Chip, H1, H2, Stat } from '@/components/ui'
@@ -72,7 +73,7 @@ export function ModelDashboard() {
         <ul className="mt-2 grid grid-cols-4 gap-2">{data.byLevel.map((r) => <li key={r.level}><Stat label={r.level} value={r.n} /></li>)}</ul>
       </Card>
       <Card as="section">
-        <H2>Sierra metrics</H2>
+        <H2>Sierra metrics <Assumed q={18} /></H2>
         <ul className="mt-2 grid gap-2 md:grid-cols-3">
           {Object.entries(c.lead.sierraMetrics).map(([k, label]) => <li key={k} className="rounded-xl border border-dashed border-line p-3"><p className="text-sm text-ink-2">{label}</p><Chip className="bg-tan-grey-2 text-tan-grey-ink">{c.lead.surveyPlaceholder}</Chip></li>)}
         </ul>

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useCopy } from '@/copy'
+import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
 import { useIndexes, useStudentData } from '@/app/hooks'
 import { Button, Card, Chevron, Empty, H1, H2, H3 } from '@/components/ui'
@@ -126,7 +127,7 @@ export function Progress({ studentId }: { studentId: string }) {
       </section>
 
       <section aria-labelledby="math">
-        <H2 id="math">{c.progress.content}</H2>
+        <H2 id="math">{c.progress.content} <Assumed q={9} /></H2>
         <div className="mt-2 space-y-4">
           {mathUnitIds.map((uid) => {
             const u = idx.units.get(uid)!
