@@ -17,7 +17,7 @@ export function SandboxLoader({ children }: { children: ReactNode }) {
       .then((json) => {
         appStore.getState().load(SandboxSchema.parse(json))
         // The sandbox exposes the engine runs so a scenario can time them in the real browser (Spec 6 Performance).
-        ;(window as unknown as { __frontDoor: unknown }).__frontDoor = { runWeeklyBuild, runOvernight, adultOutToday, snapshot }
+        ;(window as unknown as { __homebase: unknown }).__homebase = { runWeeklyBuild, runOvernight, adultOutToday, snapshot }
       })
       .catch((e: unknown) => setError(String(e)))
   }, [loaded])

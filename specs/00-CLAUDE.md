@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Summit 3.0 Front Door. A prototype of the learner front door for Summit Public Schools' next model, built on a sandbox of 100 invented students. Copy this file to the repo root as CLAUDE.md.
+Summit 3.0 Homebase. A prototype of the learner homebase for Summit Public Schools' next model, built on a sandbox of 100 invented students. Copy this file to the repo root as CLAUDE.md.
 
 ## What You Are Building
 

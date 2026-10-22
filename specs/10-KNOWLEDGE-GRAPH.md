@@ -1,6 +1,6 @@
 # Spec 10: The Knowledge Graph (Basic, V1)
 
-Summit 3.0 Front Door · Working draft v1 · October 20, 2026
+Summit 3.0 Homebase · Working draft v1 · October 20, 2026
 
 The knowledge graph is the structured map the engine walks: what builds toward what, what supports what, and where a pathway leads. In the full Summit 3.0 design its edges carry weights learned from alumni trajectories and labor market outcomes. In v1 it is a basic graph with typed, unweighted edges, authored from Summit's own frameworks and the open Learning Commons data, so the engine's "in reach" and "what this unlocks" answers come from a real structure rather than a lookup table.
 

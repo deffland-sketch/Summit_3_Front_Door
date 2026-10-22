@@ -168,7 +168,7 @@ export function proposeWorkshops(snap: Sandbox, opts: { weekStart?: string; asOf
     n++
     const id = `prop_${lessonId}_${n}`
     if (best) {
-      used.push({ id, experience_type: kind === 'workshop' ? 'DI' : 'PF', kind, title: lesson.title, lesson_id: lessonId, outcomes_served: lesson.outcomes_served, adult_ids: [best.adult], place_id: best.place, day: best.day, start: best.start, end: best.end, capacity_min: kind === 'workshop' ? settings.workshop_size.min : 1, capacity_max: kind === 'workshop' ? settings.workshop_size.max : 2, entry: 'required', source: 'front_door', source_ref: id, standing: false, status: 'published' })
+      used.push({ id, experience_type: kind === 'workshop' ? 'DI' : 'PF', kind, title: lesson.title, lesson_id: lessonId, outcomes_served: lesson.outcomes_served, adult_ids: [best.adult], place_id: best.place, day: best.day, start: best.start, end: best.end, capacity_min: kind === 'workshop' ? settings.workshop_size.min : 1, capacity_max: kind === 'workshop' ? settings.workshop_size.max : 2, entry: 'required', source: 'homebase', source_ref: id, standing: false, status: 'published' })
     }
     const scores = members.map((m) => m.evidence).filter((e): e is Evidence => e !== null && typeof e.value === 'number')
     const values = scores.map((e) => e.value as number)
@@ -257,7 +257,7 @@ export function offeringFromProposal(p: WorkshopProposal, snap: Sandbox, overrid
     capacity_min: p.kind === 'workshop' ? snap.settings.workshop_size.min : 1,
     capacity_max: p.kind === 'workshop' ? snap.settings.workshop_size.max : 2,
     entry: 'required',
-    source: 'front_door',
+    source: 'homebase',
     source_ref: p.id,
     standing: false,
     status: 'published',

@@ -1,6 +1,6 @@
 # Spec 5: Admin View (School Lead)
 
-Summit 3.0 Front Door · Working draft v1 · October 20, 2026
+Summit 3.0 Homebase · Working draft v1 · October 20, 2026
 
 The school lead sees the system: whether the model is running as designed, whether every student is getting what they need, and where adults' time is going. This is the view a funder or a visiting leader is shown.
 

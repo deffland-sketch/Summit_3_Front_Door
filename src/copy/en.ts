@@ -4,7 +4,7 @@
  */
 export const en = {
   app: {
-    name: 'Summit 3.0 Front Door',
+    name: 'Summit 3.0 Homebase',
     sandbox: 'Sandbox',
     skipToContent: 'Skip to content',
     roleSwitcher: 'Who are you today?',
@@ -114,7 +114,7 @@ export const en = {
     lead: { dashboard: 'Dashboard', live: 'Live Board', outcomes: 'Outcomes', graph: 'Knowledge Graph', equity: 'Equity Snapshot', time: 'Time and Talent', partners: 'Partners', events: 'Events', settings: 'Settings', evidence: 'Evidence Log', trace: 'Engine Trace', model: 'Model Dashboard' } as Record<string, string>,
   },
   landing: {
-    title: 'Summit 3.0 Front Door',
+    title: 'Summit 3.0 Homebase',
     lede: 'One place for the week, the progress, and the people. A sandbox of 100 invented students.',
     pickStudent: 'Open a student',
     pickMentor: 'Open a mentor',
@@ -656,7 +656,7 @@ export const en = {
   overview: {
     title: 'How This Maps to Summit 3.0',
     nav: 'How This Maps',
-    lede: 'Summit 3.0 is a pathway model: every student builds a pathway, and time, talent, and technology flex around it. The front door is the surface of that model, the one place a student sees the week, the progress, and the people. This page maps each piece of the model to where it lives in the prototype.',
+    lede: 'Summit 3.0 is a pathway model: every student builds a pathway, and time, talent, and technology flex around it. Homebase is the surface of that model, the one place a student sees the week, the progress, and the people. This page maps each piece of the model to where it lives in the prototype.',
     whereItLives: 'Where it lives here',
     inTheModel: 'In the model',
     walkIt: 'Walk it in ten minutes',

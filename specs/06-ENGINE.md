@@ -1,6 +1,6 @@
 # Spec 6: The Engine
 
-Summit 3.0 Front Door · Working draft v1 · October 20, 2026
+Summit 3.0 Homebase · Working draft v1 · October 20, 2026
 
 The engine is rules in v1, learned later. It does four things: works out what each student needs, proposes workshops where need is shared, builds each student's week against what is available, and makes small overnight adjustments. Every output carries a "why" a student can read, and every placement has a human confirmer.
 

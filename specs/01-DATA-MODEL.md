@@ -1,12 +1,12 @@
 # Spec 1: Data Model and Sandbox Seed
 
-Summit 3.0 Front Door · Working draft v3 · October 20, 2026 · Owner: Dan Effland
+Summit 3.0 Homebase · Working draft v3 · October 20, 2026 · Owner: Dan Effland
 
-This is the first of six specs. It defines the objects everything else is built on and the sandbox that proves them. Later specs (student front door, mentor view, supply publishing, admin view, engine) are screens and logic over these objects and must not add objects without updating this file.
+This is the first of six specs. It defines the objects everything else is built on and the sandbox that proves them. Later specs (student Homebase, mentor view, supply publishing, admin view, engine) are screens and logic over these objects and must not add objects without updating this file.
 
 ## What This Platform Is
 
-The front door to Summit 3.0. One place where a student sees progress toward outcomes, the plan for the week, access to the learning resources, the line from this week to the long-term plan in Futre, and where the mentor guides, gives feedback, and sees progress, and where an administrator sees the system. Content lives in strong curriculum (Illustrative Mathematics, OpenSciEd, AP English and history) and reaches students through Kira, Teach to One, or a teacher-led workshop. Pathway, vision, portfolio, and career exploration live in Futre. The front door holds the week, the progress, and the people.
+Homebase to Summit 3.0. One place where a student sees progress toward outcomes, the plan for the week, access to the learning resources, the line from this week to the long-term plan in Futre, and where the mentor guides, gives feedback, and sees progress, and where an administrator sees the system. Content lives in strong curriculum (Illustrative Mathematics, OpenSciEd, AP English and history) and reaches students through Kira, Teach to One, or a teacher-led workshop. Pathway, vision, portfolio, and career exploration live in Futre. Homebase holds the week, the progress, and the people.
 
 Design principles carried into every object:
 
@@ -106,7 +106,7 @@ One item of supply: something a student can be scheduled into.
 | day, start, end | date, time, time | |
 | capacity_min, capacity_max | int | Workshops 4 to 8; community 100; practice hub by place capacity |
 | entry | enum required, recommended, open, invited, assigned | How a student gets in |
-| source | enum front_door, kira, teach_to_one, futre, partner, calendar | Who posted it |
+| source | enum homebase, kira, teach_to_one, futre, partner, calendar | Who posted it |
 | source_ref | string | The id in the source system |
 | standing | bool | Repeats weekly until changed |
 | status | enum draft, published, cancelled | |
@@ -276,7 +276,7 @@ Resources plug in at exactly two points.
 |---|---|---|
 | In: Offerings | A source posts things students can be scheduled into | Kira (assigned practice, self-paced courses), Teach to One (roadmap sessions), partner calendar (Expedition and partner slots), school calendar (events) |
 | In: Evidence | A source returns a signal of progress tagged to an outcome | Kira, Teach to One, gradebook, Futre (experience reflections), adult notes, student reflections |
-| Out: Context | The front door reads, never writes | Futre: vision, CNS, experiences, portfolio links |
+| Out: Context | Homebase reads, never writes | Futre: vision, CNS, experiences, portfolio links |
 
 In the sandbox every source is simulated by the seed generator. The adapters are stubs with the same interface, so a real adapter replaces a stub without touching the model.
 

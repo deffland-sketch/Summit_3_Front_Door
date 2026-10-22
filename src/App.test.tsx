@@ -13,7 +13,7 @@ describe('Landing', () => {
         <Landing />
       </MemoryRouter>,
     )
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Summit 3.0 Front Door')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Summit 3.0 Homebase')
     expect(screen.getByRole('heading', { name: 'Open a mentor' })).toBeInTheDocument()
   })
 })

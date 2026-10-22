@@ -30,7 +30,7 @@ export function Readiness({ mentorId }: { mentorId: string }) {
     const block = BLOCKS.find((b) => b.start === start) ?? BLOCKS[1]
     const plan = snap.plans.find((p) => p.student_id === studentId && p.week_start === snap.meta.week_start)
     if (!plan) return
-    const offering: Offering = { id: `off_assess_${studentId}_${outcomeId}_${day}`, experience_type: 'PP', kind, title, lesson_id: null, outcomes_served: [outcomeId], adult_ids: [mentorId], place_id: 'pl_nook_1', day, start: block.start, end: block.end, capacity_min: 1, capacity_max: 1, entry: 'invited', source: 'front_door', source_ref: `assess:${studentId}`, standing: false, status: 'published' }
+    const offering: Offering = { id: `off_assess_${studentId}_${outcomeId}_${day}`, experience_type: 'PP', kind, title, lesson_id: null, outcomes_served: [outcomeId], adult_ids: [mentorId], place_id: 'pl_nook_1', day, start: block.start, end: block.end, capacity_min: 1, capacity_max: 1, entry: 'invited', source: 'homebase', source_ref: `assess:${studentId}`, standing: false, status: 'published' }
     upsertOffering(offering)
     const overlapping = plan.slots.filter((s) => s.day === day && s.start < block.end && block.start < s.end && s.status !== 'cancelled')
     if (overlapping.some((s) => s.entry === 'protected' || s.experience_type === 'RW')) {

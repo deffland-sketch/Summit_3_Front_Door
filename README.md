@@ -1,6 +1,6 @@
-# Summit 3.0 Front Door
+# Summit 3.0 Homebase
 
-A prototype of the learner front door for Summit Public Schools' next model, built on a sandbox of 100 invented students. One web app, four roles (student, mentor, content expert or facilitator, school lead), one data model. The student's page is the product. The sandbox is the product for now: every screen responds to the seed data, and changing a score changes the week.
+A prototype of the learner homebase for Summit Public Schools' next model, built on a sandbox of 100 invented students. One web app, four roles (student, mentor, content expert or facilitator, school lead), one data model. The student's page is the product. The sandbox is the product for now: every screen responds to the seed data, and changing a score changes the week.
 
 Everything here is invented. Nothing is written to a real system.
 

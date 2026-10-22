@@ -10,7 +10,7 @@ test('25 the weekly build reads the level targets: with practice over target a R
   // A student with a Recommended content need, and a seminar that serves that outcome on Thursday with room.
   const pick = base.students.map((s) => ({ s, n: needs(s.id, base).find((x) => x.kind === 'recommended' && x.family === 'content') })).find((x) => x.n)!
   const thursday = weekDates(base.meta.week_start)[3]
-  const seminar: Offering = { id: 'sem_s25', experience_type: 'DD', kind: 'seminar', title: 'Problem-solving seminar', lesson_id: null, outcomes_served: [pick.n!.outcome_id], adult_ids: ['adu_math'], place_id: 'pl_sem_a', day: thursday, start: '10:00', end: '10:45', capacity_min: 1, capacity_max: 20, entry: 'open', source: 'front_door', source_ref: 'sem_s25', standing: false, status: 'published' }
+  const seminar: Offering = { id: 'sem_s25', experience_type: 'DD', kind: 'seminar', title: 'Problem-solving seminar', lesson_id: null, outcomes_served: [pick.n!.outcome_id], adult_ids: ['adu_math'], place_id: 'pl_sem_a', day: thursday, start: '10:00', end: '10:45', capacity_min: 1, capacity_max: 20, entry: 'open', source: 'homebase', source_ref: 'sem_s25', standing: false, status: 'published' }
   const run = (pf: number) => {
     const snap = fresh()
     snap.offerings.push(seminar)

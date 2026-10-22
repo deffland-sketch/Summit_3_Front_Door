@@ -1,6 +1,6 @@
 # Spec 4: Supply Publishing (Content Experts, Facilitators, System Architect)
 
-Summit 3.0 Front Door · Working draft v1 · October 20, 2026
+Summit 3.0 Homebase · Working draft v1 · October 20, 2026
 
 Supply is everything a student can be scheduled into. Adults and partners publish it; the engine reads it. This spec covers the content expert and facilitator screens and the system architect's weekly build. It replaces the hand-built rotation grid with a published menu that the engine and the students both read.
 

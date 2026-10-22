@@ -6,7 +6,7 @@ test('30 in the browser, the full weekly build for 100 students takes under five
   await page.goto('/l/evidence')
   await expect(page.getByText(/No engine run yet/)).toBeVisible()
   const build = await page.evaluate(() => {
-    const fd = (window as unknown as { __frontDoor: { runWeeklyBuild: (publish: boolean) => number } }).__frontDoor
+    const fd = (window as unknown as { __homebase: { runWeeklyBuild: (publish: boolean) => number } }).__homebase
     const t0 = performance.now()
     const n = fd.runWeeklyBuild(false)
     return { ms: performance.now() - t0, n }
@@ -15,7 +15,7 @@ test('30 in the browser, the full weekly build for 100 students takes under five
   expect(build.ms, `weekly build took ${Math.round(build.ms)} ms`).toBeLessThan(5000)
   // The adjuster with every row counted as new (the worst case), best of three so a busy test runner does not decide it.
   const overnight = await page.evaluate(() => {
-    const fd = (window as unknown as { __frontDoor: { runOvernight: () => unknown[] } }).__frontDoor
+    const fd = (window as unknown as { __homebase: { runOvernight: () => unknown[] } }).__homebase
     let best = Infinity
     for (let i = 0; i < 3; i++) {
       const t0 = performance.now()
@@ -27,7 +27,7 @@ test('30 in the browser, the full weekly build for 100 students takes under five
   expect(overnight, `adjustOvernight took ${Math.round(overnight)} ms`).toBeLessThan(1000)
   // An out-today event is the overnight adjuster with cancellations in front of it; it should hold the same bound.
   const out = await page.evaluate(() => {
-    const fd = (window as unknown as { __frontDoor: { adultOutToday: (a: string, d: string) => unknown[]; snapshot: () => { meta: { today: string } } } }).__frontDoor
+    const fd = (window as unknown as { __homebase: { adultOutToday: (a: string, d: string) => unknown[]; snapshot: () => { meta: { today: string } } } }).__homebase
     let best = Infinity
     for (const adult of ['adu_math', 'adu_science', 'adu_english']) {
       const t0 = performance.now()
