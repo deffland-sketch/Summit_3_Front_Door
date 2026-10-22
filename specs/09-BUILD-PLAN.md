@@ -1,6 +1,6 @@
 # Spec 9: Build Plan for an Unattended Run
 
-Summit 3.0 Front Door · Working draft v1 · October 20, 2026
+Summit 3.0 Homebase · Working draft v1 · October 20, 2026
 
 This plan is written so Claude Code can run from start to a demo-ready prototype without stopping. It is a prototype on invented data; a wrong call costs a restart, not a student. Decide, record, move on.
 

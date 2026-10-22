@@ -1,4 +1,4 @@
-import type { ExperienceType, Offering, Slot } from '@/model'
+import type { EngineTrace, ExperienceType, Offering, Slot, TraceEdge, TracePart } from '@/model'
 
 export type NeedKind = 'required' | 'recommended' | 'in_reach' | 'readiness'
 
@@ -11,12 +11,15 @@ export interface Need {
   family: 'cognitive' | 'content' | 'durable'
   why: string
   evidence_id: string | null
+  /** "the Kira check from Thu Oct 15": the row behind the need, in the words why lines use. */
+  evidence_ref: string | null
   /** For required: how far below; for in_reach: distance to the next level. */
   distance: number
   value: number | null
   /** The graph walk that found a serving lesson or experience, in plain words. */
   serves: string | null
   serving_offering_id: string | null
+  trace: TracePart
 }
 
 export interface NeedsYouItem {
@@ -26,6 +29,9 @@ export interface NeedsYouItem {
   lesson_id: string | null
   text: string
   subject: 'math' | 'science' | 'english' | 'history'
+  /** The source that sent the last row and when, so the expert knows which pipe went quiet. */
+  source: string
+  last_row_at: string
 }
 
 export interface WorkshopProposal {
@@ -41,8 +47,13 @@ export interface WorkshopProposal {
   start: string
   end: string
   why: string
+  /** One line a teacher would accept: the shared evidence in plain words (Spec 6 rule 9). */
+  rationale: string
+  /** Where each student goes if the expert declines (Spec 6 rule 9). */
+  if_declined: { student_id: string; text: string }[]
   collisions: { student_id: string; reason: string }[]
   kind: 'workshop' | 'conference'
+  trace: TracePart
 }
 
 export interface OvernightMove {
@@ -51,6 +62,7 @@ export interface OvernightMove {
   slot: Slot
   replaced_slot_id: string | null
   why: string
+  trace: TracePart
 }
 
 export interface RankedOption {
@@ -58,6 +70,12 @@ export interface RankedOption {
   score: number
   reasons: string[]
   builds: string[]
+  /** The graph edges the ranker walked for this option (gap on the Futre pathway, pathway nearby). */
+  edges: TraceEdge[]
+  /** The name of the pathway gap this offering teaches, when it does. */
+  gap: string | null
+  /** The pathway this offering leads toward, when the bonus applied. */
+  pathway: string | null
 }
 
 export interface LevelReviewSuggestion {
@@ -65,11 +83,21 @@ export interface LevelReviewSuggestion {
   from: string
   to: string
   reasons: string[]
+  trace: TracePart
 }
 
 export interface CapacityLedger {
   /** offering id -> number placed */
   fill: Map<string, number>
+}
+
+/** Where engine functions push the traces of stored outputs (placed slots, moves). */
+export type TraceSink = EngineTrace[]
+
+let traceCounter = 0
+export function makeTrace(kind: EngineTrace['kind'], subjectId: string, refId: string, part: TracePart, runId: string, at: string): EngineTrace {
+  traceCounter++
+  return { id: `tr_${runId}_${traceCounter}`, kind, subject_id: subjectId, ref_id: refId, run_id: runId, at, ...part }
 }
 
 export const BLOCKS: { start: string; end: string }[] = [

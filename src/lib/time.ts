@@ -59,3 +59,11 @@ export function formatTime12(t: string): string {
   const h12 = ((h + 11) % 12) + 1
   return `${h12}:${mm} ${h < 12 ? 'am' : 'pm'}`
 }
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+/** "Tue Oct 13" from an ISO date or datetime, for why lines and rationales. */
+export function shortDate(iso: string): string {
+  const d = new Date(`${iso.slice(0, 10)}T12:00:00Z`)
+  return `${DAYS[d.getUTCDay()]} ${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`
+}

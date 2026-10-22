@@ -16,7 +16,7 @@ export const OFFERING_KINDS = [
   'assessment',
 ] as const
 export const OFFERING_ENTRY = ['required', 'recommended', 'open', 'invited', 'assigned'] as const
-export const OFFERING_SOURCES = ['front_door', 'kira', 'teach_to_one', 'futre', 'partner', 'calendar'] as const
+export const OFFERING_SOURCES = ['homebase', 'kira', 'teach_to_one', 'futre', 'partner', 'calendar'] as const
 export const OFFERING_STATUS = ['draft', 'published', 'cancelled'] as const
 
 export const OfferingSchema = z.object({

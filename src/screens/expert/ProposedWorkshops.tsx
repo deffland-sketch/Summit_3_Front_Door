@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router'
 import { useCopy } from '@/copy'
 import { Assumed } from '@/components/Assumed'
 import { Explain } from '@/components/Explain'
@@ -48,7 +49,7 @@ export function ProposedWorkshops({ adultId }: { adultId: string }) {
               <p className="text-sm text-ink-2">
                 {idx.courses.get(p.course_id)?.title} · {c.expert.suggested}: {dayName(p.day)} {p.start} to {p.end} · {idx.places.get(p.place_id ?? '')?.name} · {idx.adults.get(p.adult_id ?? '')?.display_name}
               </p>
-              <p className="text-sm">{p.why}</p>
+              <p className="text-sm">{p.why} <Link to={`/l/trace?proposal=${p.id}`} className="text-xs text-indigo underline dark:text-indigo-1">{c.lead.whyThis}</Link></p>
               <p className="mt-1 text-sm font-bold">{c.expert.students} ({p.student_ids.length})</p>
               <ul className="flex flex-wrap gap-1 text-sm">
                 {p.student_ids.map((sid) => (
@@ -58,6 +59,7 @@ export function ProposedWorkshops({ adultId }: { adultId: string }) {
                   </li>
                 ))}
               </ul>
+              <p className="mt-2 text-sm"><span className="font-bold">{c.proposals.ifDeclined}.</span> {p.if_declined.map((d) => `${idx.students.get(d.student_id)?.display_name}: ${d.text}`).join('; ')}.</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Button onClick={() => accept(p)}>{c.expert.accept}</Button>
                 <Button kind="secondary" onClick={() => { setChangeFor(changeFor === p.id ? null : p.id); setDeclineFor(null) }} ariaExpanded={changeFor === p.id}>{c.expert.change}</Button>

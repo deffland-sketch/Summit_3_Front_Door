@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test('student happy path: landing, today, required why, evidence, progress, build', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Summit 3.0 Front Door')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Summit 3.0 Homebase')
   await page.getByLabel('With a real-world slot today').check()
   const first = page.getByRole('link', { name: /Explore/ }).first()
   await first.click()

@@ -4,7 +4,7 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
 import type {
-  Adult, Assignment, Course, Evidence, FutreRecord, GatheringLogEntry, Group, Lesson, Level, Offering, Place, Plan, Sandbox, Slot, Student, Touchpoint, Unit, Weekday,
+  Adult, Assignment, Course, EngineTrace, Evidence, FutreRecord, GatheringLogEntry, Group, Lesson, Level, Offering, Place, Plan, Sandbox, Slot, Student, Touchpoint, Unit, Weekday,
 } from '../src/model'
 import { DEFAULT_SETTINGS, SandboxSchema } from '../src/model'
 import { allOutcomes, buildCatalog } from '../src/graph/catalog'
@@ -397,11 +397,11 @@ function weekOfferings(weekStart: string, suffix: string): Offering[] {
   dates.forEach((day) => {
     const wd = weekdayOf(day)
     base({ experience_type: 'WC', kind: 'community', title: 'Community circle', lesson_id: null, outcomes_served: ['HOS.BELONGING'], adult_ids: ['adu_director'], place_id: 'pl_gym', day, start: '08:30', end: '08:45', capacity_min: 0, capacity_max: 100, entry: 'required', source: 'calendar', source_ref: 'community_all', standing: true, status: 'published' })
-    if (wd !== 'fri') groups.forEach((g, gi) => base({ experience_type: 'WC', kind: 'community', title: `${g.name} group`, lesson_id: null, outcomes_served: ['HOS.BELONGING', 'HOS.ATTACHMENT'], adult_ids: g.adult_ids, place_id: ['pl_room_101', 'pl_room_102', 'pl_room_103', 'pl_commons'][gi], day, start: '08:45', end: '09:15', capacity_min: 0, capacity_max: 25, entry: 'required', source: 'front_door', source_ref: g.id, standing: true, status: 'published' }))
+    if (wd !== 'fri') groups.forEach((g, gi) => base({ experience_type: 'WC', kind: 'community', title: `${g.name} group`, lesson_id: null, outcomes_served: ['HOS.BELONGING', 'HOS.ATTACHMENT'], adult_ids: g.adult_ids, place_id: ['pl_room_101', 'pl_room_102', 'pl_room_103', 'pl_commons'][gi], day, start: '08:45', end: '09:15', capacity_min: 0, capacity_max: 25, entry: 'required', source: 'homebase', source_ref: g.id, standing: true, status: 'published' }))
     base({ experience_type: 'WC', kind: 'community', title: 'Lunch together', lesson_id: null, outcomes_served: ['HOS.BELONGING'], adult_ids: ['adu_ops'], place_id: 'pl_commons', day, start: '12:15', end: '12:45', capacity_min: 0, capacity_max: 100, entry: 'required', source: 'calendar', source_ref: 'lunch', standing: true, status: 'published' })
-    base({ experience_type: 'RG', kind: 'event', title: 'Reflection and goal-setting', lesson_id: null, outcomes_served: ['HOS.SELF_DIRECTION', 'HOS.SELF_AWARENESS'], adult_ids: mentorIds, place_id: 'pl_commons', day, start: '15:00', end: '15:30', capacity_min: 0, capacity_max: 100, entry: 'required', source: 'front_door', source_ref: 'reflection', standing: true, status: 'published' })
+    base({ experience_type: 'RG', kind: 'event', title: 'Reflection and goal-setting', lesson_id: null, outcomes_served: ['HOS.SELF_DIRECTION', 'HOS.SELF_AWARENESS'], adult_ids: mentorIds, place_id: 'pl_commons', day, start: '15:00', end: '15:30', capacity_min: 0, capacity_max: 100, entry: 'required', source: 'homebase', source_ref: 'reflection', standing: true, status: 'published' })
     BLOCKS.forEach((b, bi) => {
-      base({ experience_type: 'PF', kind: 'practice', title: 'Practice hub', lesson_id: null, outcomes_served: ['HOS.SELF_DIRECTION'], adult_ids: bi < 4 ? ['adu_math', 'adu_coach'] : ['adu_coach', 'adu_science'], place_id: 'pl_commons', day, start: b.start, end: b.end, capacity_min: 0, capacity_max: 24, entry: 'open', source: 'front_door', source_ref: 'practice_hub', standing: true, status: 'published' })
+      base({ experience_type: 'PF', kind: 'practice', title: 'Practice hub', lesson_id: null, outcomes_served: ['HOS.SELF_DIRECTION'], adult_ids: bi < 4 ? ['adu_math', 'adu_coach'] : ['adu_coach', 'adu_science'], place_id: 'pl_commons', day, start: b.start, end: b.end, capacity_min: 0, capacity_max: 24, entry: 'open', source: 'homebase', source_ref: 'practice_hub', standing: true, status: 'published' })
     })
     // Kira self-paced modules and Teach to One roadmap sessions.
     base({ experience_type: 'PF', kind: 'practice', title: 'Kira self-paced: math modules', lesson_id: null, outcomes_served: mathStandardIds, adult_ids: ['adu_math'], place_id: 'pl_room_103', day, start: '10:00', end: '10:45', capacity_min: 0, capacity_max: 16, entry: 'open', source: 'kira', source_ref: 'kira_math_modules', standing: true, status: 'published' })
@@ -411,38 +411,41 @@ function weekOfferings(weekStart: string, suffix: string): Offering[] {
     // Seminars (DD), studios (IW), movement (WC).
     const semA = wd === 'mon' || wd === 'wed' || wd === 'fri' ? ['crs_aplang', 'adu_english'] : ['crs_apworld', 'adu_history']
     const semB = wd === 'tue' || wd === 'thu' ? ['crs_aplit', 'adu_english'] : ['crs_apush', 'adu_history']
-    base({ experience_type: 'DD', kind: 'seminar', title: `Seminar: ${courses.find((c) => c.id === semA[0])!.title}`, lesson_id: null, outcomes_served: skillsOf(semA[0], 4), adult_ids: [semA[1]], place_id: 'pl_sem_a', day, start: '09:15', end: '10:45', capacity_min: 4, capacity_max: 10, entry: 'open', source: 'front_door', source_ref: `seminar_${semA[0]}`, standing: true, status: 'published' })
-    base({ experience_type: 'DD', kind: 'seminar', title: `Seminar: ${courses.find((c) => c.id === semB[0])!.title}`, lesson_id: null, outcomes_served: skillsOf(semB[0], 4), adult_ids: [semB[1]], place_id: 'pl_sem_b', day, start: '13:30', end: '15:00', capacity_min: 4, capacity_max: 10, entry: 'open', source: 'front_door', source_ref: `seminar_${semB[0]}`, standing: true, status: 'published' })
-    base({ experience_type: 'DD', kind: 'seminar', title: `Seminar: ${courses.find((c) => c.id === (wd === 'mon' || wd === 'wed' || wd === 'fri' ? 'crs_apush' : 'crs_apworld'))!.title}`, lesson_id: null, outcomes_served: skillsOf(wd === 'mon' || wd === 'wed' || wd === 'fri' ? 'crs_apush' : 'crs_apworld', 4), adult_ids: ['adu_history'], place_id: 'pl_sem_a', day, start: '12:45', end: '14:15', capacity_min: 4, capacity_max: 10, entry: 'open', source: 'front_door', source_ref: 'seminar_history_pm', standing: true, status: 'published' })
-    base({ experience_type: 'DD', kind: 'seminar', title: 'Socratic seminar: current issues', lesson_id: null, outcomes_served: ['CS.SPK.DISCUSS', 'CS.SPK.PREP', 'CS.ANA.CRITIQUE', 'CS.WRI.COUNTER'], adult_ids: [mentorIds[(['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) + 2) % 4]], place_id: 'pl_sem_a', day, start: '14:15', end: '15:00', capacity_min: 3, capacity_max: 10, entry: 'open', source: 'front_door', source_ref: 'seminar_issues', standing: true, status: 'published' })
-    base({ experience_type: 'IW', kind: 'studio', title: 'Expedition project studio', lesson_id: null, outcomes_served: ['CS.ANA.MODEL', 'CS.PRD.MMWRITTEN', 'CS.INQ.QUESTION', 'HOS.AGENCY'], adult_ids: ['adu_coordinator'], place_id: 'pl_gym', day, start: '09:15', end: '10:45', capacity_min: 2, capacity_max: 30, entry: 'open', source: 'front_door', source_ref: 'studio_expedition', standing: true, status: 'published' })
-    base({ experience_type: 'IW', kind: 'studio', title: 'Math modeling studio', lesson_id: null, outcomes_served: ['CS.ANA.MODEL', 'CCSS.HSA-CED.A.2', 'CCSS.HSF-IF.B.4'], adult_ids: ['adu_math'], place_id: 'pl_room_104', day, start: '11:30', end: '12:15', capacity_min: 2, capacity_max: 8, entry: 'open', source: 'front_door', source_ref: 'studio_math', standing: true, status: 'published' })
-    base({ experience_type: 'IW', kind: 'studio', title: 'Expedition project studio (afternoon)', lesson_id: null, outcomes_served: ['CS.ANA.MODEL', 'CS.PRD.MMWRITTEN', 'CS.INQ.DESIGN', 'HOS.SELF_DIRECTION'], adult_ids: [mentorIds[(['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) + 3) % 4]], place_id: 'pl_gym', day, start: '13:30', end: '15:00', capacity_min: 2, capacity_max: 30, entry: 'open', source: 'front_door', source_ref: 'studio_expedition_pm', standing: true, status: 'published' })
-    base({ experience_type: 'DD', kind: 'seminar', title: 'Close reading seminar', lesson_id: null, outcomes_served: ['CS.TXT.THEME', 'CS.TXT.POV', 'CS.TXT.DEV', 'CS.TXT.STRUCT', 'CS.TXT.WORD'], adult_ids: ['adu_english'], place_id: 'pl_sem_b', day, start: '09:15', end: '10:00', capacity_min: 3, capacity_max: 10, entry: 'open', source: 'front_door', source_ref: 'seminar_close_reading', standing: true, status: 'published' })
-    base({ experience_type: 'IW', kind: 'studio', title: 'Research and sources studio', lesson_id: null, outcomes_served: ['CS.SRC.SELECT', 'CS.SRC.CONTEXT', 'CS.SRC.SYNTH', 'CS.INQ.QUESTION', 'CS.WRI.THESIS', 'CS.WRI.NARRATIVE'], adult_ids: ['adu_history'], place_id: 'pl_room_104', day, start: '10:00', end: '10:45', capacity_min: 2, capacity_max: 8, entry: 'open', source: 'front_door', source_ref: 'studio_research', standing: true, status: 'published' })
-    base({ experience_type: 'PP', kind: 'studio', title: 'Presentation lab', lesson_id: null, outcomes_served: ['CS.PRD.STYLE', 'CS.PRD.ORAL', 'CS.PRD.MMWRITTEN', 'CS.PRD.MMORAL', 'CS.PRD.CONVENTIONS', 'CS.PRD.PRECISION', 'CS.SPK.PREP', 'CS.SPK.NORMS', 'CS.WRI.EVSELECT', 'CS.WRI.INTROCONC'], adult_ids: ['adu_coach'], place_id: 'pl_nook_2', day, start: '12:45', end: '13:30', capacity_min: 1, capacity_max: 6, entry: 'open', source: 'front_door', source_ref: 'presentation_lab', standing: true, status: 'published' })
-    base({ experience_type: 'DD', kind: 'seminar', title: 'Book talk', lesson_id: null, outcomes_served: ['CS.TXT.THEME', 'CS.SPK.DISCUSS', 'CS.SPK.NORMS'], adult_ids: [mentorIds[['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) % 4]], place_id: 'pl_sem_b', day, start: '10:45', end: '11:30', capacity_min: 3, capacity_max: 10, entry: 'open', source: 'front_door', source_ref: 'book_talk', standing: true, status: 'published' })
-    base({ experience_type: 'IW', kind: 'studio', title: 'Project studio: final products', lesson_id: null, outcomes_served: ['CS.WRI.ORG', 'CS.WRI.EVINTEGRATE', 'CS.PRD.STYLE', 'CS.ANA.JUSTIFY'], adult_ids: [mentorIds[(['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) + 1) % 4]], place_id: 'pl_room_101', day, start: '10:45', end: '12:15', capacity_min: 4, capacity_max: 24, entry: 'open', source: 'front_door', source_ref: 'studio_products', standing: true, status: 'published' })
-    base({ experience_type: 'IW', kind: 'studio', title: 'Science lab studio', lesson_id: null, outcomes_served: ['CS.INQ.DESIGN', 'CS.INQ.COLLECT', 'CS.ANA.INTERPRET', 'CS.ANA.MODEL'], adult_ids: ['adu_science'], place_id: 'pl_room_102', day, start: '12:45', end: '14:15', capacity_min: 4, capacity_max: 16, entry: 'open', source: 'front_door', source_ref: 'studio_lab', standing: true, status: 'published' })
-    base({ experience_type: 'IW', kind: 'studio', title: 'Writing studio', lesson_id: null, outcomes_served: ['CS.WRI.CLAIM', 'CS.WRI.EVEXPLAIN', 'CS.WRI.COUNTER', 'CS.WRI.INTROCONC'], adult_ids: ['adu_english'], place_id: 'pl_room_104', day, start: '14:15', end: '15:00', capacity_min: 2, capacity_max: 8, entry: 'open', source: 'front_door', source_ref: 'studio_writing', standing: true, status: 'published' })
-    base({ experience_type: 'RG', kind: 'studio', title: 'Goal-setting workshop', lesson_id: null, outcomes_served: ['HOS.SELF_DIRECTION', 'HOS.EXEC_FUNCTION'], adult_ids: ['adu_coach'], place_id: 'pl_nook_2', day, start: '09:15', end: '10:00', capacity_min: 1, capacity_max: 6, entry: 'open', source: 'front_door', source_ref: 'goal_workshop', standing: true, status: 'published' })
+    base({ experience_type: 'DD', kind: 'seminar', title: `Seminar: ${courses.find((c) => c.id === semA[0])!.title}`, lesson_id: null, outcomes_served: skillsOf(semA[0], 4), adult_ids: [semA[1]], place_id: 'pl_sem_a', day, start: '09:15', end: '10:45', capacity_min: 4, capacity_max: 10, entry: 'open', source: 'homebase', source_ref: `seminar_${semA[0]}`, standing: true, status: 'published' })
+    base({ experience_type: 'DD', kind: 'seminar', title: `Seminar: ${courses.find((c) => c.id === semB[0])!.title}`, lesson_id: null, outcomes_served: skillsOf(semB[0], 4), adult_ids: [semB[1]], place_id: 'pl_sem_b', day, start: '13:30', end: '15:00', capacity_min: 4, capacity_max: 10, entry: 'open', source: 'homebase', source_ref: `seminar_${semB[0]}`, standing: true, status: 'published' })
+    base({ experience_type: 'DD', kind: 'seminar', title: `Seminar: ${courses.find((c) => c.id === (wd === 'mon' || wd === 'wed' || wd === 'fri' ? 'crs_apush' : 'crs_apworld'))!.title}`, lesson_id: null, outcomes_served: skillsOf(wd === 'mon' || wd === 'wed' || wd === 'fri' ? 'crs_apush' : 'crs_apworld', 4), adult_ids: ['adu_history'], place_id: 'pl_sem_a', day, start: '12:45', end: '14:15', capacity_min: 4, capacity_max: 10, entry: 'open', source: 'homebase', source_ref: 'seminar_history_pm', standing: true, status: 'published' })
+    base({ experience_type: 'DD', kind: 'seminar', title: 'Socratic seminar: current issues', lesson_id: null, outcomes_served: ['CS.SPK.DISCUSS', 'CS.SPK.PREP', 'CS.ANA.CRITIQUE', 'CS.WRI.COUNTER'], adult_ids: [mentorIds[(['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) + 2) % 4]], place_id: 'pl_sem_a', day, start: '14:15', end: '15:00', capacity_min: 3, capacity_max: 10, entry: 'open', source: 'homebase', source_ref: 'seminar_issues', standing: true, status: 'published' })
+    base({ experience_type: 'IW', kind: 'studio', title: 'Expedition project studio', lesson_id: null, outcomes_served: ['CS.ANA.MODEL', 'CS.PRD.MMWRITTEN', 'CS.INQ.QUESTION', 'HOS.AGENCY'], adult_ids: ['adu_coordinator'], place_id: 'pl_gym', day, start: '09:15', end: '10:45', capacity_min: 2, capacity_max: 30, entry: 'open', source: 'homebase', source_ref: 'studio_expedition', standing: true, status: 'published' })
+    base({ experience_type: 'IW', kind: 'studio', title: 'Math modeling studio', lesson_id: null, outcomes_served: ['CS.ANA.MODEL', 'CCSS.HSA-CED.A.2', 'CCSS.HSF-IF.B.4'], adult_ids: ['adu_math'], place_id: 'pl_room_104', day, start: '11:30', end: '12:15', capacity_min: 2, capacity_max: 8, entry: 'open', source: 'homebase', source_ref: 'studio_math', standing: true, status: 'published' })
+    base({ experience_type: 'IW', kind: 'studio', title: 'Expedition project studio (afternoon)', lesson_id: null, outcomes_served: ['CS.ANA.MODEL', 'CS.PRD.MMWRITTEN', 'CS.INQ.DESIGN', 'HOS.SELF_DIRECTION'], adult_ids: [mentorIds[(['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) + 3) % 4]], place_id: 'pl_gym', day, start: '13:30', end: '15:00', capacity_min: 2, capacity_max: 30, entry: 'open', source: 'homebase', source_ref: 'studio_expedition_pm', standing: true, status: 'published' })
+    base({ experience_type: 'DD', kind: 'seminar', title: 'Close reading seminar', lesson_id: null, outcomes_served: ['CS.TXT.THEME', 'CS.TXT.POV', 'CS.TXT.DEV', 'CS.TXT.STRUCT', 'CS.TXT.WORD'], adult_ids: ['adu_english'], place_id: 'pl_sem_b', day, start: '09:15', end: '10:00', capacity_min: 3, capacity_max: 10, entry: 'open', source: 'homebase', source_ref: 'seminar_close_reading', standing: true, status: 'published' })
+    base({ experience_type: 'IW', kind: 'studio', title: 'Research and sources studio', lesson_id: null, outcomes_served: ['CS.SRC.SELECT', 'CS.SRC.CONTEXT', 'CS.SRC.SYNTH', 'CS.INQ.QUESTION', 'CS.WRI.THESIS', 'CS.WRI.NARRATIVE'], adult_ids: ['adu_history'], place_id: 'pl_room_104', day, start: '10:00', end: '10:45', capacity_min: 2, capacity_max: 8, entry: 'open', source: 'homebase', source_ref: 'studio_research', standing: true, status: 'published' })
+    base({ experience_type: 'PP', kind: 'studio', title: 'Presentation lab', lesson_id: null, outcomes_served: ['CS.PRD.STYLE', 'CS.PRD.ORAL', 'CS.PRD.MMWRITTEN', 'CS.PRD.MMORAL', 'CS.PRD.CONVENTIONS', 'CS.PRD.PRECISION', 'CS.SPK.PREP', 'CS.SPK.NORMS', 'CS.WRI.EVSELECT', 'CS.WRI.INTROCONC'], adult_ids: ['adu_coach'], place_id: 'pl_nook_2', day, start: '12:45', end: '13:30', capacity_min: 1, capacity_max: 6, entry: 'open', source: 'homebase', source_ref: 'presentation_lab', standing: true, status: 'published' })
+    base({ experience_type: 'DD', kind: 'seminar', title: 'Book talk', lesson_id: null, outcomes_served: ['CS.TXT.THEME', 'CS.SPK.DISCUSS', 'CS.SPK.NORMS'], adult_ids: [mentorIds[['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) % 4]], place_id: 'pl_sem_b', day, start: '10:45', end: '11:30', capacity_min: 3, capacity_max: 10, entry: 'open', source: 'homebase', source_ref: 'book_talk', standing: true, status: 'published' })
+    base({ experience_type: 'IW', kind: 'studio', title: 'Project studio: final products', lesson_id: null, outcomes_served: ['CS.WRI.ORG', 'CS.WRI.EVINTEGRATE', 'CS.PRD.STYLE', 'CS.ANA.JUSTIFY'], adult_ids: [mentorIds[(['mon', 'tue', 'wed', 'thu', 'fri'].indexOf(wd) + 1) % 4]], place_id: 'pl_room_101', day, start: '10:45', end: '12:15', capacity_min: 4, capacity_max: 24, entry: 'open', source: 'homebase', source_ref: 'studio_products', standing: true, status: 'published' })
+    base({ experience_type: 'IW', kind: 'studio', title: 'Science lab studio', lesson_id: null, outcomes_served: ['CS.INQ.DESIGN', 'CS.INQ.COLLECT', 'CS.ANA.INTERPRET', 'CS.ANA.MODEL'], adult_ids: ['adu_science'], place_id: 'pl_room_102', day, start: '12:45', end: '14:15', capacity_min: 4, capacity_max: 16, entry: 'open', source: 'homebase', source_ref: 'studio_lab', standing: true, status: 'published' })
+    base({ experience_type: 'IW', kind: 'studio', title: 'Writing studio', lesson_id: null, outcomes_served: ['CS.WRI.CLAIM', 'CS.WRI.EVEXPLAIN', 'CS.WRI.COUNTER', 'CS.WRI.INTROCONC'], adult_ids: ['adu_english'], place_id: 'pl_room_104', day, start: '14:15', end: '15:00', capacity_min: 2, capacity_max: 8, entry: 'open', source: 'homebase', source_ref: 'studio_writing', standing: true, status: 'published' })
+    base({ experience_type: 'RG', kind: 'studio', title: 'Goal-setting workshop', lesson_id: null, outcomes_served: ['HOS.SELF_DIRECTION', 'HOS.EXEC_FUNCTION'], adult_ids: ['adu_coach'], place_id: 'pl_nook_2', day, start: '09:15', end: '10:00', capacity_min: 1, capacity_max: 6, entry: 'open', source: 'homebase', source_ref: 'goal_workshop', standing: true, status: 'published' })
   })
   // Whole-group event, exhibition, portfolio review.
   base({ experience_type: 'WC', kind: 'event', title: 'All-school gathering', lesson_id: null, outcomes_served: ['HOS.BELONGING', 'HOS.CIVIC_IDENTITY'], adult_ids: ['adu_director', 'adu_ops'], place_id: 'pl_gym', day: dates[4], start: '08:45', end: '09:15', capacity_min: 0, capacity_max: 100, entry: 'required', source: 'calendar', source_ref: 'all_school', standing: true, status: 'published' })
-  base({ experience_type: 'PP', kind: 'exhibition', title: 'Exhibition: work in progress', lesson_id: null, outcomes_served: ['CS.PRD.ORAL', 'CS.PRD.MMORAL', 'CS.PRD.STYLE'], adult_ids: ['adu_english', 'adu_history'], place_id: 'pl_commons', day: dates[3], start: '13:30', end: '15:00', capacity_min: 4, capacity_max: 30, entry: 'open', source: 'front_door', source_ref: 'exhibition_wip', standing: true, status: 'published' })
-  base({ experience_type: 'PP', kind: 'exhibition', title: 'Portfolio review', lesson_id: null, outcomes_served: ['CS.PRD.ORAL', 'CS.WRI.EVSELECT', 'CS.PRD.PRECISION'], adult_ids: ['adu_coordinator'], place_id: 'pl_sem_a', day: dates[4], start: '13:30', end: '15:00', capacity_min: 2, capacity_max: 10, entry: 'open', source: 'front_door', source_ref: 'portfolio_review', standing: true, status: 'published' })
+  base({ experience_type: 'PP', kind: 'exhibition', title: 'Exhibition: work in progress', lesson_id: null, outcomes_served: ['CS.PRD.ORAL', 'CS.PRD.MMORAL', 'CS.PRD.STYLE'], adult_ids: ['adu_english', 'adu_history'], place_id: 'pl_commons', day: dates[3], start: '13:30', end: '15:00', capacity_min: 4, capacity_max: 30, entry: 'open', source: 'homebase', source_ref: 'exhibition_wip', standing: true, status: 'published' })
+  base({ experience_type: 'PP', kind: 'exhibition', title: 'Portfolio review', lesson_id: null, outcomes_served: ['CS.PRD.ORAL', 'CS.WRI.EVSELECT', 'CS.PRD.PRECISION'], adult_ids: ['adu_coordinator'], place_id: 'pl_sem_a', day: dates[4], start: '13:30', end: '15:00', capacity_min: 2, capacity_max: 10, entry: 'open', source: 'homebase', source_ref: 'portfolio_review', standing: true, status: 'published' })
   // Partner slots (RW).
   const partner = (title: string, pid: string, placeId: string, days: number[], start: string, end: string, cap: number, template: string, kind: Offering['kind'] = 'partner_slot') => {
     const t = EXPERIENCE_TEMPLATES.find((x) => x.id === template)!
-    for (const d of days) base({ experience_type: 'RW', kind, title, lesson_id: null, outcomes_served: t.teaches, adult_ids: [pid], place_id: placeId, day: dates[d], start, end, capacity_min: Math.max(1, Math.floor(cap / 3)), capacity_max: cap, entry: 'assigned', source: kind === 'college_course' ? 'calendar' : 'partner', source_ref: template, standing: true, status: 'published' })
+    for (const d of days) base({ experience_type: 'RW', kind, title, lesson_id: null, outcomes_served: t.teaches, adult_ids: [pid], place_id: placeId, day: dates[d], start, end, capacity_min: Math.max(1, Math.floor(cap / 3)), capacity_max: cap, entry: t.level === 'expose' ? 'open' : 'assigned', source: kind === 'college_course' ? 'calendar' : 'partner', source_ref: template, standing: true, status: 'published' })
   }
   partner('Parks field crew', 'adu_partner_parks', 'pl_parks', [0, 1, 2, 3, 4], '12:45', '15:00', 10, 'XT.PARKS.TRAIL')
-  partner('Water-quality study', 'adu_partner_parks', 'pl_parks', [1, 3], '09:15', '12:15', 12, 'XT.PARKS.WATER', 'expedition')
+  partner('Water-quality study', 'adu_partner_parks', 'pl_parks', [1, 3], '09:15', '12:15', 16, 'XT.PARKS.WATER', 'expedition')
   partner('Newsroom reporting', 'adu_partner_news', 'pl_news', [0, 2, 4], '09:15', '12:15', 6, 'XT.NEWS.LOCAL')
   partner('Hospital patient services', 'adu_partner_hospital', 'pl_hospital', [1, 3], '09:15', '12:15', 6, 'XT.HOSP.VOLUNTEER')
   partner('Hospital lab observation', 'adu_partner_hospital', 'pl_hospital', [2, 4], '09:15', '12:15', 6, 'XT.HOSP.LAB')
   partner('Junior naturalist program', 'adu_partner_parks', 'pl_parks', [2, 4], '09:15', '12:15', 10, 'XT.PARKS.NATURALIST', 'expedition')
   partner('Student podcast production', 'adu_partner_news', 'pl_news', [1, 3], '12:45', '15:00', 6, 'XT.NEWS.PODCAST')
+  // Two short expose-level experiences that students can choose into an open afternoon (Spec 6 Graph in the Engine).
+  partner('Newsroom shadow visit', 'adu_partner_news', 'pl_news', [1, 3], '13:30', '14:15', 8, 'XT.NEWS.SHADOW')
+  partner('Water-quality data lab', 'adu_partner_parks', 'pl_parks', [2, 4], '13:30', '14:15', 8, 'XT.PARKS.WATER', 'expedition')
   partner('Intro to computer science', 'adu_partner_college', 'pl_college', [0, 2], '12:45', '14:15', 15, 'XT.COLLEGE.INTRO_CS', 'college_course')
   partner('Intro statistics', 'adu_partner_college', 'pl_college', [1, 3], '12:45', '14:15', 15, 'XT.COLLEGE.STATS', 'college_course')
   partner('College composition', 'adu_partner_college', 'pl_college', [0, 2, 4], '09:15', '10:45', 15, 'XT.COLLEGE.COMP', 'college_course')
@@ -510,11 +513,12 @@ addTouchpoint(familyStudent, 'family', isoAt('2026-10-19', '16:00'), { mentor_id
 
 // ---------- plans: past weeks and this week ----------
 const plans: Plan[] = []
+const traces: EngineTrace[] = []
 const gatheringLog: GatheringLogEntry[] = []
 const baseSnapshot = (): Sandbox => ({
   meta: { seed: SEED, generated_at: new Date(0).toISOString(), week_start: WEEK_START, today: TODAY, graph_source: 'learning_commons v1.15.0' },
   students, adults, outcomes, offerings, plans, evidence, touchpoints, courses, units, lessons, assignments, places, groups,
-  settings: DEFAULT_SETTINGS, futre, gathering_log: gatheringLog,
+  settings: DEFAULT_SETTINGS, futre, gathering_log: gatheringLog, traces,
 })
 
 /** The coordinator places students into RW offerings by level and pathway. */
@@ -522,7 +526,8 @@ function placeRw(weekStart: string, weekOffs: Offering[]): Map<string, string[]>
   const rw = weekOffs.filter((o) => o.experience_type === 'RW' && o.status === 'published')
   const fill = new Map<string, number>()
   const out = new Map<string, string[]>()
-  const room = (o: Offering) => (fill.get(o.id) ?? 0) < o.capacity_max
+  // Open (expose-level) experiences keep a few seats for students to choose in Build My Week.
+  const room = (o: Offering) => (fill.get(o.id) ?? 0) < (o.entry === 'open' ? Math.max(1, o.capacity_max - 3) : o.capacity_max)
   const takeIt = (sid: string, o: Offering) => {
     fill.set(o.id, (fill.get(o.id) ?? 0) + 1)
     out.set(sid, [...(out.get(sid) ?? []), o.id])
@@ -581,7 +586,7 @@ function buildWeekFor(weekStart: string, suffix: string, asOf: string, published
   // Engine proposals: accept most, leave some for the Proposed Workshops screen this week.
   const proposals = proposeWorkshops(snap, { weekStart, asOf })
   const workshops = proposals.filter((p) => p.kind === 'workshop')
-  const keep = isCurrent ? 3 : 0
+  const keep = isCurrent ? 4 : 0
   const accepted = workshops.slice(0, Math.max(0, workshops.length - keep))
   for (const p of accepted) {
     if (p.adult_id && p.place_id) off(offeringFromProposal(p, snap, { id: `off_ws_${p.lesson_id}_${p.day}_${p.start.replace(':', '')}${suffix}`.toLowerCase() }))
@@ -593,7 +598,10 @@ function buildWeekFor(weekStart: string, suffix: string, asOf: string, published
   const goals = new Map(students.map((s) => [s.id, goalsFor(s)]))
   const snap2 = baseSnapshot()
   resetSlotCounter()
-  const { plans: built, ledger } = buildAllWeeks(snap2, { weekStart, asOf, rwPlacements, goals, focusHabits })
+  const built_ = buildAllWeeks(snap2, { weekStart, asOf, rwPlacements, goals, focusHabits, runId: `build_${weekStart}`, now: publishedAt })
+  const { plans: built, ledger } = built_
+  // Only the current week keeps its slot traces; past weeks are history and the fixture stays small.
+  if (isCurrent) traces.push(...built_.traces)
   // Students fill open slots (per plan_autonomy). Past weeks: everything; this week: most, leaving a few open.
   for (const plan of built) {
     const s = students.find((x) => x.id === plan.student_id)!
@@ -603,10 +611,11 @@ function buildWeekFor(weekStart: string, suffix: string, asOf: string, published
       const live = p.slots.find((x) => x.id === slot.id)
       if (!live || live.offering_id) continue
       if (!rng.chance(fillRate)) continue
-      const opts = optionsForSlot(p, live, s, snap2, ledger).filter((o) => !o.reasons.includes('collides'))
+      // Seed-time picks leave the open real-world seats for the demo (Build My Week shows them with the gap they teach).
+      const opts = optionsForSlot(p, live, s, snap2, ledger).filter((o) => !o.reasons.includes('collides') && o.offering.experience_type !== 'RW')
       if (!opts.length) continue
       const pick = s.plan_autonomy === 'guided' ? opts[0] : rng.pick(opts.slice(0, 3))
-      p = chooseForSlot(p, live, pick.offering, ledger)
+      p = chooseForSlot(p, live, pick.offering, ledger, undefined, isCurrent ? traces : undefined, opts, { runId: `pick_${weekStart}`, now: publishedAt })
     }
     p = { ...p, built_by: s.plan_autonomy === 'owned' ? 'student' : 'engine', published_at: publishedAt, confirmed_by: isCurrent ? (rng.chance(0.9) ? s.mentor_id : null) : s.mentor_id, version: isCurrent ? 1 : 1 }
     // Statuses: past weeks attended with ratings; this week Monday attended and Tuesday morning done.
@@ -626,6 +635,17 @@ function buildWeekFor(weekStart: string, suffix: string, asOf: string, published
     })
     // Past weeks keep only the slots that happened; open slots never filled are dropped to keep the fixture small.
     plans.push({ ...p, slots: isCurrent ? slots : slots.filter((sl) => sl.offering_id !== null || sl.entry === 'protected') })
+    if (isCurrent) {
+      // A chosen offering absorbs the open slots it spans; their traces go with them. The newest trace per slot stays.
+      const live = new Set(slots.map((sl) => sl.id))
+      const seen = new Set<string>()
+      for (let i = traces.length - 1; i >= 0; i--) {
+        const t = traces[i]
+        if (!t.ref_id.startsWith(p.id)) continue
+        if (!live.has(t.ref_id) || seen.has(t.ref_id)) traces.splice(i, 1)
+        else seen.add(t.ref_id)
+      }
+    }
     // Evidence from attended slots: adult observations and student reflections.
     for (const sl of slots) {
       if (sl.status !== 'attended' || !sl.offering_id) continue
@@ -650,7 +670,7 @@ for (let k = 0; k < PAST_WEEKS; k++) {
 }
 // A booked assessment for one student who is not among the three ready-for-validation students.
 const assessedStudent = rng.pick(students.filter((s) => !readyStudents.includes(s) && s.level !== 'expose'))
-off({ id: `off_assess_${assessedStudent.id}`, experience_type: 'PP', kind: 'assessment', title: 'Cognitive skill assessment', lesson_id: null, outcomes_served: ['CS.WRI.EVEXPLAIN'], adult_ids: ['adu_english'], place_id: 'pl_nook_1', day: '2026-10-22', start: '10:00', end: '10:45', capacity_min: 1, capacity_max: 1, entry: 'invited', source: 'front_door', source_ref: `assess:${assessedStudent.id}`, standing: false, status: 'published' })
+off({ id: `off_assess_${assessedStudent.id}`, experience_type: 'PP', kind: 'assessment', title: 'Cognitive skill assessment', lesson_id: null, outcomes_served: ['CS.WRI.EVEXPLAIN'], adult_ids: ['adu_english'], place_id: 'pl_nook_1', day: '2026-10-22', start: '10:00', end: '10:45', capacity_min: 1, capacity_max: 1, entry: 'invited', source: 'homebase', source_ref: `assess:${assessedStudent.id}`, standing: false, status: 'published' })
 buildWeekFor(WEEK_START, '', '2026-10-16', PUBLISHED_AT, true)
 
 // Launch students: a text check-in instead of a daily reflection in the room is a later refinement; v1 keeps the slots.

@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { Link } from 'react-router'
 import type { Adult, Offering, Place, Slot } from '@/model'
 import { useCopy } from '@/copy'
 import { formatTime12 } from '@/lib/time'
@@ -77,6 +78,7 @@ export function SlotCard({ slot, offering, place, leads = [], peopleCount, pinne
         </span>
       </button>
       {open && children ? <div className="border-t border-line p-4">{children}</div> : null}
+      {!isOpen ? <p className="px-4 pb-3 text-xs"><Link to={`/l/trace?slot=${slot.id}`} className="text-indigo underline dark:text-indigo-1">{c.lead.whyThis}</Link></p> : null}
     </article>
   )
 }

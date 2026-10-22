@@ -9,9 +9,9 @@ export function useSnapshot(): Sandbox {
   const s = useSandbox((st) => st)
   return useMemo(
     () => ({
-      meta: s.meta, students: s.students, adults: s.adults, outcomes: s.outcomes, offerings: s.offerings, plans: s.plans, evidence: s.evidence, touchpoints: s.touchpoints, courses: s.courses, units: s.units, lessons: s.lessons, assignments: s.assignments, places: s.places, groups: s.groups, settings: s.settings, futre: s.futre, gathering_log: s.gathering_log,
+      meta: s.meta, students: s.students, adults: s.adults, outcomes: s.outcomes, offerings: s.offerings, plans: s.plans, evidence: s.evidence, touchpoints: s.touchpoints, courses: s.courses, units: s.units, lessons: s.lessons, assignments: s.assignments, places: s.places, groups: s.groups, settings: s.settings, futre: s.futre, gathering_log: s.gathering_log, traces: s.traces,
     }),
-    [s.meta, s.students, s.adults, s.outcomes, s.offerings, s.plans, s.evidence, s.touchpoints, s.courses, s.units, s.lessons, s.assignments, s.places, s.groups, s.settings, s.futre, s.gathering_log],
+    [s.meta, s.students, s.adults, s.outcomes, s.offerings, s.plans, s.evidence, s.touchpoints, s.courses, s.units, s.lessons, s.assignments, s.places, s.groups, s.settings, s.futre, s.gathering_log, s.traces],
   )
 }
 

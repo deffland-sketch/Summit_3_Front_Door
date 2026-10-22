@@ -7,6 +7,7 @@ import { useIndexes, useSnapshot, useToday } from '@/app/hooks'
 import { Button, Card, Chip, Empty, H1, H2, Stat } from '@/components/ui'
 import { TYPE_STYLE, TYPE_ORDER } from '@/components/types'
 import { alerts } from '@/engine'
+import { cancelPartnerSlot } from '@/store/actions'
 import { useUi } from '@/store/ui'
 import { repos } from '@/store'
 import { toMin } from '@/lib/time'
@@ -69,7 +70,10 @@ export function Dashboard() {
                     <Chip className={a.severity === 'high' ? 'bg-red-2 text-red-ink' : a.severity === 'medium' ? 'bg-orange-2 text-orange-ink' : 'bg-tan-grey-2 text-tan-grey-ink'}>{c.lead.severity[a.severity]}</Chip>
                     <span className="font-bold">{c.lead.alertKinds[a.kind]}</span> · {a.subject_name} <span className="text-ink-2">· {a.detail}</span>
                   </span>
-                  <Link to={a.to} className="text-indigo underline dark:text-indigo-1">{c.lead.fix}</Link>
+                  <span className="flex items-center gap-2">
+                    {a.action === 'cancel_partner' ? <Button kind="danger" onClick={() => { const n = cancelPartnerSlot(a.subject_id).length; toast(c.lead.partnerCancelled(a.subject_name, n)) }}>{c.lead.cancelPartner}</Button> : null}
+                    <Link to={a.to} className="text-indigo underline dark:text-indigo-1">{c.lead.fix}</Link>
+                  </span>
                 </li>
               ))}
             </ul>

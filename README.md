@@ -1,6 +1,6 @@
-# Summit 3.0 Front Door
+# Summit 3.0 Homebase
 
-A prototype of the learner front door for Summit Public Schools' next model, built on a sandbox of 100 invented students. One web app, four roles (student, mentor, content expert or facilitator, school lead), one data model. The student's page is the product. The sandbox is the product for now: every screen responds to the seed data, and changing a score changes the week.
+A prototype of the learner homebase for Summit Public Schools' next model, built on a sandbox of 100 invented students. One web app, four roles (student, mentor, content expert or facilitator, school lead), one data model. The student's page is the product. The sandbox is the product for now: every screen responds to the seed data, and changing a score changes the week.
 
 Everything here is invented. Nothing is written to a real system.
 
@@ -12,6 +12,7 @@ npm run dev          # http://localhost:5173
 npm run build        # tsc -b && vite build
 npm test             # Vitest unit tests, then the Playwright scenario suite (needs a build first)
 npm run test:unit    # Vitest only: model, graph, engine, seed, copy
+npm run audit        # write audit/engine-audit-<date>.md for a real teacher and coordinator to mark up
 npm run test:e2e     # Playwright: one happy path per role plus the sandbox loop
 npm run seed         # regenerate public/sandbox/*.json (deterministic)
 ```
@@ -53,7 +54,7 @@ Also worth a look: the display board at `/board` (large type, rooms only, never 
 
 **Phase 7, Supply screens.** Done. My Offerings with rosters and "I'm out today", Proposed Workshops (accept, change time, decline with a reason), Needs You (stale evidence, opt-outs, flags), Roster and Notes (exit signals and one-line observations that become evidence), Menu with fill counts and publish toggles, Standing Sessions, and the Weekly Build runner (gather, read, propose, build, publish) for the system architect.
 
-**Phase 8, Lead screens.** Done. Dashboard, Live Board with the printable door roster, Outcomes, Knowledge Graph browser, Equity Snapshot, Time and Talent, Partners, Events, Settings (every rule, with a change log and a rerun), Evidence Log, and the Model Dashboard. The display board at `/board` is large type, rooms only.
+**Phase 8, Lead screens.** Done. Dashboard, Live Board with the printable door roster, Outcomes, Knowledge Graph browser, Equity Snapshot, Time and Talent, Partners, Events, Settings (every rule, with a change log and a rerun), Evidence Log (with one line per engine run), Engine Trace (the evidence, settings, edges, and candidates behind any need, slot, move, proposal, or level review, reached from the "Why this" link on every slot and proposal), and the Model Dashboard. The display board at `/board` is large type, rooms only.
 
 **Phase 9, Adapters and sandbox controls.** Done. Every source has a stub with the Spec 7 interface reading `/sandbox/{name}.json`; the Futre adapter writes back experience reflections. SandboxControls lowers or masters a Kira score, adds a Futre reflection, cancels a partner slot, runs the overnight adjuster, rebuilds a student's week, and moves "today".
 

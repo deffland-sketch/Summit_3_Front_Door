@@ -30,14 +30,14 @@ export function Readiness({ mentorId }: { mentorId: string }) {
     const block = BLOCKS.find((b) => b.start === start) ?? BLOCKS[1]
     const plan = snap.plans.find((p) => p.student_id === studentId && p.week_start === snap.meta.week_start)
     if (!plan) return
-    const offering: Offering = { id: `off_assess_${studentId}_${outcomeId}_${day}`, experience_type: 'PP', kind, title, lesson_id: null, outcomes_served: [outcomeId], adult_ids: [mentorId], place_id: 'pl_nook_1', day, start: block.start, end: block.end, capacity_min: 1, capacity_max: 1, entry: 'invited', source: 'front_door', source_ref: `assess:${studentId}`, standing: false, status: 'published' }
+    const offering: Offering = { id: `off_assess_${studentId}_${outcomeId}_${day}`, experience_type: 'PP', kind, title, lesson_id: null, outcomes_served: [outcomeId], adult_ids: [mentorId], place_id: 'pl_nook_1', day, start: block.start, end: block.end, capacity_min: 1, capacity_max: 1, entry: 'invited', source: 'homebase', source_ref: `assess:${studentId}`, standing: false, status: 'published' }
     upsertOffering(offering)
     const overlapping = plan.slots.filter((s) => s.day === day && s.start < block.end && block.start < s.end && s.status !== 'cancelled')
     if (overlapping.some((s) => s.entry === 'protected' || s.experience_type === 'RW')) {
       toast(c.build.noOptions)
       return
     }
-    const slot: Slot = { id: `${plan.id}_assess_${outcomeId}`, plan_id: plan.id, day, start: block.start, end: block.end, experience_type: 'PP', offering_id: offering.id, entry: 'assigned', why: c.why.assessment(idx.outcomes.get(outcomeId)?.name ?? outcomeId), goal: null, status: plan.confirmed_by ? 'confirmed' : 'planned', rating: null, bring: 'The evidence you want in the room', evidence_id: null, added_at: new Date().toISOString() }
+    const slot: Slot = { id: `${plan.id}_assess_${outcomeId}`, plan_id: plan.id, day, start: block.start, end: block.end, experience_type: 'PP', offering_id: offering.id, entry: 'assigned', why: c.why.assessment(idx.outcomes.get(outcomeId)?.name ?? outcomeId, ready.find((r) => r.student.id === studentId && r.need.outcome_id === outcomeId)?.need.evidence_ref ?? 'your latest strong scores'), goal: null, status: plan.confirmed_by ? 'confirmed' : 'planned', rating: null, bring: 'The evidence you want in the room', evidence_id: null, added_at: new Date().toISOString() }
     updatePlan(plan.id, { version: plan.version + 1, slots: [...plan.slots.map((s) => (overlapping.includes(s) ? { ...s, status: 'moved' as const } : s)), slot].sort((a, b) => (a.day === b.day ? a.start.localeCompare(b.start) : a.day.localeCompare(b.day))) })
     toast(c.mentor.booked)
   }

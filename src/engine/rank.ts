@@ -1,7 +1,8 @@
-import type { Offering, Plan, Sandbox, Slot, Student } from '@/model'
+import type { Offering, Plan, Sandbox, Slot, Student, TraceEdge } from '@/model'
 import { byId } from '@/lib'
 import { minutesBetween, overlaps } from '@/lib/time'
-import { getGraph, whatServes } from '@/graph'
+import { gapsTo, getGraph, pathwaysNear, pathwaysOf, whatServes } from '@/graph'
+import { validatedOutcomes } from './validated'
 import { EXPERIENCE_TEMPLATES, PATHWAYS } from '@/graph/authored/pathways'
 import type { CapacityLedger, Need, RankedOption } from './types'
 import { collisionsFor } from './collisions'
@@ -40,6 +41,12 @@ export function rankOptions(snap: Sandbox, ctx: RankContext, limit = 5): RankedO
   const inReach = new Set(needs.filter((n) => n.kind === 'in_reach').map((n) => n.outcome_id))
   const inReachServed = new Map<string, Set<string>>()
   for (const oid of inReach) inReachServed.set(oid, new Set(whatServes(graph, oid).map((w) => w.node.id)))
+  // The pathway graph, for RW offerings (Spec 6 Graph in the Engine): gaps on the Futre target pathway and pathways near the validated set.
+  const futre = snap.futre.find((f) => f.student_id === student.id)
+  const validated = validatedOutcomes(student.id, snap)
+  const gaps = futre?.cns.pathway_id ? gapsTo(graph, futre.cns.pathway_id, validated) : []
+  const gapById = new Map(gaps.map((g) => [g.node.id, g]))
+  const near = pathwaysNear(graph, validated, futre?.cns.target_careers.map((t) => t.career_id) ?? []).slice(0, 3).map((n) => n.pathway.id)
 
   const live = plan.slots.filter((s) => s.status !== 'cancelled' && s.status !== 'moved' && s.offering_id !== null)
   const weekMinutes = Math.max(1, live.reduce((m, s) => m + minutesBetween(s.start, s.end), 0))
@@ -68,7 +75,30 @@ export function rankOptions(snap: Sandbox, ctx: RankContext, limit = 5): RankedO
       score += 2
       reasons.push('in_reach')
     }
-    if ([...served].some((x) => cns.has(x)) || (o.source_ref && cns.size && EXPERIENCE_TEMPLATES.some((x) => x.id === o.source_ref && x.teaches.some((t) => cns.has(t))))) {
+    const edges: TraceEdge[] = []
+    let gap: string | null = null
+    let pathway: string | null = null
+    if (o.experience_type === 'RW' && o.source_ref.startsWith('XT.')) {
+      // An experience that teaches a gap on the target pathway, or is part of a pathway near the validated set.
+      const taught = (graph.out.get(o.source_ref) ?? []).filter((e) => e.type === 'teaches')
+      const hit = taught.find((e) => gapById.has(e.to))
+      if (hit) {
+        const g = gapById.get(hit.to)!
+        gap = g.node.name
+        edges.push({ from: hit.from, to: hit.to, type: hit.type, source: hit.source }, ...g.via.map((e) => ({ from: e.from, to: e.to, type: e.type, source: e.source })))
+        score += 2
+        reasons.push('gap')
+      } else {
+        const member = pathwaysOf(graph, o.source_ref).find((w) => near.includes(w.node.id))
+        if (member) {
+          pathway = member.node.name
+          edges.push(...member.via.map((e) => ({ from: e.from, to: e.to, type: e.type, source: e.source })))
+          score += 1
+          reasons.push('near_pathway')
+        }
+      }
+    }
+    if (!gap && !pathway && ([...served].some((x) => cns.has(x)) || (o.source_ref && cns.size && EXPERIENCE_TEMPLATES.some((x) => x.id === o.source_ref && x.teaches.some((t) => cns.has(t)))))) {
       score += 2
       reasons.push('cns')
     }
@@ -86,11 +116,12 @@ export function rankOptions(snap: Sandbox, ctx: RankContext, limit = 5): RankedO
       score -= 5
       reasons.push('collides')
     }
+    if (gap) builds.push(gap)
     for (const x of served) {
       const oc = outcomes.get(x)
-      if (oc) builds.push(oc.name)
+      if (oc && !builds.includes(oc.name)) builds.push(oc.name)
     }
-    options.push({ offering: o, score, reasons, builds: builds.slice(0, 3) })
+    options.push({ offering: o, score, reasons, builds: builds.slice(0, 3), edges, gap, pathway })
   }
   return options.sort((a, b) => b.score - a.score || a.offering.title.localeCompare(b.offering.title)).slice(0, limit)
 }

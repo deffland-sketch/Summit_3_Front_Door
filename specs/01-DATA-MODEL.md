@@ -1,12 +1,12 @@
 # Spec 1: Data Model and Sandbox Seed
 
-Summit 3.0 Front Door · Working draft v3 · October 20, 2026 · Owner: Dan Effland
+Summit 3.0 Homebase · Working draft v3 · October 20, 2026 · Owner: Dan Effland
 
-This is the first of six specs. It defines the objects everything else is built on and the sandbox that proves them. Later specs (student front door, mentor view, supply publishing, admin view, engine) are screens and logic over these objects and must not add objects without updating this file.
+This is the first of six specs. It defines the objects everything else is built on and the sandbox that proves them. Later specs (student Homebase, mentor view, supply publishing, admin view, engine) are screens and logic over these objects and must not add objects without updating this file.
 
 ## What This Platform Is
 
-The front door to Summit 3.0. One place where a student sees progress toward outcomes, the plan for the week, access to the learning resources, the line from this week to the long-term plan in Futre, and where the mentor guides, gives feedback, and sees progress, and where an administrator sees the system. Content lives in strong curriculum (Illustrative Mathematics, OpenSciEd, AP English and history) and reaches students through Kira, Teach to One, or a teacher-led workshop. Pathway, vision, portfolio, and career exploration live in Futre. The front door holds the week, the progress, and the people.
+Homebase to Summit 3.0. One place where a student sees progress toward outcomes, the plan for the week, access to the learning resources, the line from this week to the long-term plan in Futre, and where the mentor guides, gives feedback, and sees progress, and where an administrator sees the system. Content lives in strong curriculum (Illustrative Mathematics, OpenSciEd, AP English and history) and reaches students through Kira, Teach to One, or a teacher-led workshop. Pathway, vision, portfolio, and career exploration live in Futre. Homebase holds the week, the progress, and the people.
 
 Design principles carried into every object:
 
@@ -106,7 +106,7 @@ One item of supply: something a student can be scheduled into.
 | day, start, end | date, time, time | |
 | capacity_min, capacity_max | int | Workshops 4 to 8; community 100; practice hub by place capacity |
 | entry | enum required, recommended, open, invited, assigned | How a student gets in |
-| source | enum front_door, kira, teach_to_one, futre, partner, calendar | Who posted it |
+| source | enum homebase, kira, teach_to_one, futre, partner, calendar | Who posted it |
 | source_ref | string | The id in the source system |
 | standing | bool | Repeats weekly until changed |
 | status | enum draft, published, cancelled | |
@@ -236,7 +236,7 @@ One record per school. Everything the engine treats as a rule lives here so a de
 | stale_days | 14 | Evidence older than this produces a Needs You item, never a need |
 | mentor_min_touchpoints_per_week | 2 | Flag below this |
 | protected_time_visible_as | "Protected time" | Never the program name |
-| level_targets | per level, per experience type share | The experience-mix targets from How Summit 3.0 Works that buildWeek() leans toward (Spec 6) |
+| level_targets | per level, per experience type share | The experience-mix targets from How Summit 3.0 Works (Year 1 for Expose and Explore, then Pursue, then Launch), editable on the Settings screen; buildWeek() and the ranker read them (Spec 6) |
 | changed_at, changed_by | datetime, string | Last change and who made it, shown on the Settings screen (Spec 5) |
 
 ### 13. Futre Record and Gathering Log (read-only context, added in build v1)
@@ -245,6 +245,24 @@ One record per school. Everything the engine treats as a rule lives here so a de
 |---|---|---|
 | FutreRecord | futre_student_id, student_id, consent, vision {vision_text, vision_board_url, updated_at}, cns {cns_type, cns_text, target_careers[], pathway_id, updated_at}, careers_explored[], experiences[], portfolio {portfolio_url, item_count, latest_item}, caregiver_view_enabled | The shape the Futre adapter returns (Spec 7). Read, never written, except pushCompletion. pathway_id links the CNS to a knowledge-graph Pathway (Spec 10) |
 | GatheringLogEntry | id, source, pulled_at, received, unmapped, refused, stale, message | One line per source per pull, shown in the Evidence Log (Spec 5) and the weekly build (Spec 4) |
+
+### 14. Engine Trace (added in draft three)
+
+| Field | Type | Notes |
+|---|---|---|
+| id | uuid | |
+| kind | enum need, proposal, slot, move, level_review | Which engine output this explains |
+| subject_id | ref Student or proposal id | |
+| ref_id | string | The slot id, outcome id, proposal id, or move the trace explains |
+| evidence_ids | list of ref Evidence | The rows the engine read |
+| settings | map | The settings that mattered (required_rule, grouping_threshold, max_overnight_moves, level_targets for the level, ...) |
+| edges | list of {from, to, type, source} | Graph edges walked, in order |
+| candidates | list of {id, label, score nullable, lost_because nullable} | What else was considered and why it lost |
+| decision | string | One line |
+| run_id | string | The engine run that produced it (also a gathering log line) |
+| at | datetime | |
+
+Traces for placed slots and overnight moves are stored; traces for needs, proposals, and level reviews are recomputed on demand because those functions are pure.
 
 ## Relationships in One Picture
 
@@ -258,7 +276,7 @@ Resources plug in at exactly two points.
 |---|---|---|
 | In: Offerings | A source posts things students can be scheduled into | Kira (assigned practice, self-paced courses), Teach to One (roadmap sessions), partner calendar (Expedition and partner slots), school calendar (events) |
 | In: Evidence | A source returns a signal of progress tagged to an outcome | Kira, Teach to One, gradebook, Futre (experience reflections), adult notes, student reflections |
-| Out: Context | The front door reads, never writes | Futre: vision, CNS, experiences, portfolio links |
+| Out: Context | Homebase reads, never writes | Futre: vision, CNS, experiences, portfolio links |
 
 In the sandbox every source is simulated by the seed generator. The adapters are stubs with the same interface, so a real adapter replaces a stub without touching the model.
 

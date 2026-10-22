@@ -1,6 +1,6 @@
 # Spec 3: Mentor View
 
-Summit 3.0 Front Door · Working draft v1 · October 20, 2026
+Summit 3.0 Homebase · Working draft v1 · October 20, 2026
 
 The mentor sees a caseload of about 25 on one screen and gets into one student in one tap. The platform tees up the right conversation and captures the notes; it never runs the conversation.
 
