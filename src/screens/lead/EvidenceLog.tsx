@@ -11,7 +11,8 @@ export function EvidenceLog() {
   const c = useCopy()
   const snap = useSnapshot()
   const graph = getGraph()
-  const rows = useMemo(() => snap.gathering_log.filter((g) => g.source !== 'knowledge_graph').map((g) => {
+  const runs = useMemo(() => snap.gathering_log.filter((g) => g.source.startsWith('engine:')).sort((a, b) => (a.pulled_at < b.pulled_at ? 1 : -1)), [snap.gathering_log])
+  const rows = useMemo(() => snap.gathering_log.filter((g) => g.source !== 'knowledge_graph' && !g.source.startsWith('engine:')).map((g) => {
     const list = snap.evidence.filter((e) => e.source === g.source)
     const latest = list.sort((a, b) => (a.recorded_at < b.recorded_at ? 1 : -1))[0]
     const week = list.filter((e) => e.recorded_at >= snap.meta.week_start).length
@@ -38,6 +39,15 @@ export function EvidenceLog() {
       <Card as="section">
         <H2>{c.lead.graphLoaded}</H2>
         <p className="text-sm">{graph.source_label}. {graph.counts.nodes} nodes, {graph.counts.edges} edges. {Object.entries(graph.counts.by_type).map(([k, v]) => `${k} ${v}`).join(', ')}.</p>
+      </Card>
+      <Card as="section">
+        <H2>{c.lead.engineRuns} ({runs.length})</H2>
+        <p className="text-sm text-ink-2">{c.lead.engineRunsLede}</p>
+        {runs.length ? (
+          <ul className="mt-2 divide-y divide-line text-sm" aria-label={c.lead.engineRuns}>
+            {runs.map((g) => <li key={g.id} className="py-1"><span className="font-bold">{g.source.slice(7).replace('_', ' ')}</span> · {g.pulled_at.slice(0, 16).replace('T', ' ')} · {g.message}</li>)}
+          </ul>
+        ) : <p className="mt-2 text-sm text-ink-2">{c.lead.noRuns}</p>}
       </Card>
       <Card as="section">
         <H2>{c.lead.refused} ({refused.length})</H2>

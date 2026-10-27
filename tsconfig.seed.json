@@ -28,6 +28,7 @@
     }
   },
   "include": [
+    "scripts",
     "seed",
     "src/model",
     "src/graph",

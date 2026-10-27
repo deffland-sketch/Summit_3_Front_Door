@@ -6,6 +6,8 @@ import { Button, Card, Field, H1, H2, inputClass, Toggle } from '@/components/ui
 import { patchSettings, runWeeklyBuild } from '@/store/actions'
 import { useUi } from '@/store/ui'
 import { proposeWorkshops } from '@/engine'
+import { TYPE_ORDER } from '@/engine/types'
+import { DEFAULT_LEVEL_TARGETS, LEVELS } from '@/model'
 import { format, parseISO } from 'date-fns'
 
 export function Settings() {
@@ -40,6 +42,31 @@ export function Settings() {
         <Field label={c.lead.settingLabels.day_end}><input type="time" className={inputClass} value={s.day_end} onChange={(e) => num('day_end', e.target.value)} /></Field>
         <Field label={c.lead.settingLabels.protected_time_visible_as}><input className={inputClass} value={s.protected_time_visible_as} onChange={(e) => num('protected_time_visible_as', e.target.value)} /></Field>
         <div className="md:col-span-3"><Toggle label={c.lead.settingLabels.overnight_adjustments} on={s.overnight_adjustments} onChange={(v) => num('overnight_adjustments', 0, { overnight_adjustments: v })} /></div>
+      </Card>
+      <Card as="section">
+        <H2>{c.lead.levelTargets}</H2>
+        <p className="text-sm text-ink-2">{c.lead.levelTargetsLede}</p>
+        <table className="mt-2 w-full text-sm">
+          <thead><tr className="text-left text-ink-2"><th className="font-bold">{c.lead.levelCol}</th>{TYPE_ORDER.map((t) => <th key={t} className="font-bold" title={c.types[t]}>{t}</th>)}<th className="font-bold">Sum</th></tr></thead>
+          <tbody>
+            {LEVELS.map((level) => {
+              const row = s.level_targets[level] ?? {}
+              const sum = Math.round(TYPE_ORDER.reduce((m, t) => m + (row[t] ?? 0), 0) * 100)
+              return (
+                <tr key={level} className="border-t border-line">
+                  <td className="py-1 font-bold">{c.app.levels[level]}</td>
+                  {TYPE_ORDER.map((t) => (
+                    <td key={t} className="py-1 pr-1">
+                      <input type="number" min={0} max={100} step={1} aria-label={`${c.app.levels[level]} ${c.types[t]} target (%)`} className={`${inputClass} px-2 py-1`} value={Math.round((row[t] ?? 0) * 100)} onChange={(e) => num('level_targets', 0, { level_targets: { ...s.level_targets, [level]: { ...row, [t]: Math.max(0, Math.min(100, Number(e.target.value))) / 100 } } })} />
+                    </td>
+                  ))}
+                  <td className={`py-1 ${Math.abs(sum - 100) > 5 ? 'text-orange-ink' : 'text-ink-2'}`}>{c.lead.targetSum(sum)}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+        <div className="mt-2"><Button kind="secondary" onClick={() => { num('level_targets', 0, { level_targets: DEFAULT_LEVEL_TARGETS }); toast(c.lead.targetsReset) }}>{c.lead.resetTargets}</Button></div>
       </Card>
       <Button onClick={() => { const n = runWeeklyBuild(false); toast(c.expert.built(n, 'now')) }}>{c.lead.rerun}</Button>
       <section aria-labelledby="log">

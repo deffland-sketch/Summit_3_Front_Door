@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { DateTimeSchema, IdSchema, IsoDateSchema } from './enums'
 
-/** Read-only context from Futre (Spec 7). The front door reads it and writes back only experience reflections. */
+/** Read-only context from Futre (Spec 7). Homebase reads it and writes back only experience reflections. */
 export const CNS_TYPES = ['four_year', 'two_year', 'apprenticeship', 'military', 'work', 'training', 'undecided'] as const
 export const EXPERIENCE_LEVELS = ['expose', 'explore', 'pursue'] as const
 

@@ -18,7 +18,8 @@ export function TimeTalent() {
     const actual = typeShares(plans)
     const target = targetShares(snap)
     const rows = TYPE_ORDER.map((t) => ({ type: t, label: c.types[t], actual: pct(actual[t]), target: pct(target[t]) }))
-    const within = rows.every((r) => Math.abs(r.actual - r.target) <= 10)
+    const outside = rows.filter((r) => Math.abs(r.actual - r.target) > 10).map((r) => `${r.label} (${r.actual}% against ${r.target}%)`)
+    const within = outside.length === 0
     const adultHours: Record<string, number> = {}
     for (const o of snap.offerings) {
       if (o.day < snap.meta.week_start || o.status !== 'published') continue
@@ -31,7 +32,7 @@ export function TimeTalent() {
     const workshops = snap.offerings.filter((o) => o.kind === 'workshop' && o.day >= snap.meta.week_start && o.status === 'published')
     const traced = workshops.filter((o) => o.source_ref.startsWith('prop_')).length
     const proposals = proposeWorkshops(snap).filter((p) => p.kind === 'workshop').length
-    return { rows, within, adultHours, workshops: workshops.length, traced, proposals }
+    return { rows, within, outside, adultHours, workshops: workshops.length, traced, proposals }
   }, [snap, c])
   return (
     <div className="space-y-6">
@@ -44,6 +45,7 @@ export function TimeTalent() {
           <H2>{c.lead.studentHours} <Assumed q={6} /> <Assumed q={19} /></H2>
           <Chip className={data.within ? 'bg-teal-2 text-teal-ink' : 'bg-orange-2 text-orange-ink'}>{data.within ? c.lead.withinTen : c.lead.outsideTen}</Chip>
         </div>
+        <p className="mt-1 text-sm" data-testid="outside-ten">{data.within ? c.lead.allWithin : c.lead.outsideList(data.outside)}</p>
         <div className="mt-2 h-72" role="img" aria-label={data.rows.map((r) => `${r.label}: ${r.actual}% this week, target ${r.target}%`).join('; ')}>
           <ResponsiveContainer>
             <BarChart data={data.rows} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>

@@ -1,6 +1,6 @@
-# Spec 2: Student Front Door
+# Spec 2: Student Homebase
 
-Summit 3.0 Front Door · Working draft v1 · October 20, 2026
+Summit 3.0 Homebase · Working draft v1 · October 20, 2026
 
 The student's page is the product. Everything else serves it. A student opens it on a phone or Chromebook and sees six things, in this order of prominence: the plan for today and the week, progress toward outcomes, the resources to open, the line to the long-term plan, the mentor's guidance, and the reflection that closes the day.
 

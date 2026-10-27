@@ -4,11 +4,11 @@ import { useCopy } from '@/copy'
 import { useSnapshot, useToday } from '@/app/hooks'
 import { Button, Chevron, Field, Toggle, inputClass } from './ui'
 import { useUi } from '@/store/ui'
-import { addEvidence, runOvernight, upsertOffering, updatePlan } from '@/store/actions'
+import { addEvidence, applyWhatIf, runOvernight, upsertOffering, updatePlan } from '@/store/actions'
 import { repos } from '@/store'
-import { buildWeek, newLedger } from '@/engine'
+import { buildWeek, newLedger, whatIf, TYPE_ORDER, type WhatIfChange, type WhatIfResult } from '@/engine'
 import { futreAdapter } from '@/adapters/futre'
-import { shiftDate, weekDates } from '@/lib/time'
+import { formatTime12, shiftDate, weekDates } from '@/lib/time'
 
 /** The demo driver's panel (Spec 7 and Spec 8). Nudges one source; the week responds. */
 export function SandboxControls({ studentId }: { studentId?: string }) {
@@ -82,6 +82,39 @@ export function SandboxControls({ studentId }: { studentId?: string }) {
     const ms = runOvernight(`${today}T12:00:00.000Z`, today)
     toast(c.sandbox.overnightRan(ms.length))
   }
+  // What-if: one change, previewed on a copy, applied only on Apply (Spec 6 What-if).
+  const WHATIF_SETTINGS = ['grouping_threshold', 'max_overnight_moves', 'stale_days'] as const
+  const [wiKind, setWiKind] = useState<WhatIfChange['kind']>('score')
+  const [wiSetting, setWiSetting] = useState<string>('grouping_threshold')
+  const [wiValue, setWiValue] = useState<number>(6)
+  const [wiAdult, setWiAdult] = useState<string>('')
+  const [wiDay, setWiDay] = useState<string>('')
+  const [wiResult, setWiResult] = useState<WhatIfResult | null>(null)
+  const [wiBusy, setWiBusy] = useState(false)
+  const adultsOut = snap.adults.filter((a) => a.capacities.includes('content_expert') || a.capacities.includes('facilitator') || a.capacities.includes('mentor'))
+  const wiChange = (): WhatIfChange | null => {
+    if (wiKind === 'setting') return { kind: 'setting', key: wiSetting, value: wiValue }
+    if (wiKind === 'score') return student && lesson ? { kind: 'score', student_id: student.id, lesson_id: lesson.id, outcome_id: lesson.outcomes_served[0], value: score } : null
+    const a = wiAdult || adultsOut[0]?.id
+    return a ? { kind: 'adult_out', adult_id: a, day: wiDay || today } : null
+  }
+  const preview = () => {
+    const change = wiChange()
+    if (!change) return
+    setWiBusy(true)
+    // Let the busy line paint before the copy is built.
+    setTimeout(() => {
+      setWiResult(whatIf(repos.snapshot(), change, sid ?? null))
+      setWiBusy(false)
+    }, 20)
+  }
+  const apply = () => {
+    if (!wiResult) return
+    applyWhatIf(wiResult.change)
+    setWiResult(null)
+    toast(c.sandbox.applied)
+  }
+  const slotLine = (s: { day: string; start: string; end: string; offering_id: string | null; entry: string; experience_type: string }) => `${s.day.slice(5)} ${formatTime12(s.start)} · ${s.offering_id ? snap.offerings.find((o) => o.id === s.offering_id)?.title ?? s.experience_type : c.app.openSlot} · ${s.entry.replace('_', ' ')}`
   return (
     <div className="relative no-print">
       <Button kind="secondary" onClick={() => setOpen((v) => !v)} ariaExpanded={open}>
@@ -119,6 +152,69 @@ export function SandboxControls({ studentId }: { studentId?: string }) {
             <Button kind="danger" onClick={cancelPartner}>{c.sandbox.cancelPartner}</Button>
           </div>
           <Toggle label={c.sandbox.showAssumptions} on={showAssumptions} onChange={setShowAssumptions} />
+          <section aria-labelledby="whatif" className="space-y-2 rounded-lg border border-line p-2">
+            <p id="whatif" className="font-bold">{c.sandbox.whatIf}</p>
+            <p className="text-xs text-ink-2">{c.sandbox.whatIfLede}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label={c.sandbox.whatIfKind}>
+                <select className={inputClass} value={wiKind} onChange={(e) => { setWiKind(e.target.value as WhatIfChange['kind']); setWiResult(null) }}>
+                  {(['score', 'setting', 'adult_out'] as const).map((k) => <option key={k} value={k}>{c.sandbox.whatIfKinds[k]}</option>)}
+                </select>
+              </Field>
+              {wiKind === 'setting' ? (
+                <>
+                  <Field label={c.sandbox.whatIfSetting}>
+                    <select className={inputClass} value={wiSetting} onChange={(e) => setWiSetting(e.target.value)}>{WHATIF_SETTINGS.map((k) => <option key={k} value={k}>{c.lead.settingLabels[k]}</option>)}</select>
+                  </Field>
+                  <Field label={c.sandbox.whatIfValue}><input type="number" className={inputClass} value={wiValue} onChange={(e) => setWiValue(Number(e.target.value))} /></Field>
+                </>
+              ) : null}
+              {wiKind === 'adult_out' ? (
+                <>
+                  <Field label={c.sandbox.whatIfAdult}>
+                    <select className={inputClass} value={wiAdult || adultsOut[0]?.id} onChange={(e) => setWiAdult(e.target.value)}>{adultsOut.map((a) => <option key={a.id} value={a.id}>{a.display_name}</option>)}</select>
+                  </Field>
+                  <Field label={c.sandbox.whatIfDay}>
+                    <select className={inputClass} value={wiDay || today} onChange={(e) => setWiDay(e.target.value)}>{weekDates(snap.meta.week_start).filter((d) => d >= today).map((d) => <option key={d} value={d}>{d}</option>)}</select>
+                  </Field>
+                </>
+              ) : null}
+              {wiKind === 'score' ? <p className="col-span-2 text-xs text-ink-2">{student?.display_name}: {lesson?.title ?? c.app.none} → {score}%</p> : null}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button kind="secondary" onClick={preview} disabled={wiBusy || !wiChange()}>{c.sandbox.preview}</Button>
+              <Button onClick={apply} disabled={!wiResult}>{c.sandbox.apply}</Button>
+              <Button kind="quiet" onClick={() => setWiResult(null)} disabled={!wiResult}>{c.sandbox.discard}</Button>
+            </div>
+            {wiBusy ? <p className="text-xs text-ink-2" role="status">{c.sandbox.previewing}</p> : null}
+            {wiResult ? (
+              <div className="grid gap-3 md:grid-cols-2" data-testid="whatif-result">
+                <div>
+                  <p className="font-bold">{c.sandbox.forStudent(student?.display_name ?? '')}</p>
+                  {wiResult.student && (wiResult.student.added.length || wiResult.student.removed.length || wiResult.student.moved.length) ? (
+                    <ul className="text-xs">
+                      {wiResult.student.added.map((x) => <li key={x.id} className="text-teal-ink">{c.sandbox.added}: {slotLine(x)}</li>)}
+                      {wiResult.student.removed.map((x) => <li key={x.id} className="text-red-ink">{c.sandbox.removed}: {slotLine(x)}</li>)}
+                      {wiResult.student.moved.map((m) => <li key={m.after.id} className="text-orange-ink">{c.sandbox.moved}: {slotLine(m.before)} → {m.after.day.slice(5)} {formatTime12(m.after.start)}</li>)}
+                    </ul>
+                  ) : <p className="text-xs text-ink-2">{c.sandbox.noStudentChange}</p>}
+                </div>
+                <div>
+                  <p className="font-bold">{c.sandbox.forSchool}</p>
+                  <table className="w-full text-xs">
+                    <thead><tr className="text-left text-ink-2"><th></th><th className="font-bold">{c.sandbox.before}</th><th className="font-bold">{c.sandbox.after}</th></tr></thead>
+                    <tbody>
+                      {TYPE_ORDER.map((t) => <tr key={t}><td>{c.types[t]}</td><td>{wiResult.school.before.by_type[t]}</td><td className={wiResult.school.after.by_type[t] !== wiResult.school.before.by_type[t] ? 'font-bold' : ''}>{wiResult.school.after.by_type[t]}</td></tr>)}
+                      <tr className="border-t border-line"><td>{c.sandbox.proposalsRow}</td><td>{wiResult.school.before.proposals}</td><td className={wiResult.school.after.proposals !== wiResult.school.before.proposals ? 'font-bold' : ''}>{wiResult.school.after.proposals}</td></tr>
+                      <tr><td>{c.sandbox.alertsRow}</td><td>{wiResult.school.before.alerts}</td><td className={wiResult.school.after.alerts !== wiResult.school.before.alerts ? 'font-bold' : ''}>{wiResult.school.after.alerts}</td></tr>
+                      <tr><td>{c.sandbox.studentsChanged}</td><td></td><td className="font-bold">{wiResult.school.after.students_changed}</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-ink-2 md:col-span-2">{c.sandbox.took(wiResult.ms)}</p>
+              </div>
+            ) : null}
+          </section>
           {moves.length ? (
             <div>
               <p className="font-bold">{c.sandbox.lastMoves} ({moves.length})</p>

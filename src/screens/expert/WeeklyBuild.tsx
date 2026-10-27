@@ -3,7 +3,7 @@ import { useCopy } from '@/copy'
 import { Explain } from '@/components/Explain'
 import { useIndexes, useSnapshot } from '@/app/hooks'
 import { Button, Card, Chip, H1, H2 } from '@/components/ui'
-import { needs, proposeWorkshops, newLedger } from '@/engine'
+import { hubLoad, needs, proposeWorkshops, newLedger } from '@/engine'
 import { BLOCKS } from '@/engine/types'
 import { runWeeklyBuild } from '@/store/actions'
 import { useUi } from '@/store/ui'
@@ -30,12 +30,12 @@ export function WeeklyBuild({ adultId }: { adultId: string }) {
     const protectedMin = current.flatMap((p) => p.slots).filter((s) => s.entry === 'protected').reduce((m, s) => m + minutesBetween(s.start, s.end), 0)
     const requiredMin = current.flatMap((p) => p.slots).filter((s) => s.entry === 'required').reduce((m, s) => m + minutesBetween(s.start, s.end), 0)
     const ledger = newLedger(snap)
-    const hub = weekDates(snap.meta.week_start).map((d) => ({ day: d, blocks: BLOCKS.map((b) => snap.offerings.filter((o) => o.day === d && o.start === b.start && o.place_id === 'pl_commons' && o.status === 'published').reduce((n, o) => n + (ledger.fill.get(o.id) ?? 0), 0)) }))
+    const blocks = hubLoad(snap)
+    const hub = weekDates(snap.meta.week_start).map((d) => ({ day: d, blocks: blocks.filter((h) => h.day === d) }))
     const partners = snap.offerings.filter((o) => o.experience_type === 'RW' && o.day >= snap.meta.week_start && o.status === 'published').map((o) => ({ o, fill: ledger.fill.get(o.id) ?? 0 }))
     const published = current.filter((p) => p.published_at).length
     return { required, inReach, ready, shared, proposals, protectedMin, requiredMin, hub, partners, published, drafts: current.length - published }
   }, [snap])
-  const hubCap = idx.places.get('pl_commons')?.capacity ?? 40
   return (
     <div className="space-y-6">
       <div>
@@ -75,11 +75,12 @@ export function WeeklyBuild({ adultId }: { adultId: string }) {
         <div className="mt-3 grid gap-4 md:grid-cols-2">
           <div>
             <p className="text-sm font-bold">{c.expert.hubLoad}</p>
-            <table className="mt-1 w-full text-xs">
+            <p className="text-xs text-ink-2">{c.expert.hubLoadHint}</p>
+            <table className="mt-1 w-full text-xs" aria-label={c.expert.hubLoad}>
               <thead><tr><th></th>{BLOCKS.map((b) => <th key={b.start} className="font-bold">{b.start}</th>)}</tr></thead>
               <tbody>
                 {read.hub.map((h) => (
-                  <tr key={h.day}><td className="font-bold">{dayName(h.day).slice(0, 3)}</td>{h.blocks.map((n, i) => <td key={i} className={`text-center ${n > hubCap ? 'text-red-ink font-bold' : ''}`}>{n}</td>)}</tr>
+                  <tr key={h.day}><td className="font-bold">{dayName(h.day).slice(0, 3)}</td>{h.blocks.map((b) => <td key={b.start} data-adults={b.adults} data-short={b.adults_short ? 'true' : 'false'} title={b.adults_short ? c.expert.hubAdultsShort(b.adults, b.adults_required) : b.over_capacity ? c.expert.hubOver(b.placed, b.capacity) : `${b.adults} ${c.expert.adultsInHub}`} className={`text-center ${b.over_capacity || b.adults_short ? 'text-red-ink font-bold' : ''}`}>{b.placed}</td>)}</tr>
                 ))}
               </tbody>
             </table>

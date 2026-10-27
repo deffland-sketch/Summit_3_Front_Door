@@ -84,7 +84,7 @@ describe('model schemas', () => {
         capacity_min: 4,
         capacity_max: 8,
         entry: 'required',
-        source: 'front_door',
+        source: 'homebase',
         source_ref: '',
         standing: false,
         status: 'published',

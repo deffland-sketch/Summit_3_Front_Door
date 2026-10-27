@@ -1,4 +1,4 @@
-import type { Plan, Sandbox, Slot } from '@/model'
+import type { Plan, Sandbox, Slot, TracePart } from '@/model'
 import { en } from '@/copy/en'
 import { byId } from '@/lib'
 import { overlaps, shiftDate, weekDates } from '@/lib/time'
@@ -79,9 +79,15 @@ export function adjustOvernight(snap: Sandbox, ctx: OvernightContext): { plans: 
         replacement.end = ro.end
         ledger.fill.set(ro.id, (ledger.fill.get(ro.id) ?? 0) + 1)
         replacement.entry = o.entry === 'required' ? 'required' : 'chosen'
+        replacement.why = en.why.movedTo(o.title, ro.title, options[0].builds[0] ?? null)
+        // The option may have come from the open slots after the cancelled one; a longer or later offering absorbs them.
+        for (const x of next.slots) {
+          if (x.id !== s.id && x.offering_id === null && x.entry === 'chosen' && live(x) && x.day === replacement.day && overlaps(x.start, x.end, replacement.start, replacement.end)) x.status = 'moved'
+        }
       }
       next = { ...next, slots: [...next.slots, replacement] }
-      moves.push({ student_id: student.id, kind: 'moved', slot: replacement, replaced_slot_id: s.id, why: replacement.why })
+      const trace: TracePart = { evidence_ids: [], settings: { max_overnight_moves: settings.max_overnight_moves, cancelled_offering: o.id }, edges: [], candidates: options.slice(0, 5).map((r, i) => ({ id: r.offering.id, label: r.offering.title, score: r.score, lost_because: i === 0 ? null : 'ranked lower' })), decision: `${o.title} was cancelled; moved to ${options[0]?.offering.title ?? 'an open slot'}` }
+      moves.push({ student_id: student.id, kind: 'moved', slot: replacement, replaced_slot_id: s.id, why: replacement.why, trace })
       count++
     }
 
@@ -92,7 +98,7 @@ export function adjustOvernight(snap: Sandbox, ctx: OvernightContext): { plans: 
         if (!can()) break
         // Only a need the new evidence created is acted on; needs the week already answered stay as planned.
         if (n.kind === 'required' && n.evidence_id && newEvidenceIds.has(n.evidence_id) && !covered(next, n.lesson_id, n.outcome_id, snap, tomorrow)) {
-          const why = n.family === 'content' && n.value !== null ? en.why.newRequired(n.outcome_name, n.value) : n.why
+          const why = n.family === 'content' && n.value !== null && n.evidence_ref ? en.why.newRequired(n.outcome_name, n.value, n.evidence_ref) : n.why
           // A workshop for the lesson on a later day with room, else a practice block in an open slot.
           const ws = n.lesson_id
             ? snap.offerings.find((o) => o.status === 'published' && o.kind === 'workshop' && o.lesson_id === n.lesson_id && o.day >= tomorrow && (ledger.fill.get(o.id) ?? 0) < o.capacity_max && !next.slots.some((s) => s.day === o.day && live(s) && overlaps(s.start, s.end, o.start, o.end) && s.entry !== 'chosen'))
@@ -104,7 +110,7 @@ export function adjustOvernight(snap: Sandbox, ctx: OvernightContext): { plans: 
             target = { id: slotId(plan.id), plan_id: plan.id, day: ws.day, start: ws.start, end: ws.end, experience_type: 'DI', offering_id: ws.id, entry: 'required', why, goal: null, status: 'planned', rating: null, bring: null, evidence_id: n.evidence_id, added_at: now }
             ledger.fill.set(ws.id, (ledger.fill.get(ws.id) ?? 0) + 1)
             next = { ...next, slots: [...next.slots, target] }
-            moves.push({ student_id: student.id, kind: 'added', slot: target, replaced_slot_id: overlapping[0]?.id ?? null, why })
+            moves.push({ student_id: student.id, kind: 'added', slot: target, replaced_slot_id: overlapping[0]?.id ?? null, why, trace: { ...n.trace, settings: { ...n.trace.settings, max_overnight_moves: settings.max_overnight_moves }, candidates: [{ id: ws.id, label: `${ws.title} on ${ws.day}`, score: null, lost_because: null }, ...n.trace.candidates], decision: `new Required need; a workshop for the lesson had room on ${ws.day}` } })
             count++
             continue
           }
@@ -117,7 +123,7 @@ export function adjustOvernight(snap: Sandbox, ctx: OvernightContext): { plans: 
           const added: Slot = { ...slot, id: slotId(plan.id), offering_id: pb.id, experience_type: 'PF', entry: 'required', why, evidence_id: n.evidence_id, added_at: now, status: 'planned', goal: null, rating: null }
           ledger.fill.set(pb.id, (ledger.fill.get(pb.id) ?? 0) + 1)
           next = { ...next, slots: replaced ? [...next.slots, added] : next.slots.map((s) => (s.id === slot.id ? added : s)) }
-          moves.push({ student_id: student.id, kind: 'added', slot: added, replaced_slot_id: replaced, why })
+          moves.push({ student_id: student.id, kind: 'added', slot: added, replaced_slot_id: replaced, why, trace: { ...n.trace, settings: { ...n.trace.settings, max_overnight_moves: settings.max_overnight_moves }, candidates: [{ id: pb.id, label: `${pb.title} ${pb.day} ${pb.start}`, score: null, lost_because: null }, { id: 'workshop', label: 'a workshop for the lesson', score: null, lost_because: 'none with room on a later day' }, ...n.trace.candidates], decision: replaced ? `new Required need; displaced a chosen slot into the earliest open block` : `new Required need; took the earliest open slot` } })
           count++
         } else if (n.kind === 'readiness' && n.evidence_id && newEvidenceIds.has(n.evidence_id) && can()) {
           const a = snap.offerings.find((o) => o.status === 'published' && o.kind === 'assessment' && o.source_ref === `assess:${student.id}` && o.outcomes_served.includes(n.outcome_id) && o.day >= tomorrow)
@@ -125,9 +131,9 @@ export function adjustOvernight(snap: Sandbox, ctx: OvernightContext): { plans: 
           const overlapping = next.slots.filter((s) => s.day === a.day && live(s) && overlaps(s.start, s.end, a.start, a.end) && s.entry === 'chosen')
           if (next.slots.some((s) => s.day === a.day && live(s) && overlaps(s.start, s.end, a.start, a.end) && s.entry !== 'chosen')) continue
           for (const s of overlapping) s.status = 'moved'
-          const booked: Slot = { id: slotId(plan.id), plan_id: plan.id, day: a.day, start: a.start, end: a.end, experience_type: a.experience_type, offering_id: a.id, entry: 'assigned', why: en.why.assessment(n.outcome_name), goal: null, status: 'planned', rating: null, bring: 'The evidence you want in the room', evidence_id: n.evidence_id, added_at: now }
+          const booked: Slot = { id: slotId(plan.id), plan_id: plan.id, day: a.day, start: a.start, end: a.end, experience_type: a.experience_type, offering_id: a.id, entry: 'assigned', why: en.why.assessment(n.outcome_name, n.evidence_ref ?? 'your latest strong scores'), goal: null, status: 'planned', rating: null, bring: 'The evidence you want in the room', evidence_id: n.evidence_id, added_at: now }
           next = { ...next, slots: [...next.slots, booked] }
-          moves.push({ student_id: student.id, kind: 'booked', slot: booked, replaced_slot_id: overlapping[0]?.id ?? null, why: booked.why })
+          moves.push({ student_id: student.id, kind: 'booked', slot: booked, replaced_slot_id: overlapping[0]?.id ?? null, why: booked.why, trace: { ...n.trace, settings: { ...n.trace.settings, max_overnight_moves: settings.max_overnight_moves }, decision: `readiness; the booked assessment went onto the week` } })
           count++
         }
       }

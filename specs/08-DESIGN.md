@@ -1,8 +1,8 @@
 # Spec 8: Design
 
-Summit 3.0 Front Door · Working draft v1 · October 20, 2026
+Summit 3.0 Homebase · Working draft v1 · October 20, 2026
 
-The front door should feel like Summit's own: calm, warm, clear on a phone. It is a student's page first. Nothing on it reads as a dashboard to be managed.
+Homebase should feel like Summit's own: calm, warm, clear on a phone. It is a student's page first. Nothing on it reads as a dashboard to be managed.
 
 ## Brand Tokens
 

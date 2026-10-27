@@ -1,6 +1,6 @@
 # Spec 5: Admin View (School Lead)
 
-Summit 3.0 Front Door · Working draft v1 · October 20, 2026
+Summit 3.0 Homebase · Working draft v1 · October 20, 2026
 
 The school lead sees the system: whether the model is running as designed, whether every student is getting what they need, and where adults' time is going. This is the view a funder or a visiting leader is shown.
 
@@ -16,7 +16,9 @@ The school lead sees the system: whether the model is running as designed, wheth
 | Partners | Every partner, its weekly slots, fill rate, and the students placed; which placements the engine could not fill | Offering (partner), Slot |
 | Events | Whole-group sessions: day, start, length, who attends, which staff, where; the engine leaves protected time alone | Offering (event) |
 | Settings | Every rule in Spec 1 School Settings, editable, with the last change and who made it | School Settings |
-| Evidence Log | What arrived from each source this week, what is stale, what the engine refused to act on | Evidence, gathering log |
+| Evidence Log | What arrived from each source this week, what is stale, what the engine refused to act on, and one line per engine run (what it read, wrote, and how long it took) | Evidence, gathering log |
+| Engine Trace | The trace behind any engine output for a student or a proposal: evidence read, settings applied, edges walked, candidates and why each lost (Spec 6 Traceability) | Engine traces |
+| Engine Audit | Writes audit/engine-audit-<date>.md: twenty proposals and twenty placed Required slots with rationale, trace summary, and a blank acceptance column for a real teacher and coordinator | Engine traces |
 
 ## Dashboard Alerts
 

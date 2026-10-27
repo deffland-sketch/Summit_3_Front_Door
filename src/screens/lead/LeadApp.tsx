@@ -11,6 +11,7 @@ import { Partners } from './Partners'
 import { Events } from './Events'
 import { Settings } from './Settings'
 import { EvidenceLog } from './EvidenceLog'
+import { EngineTrace } from './EngineTrace'
 import { ModelDashboard } from './ModelDashboard'
 import { SandboxControls } from '@/components/SandboxControls'
 
@@ -28,6 +29,7 @@ export function LeadApp() {
     { to: '/l/events', label: c.nav.lead.events },
     { to: '/l/settings', label: c.nav.lead.settings },
     { to: '/l/evidence', label: c.nav.lead.evidence },
+    { to: '/l/trace', label: c.nav.lead.trace },
     { to: '/l/model', label: c.nav.lead.model },
   ]
   return (
@@ -44,6 +46,7 @@ export function LeadApp() {
           <Route path="events" element={<Events />} />
           <Route path="settings" element={<Settings />} />
           <Route path="evidence" element={<EvidenceLog />} />
+          <Route path="trace" element={<EngineTrace />} />
           <Route path="model" element={<ModelDashboard />} />
           <Route path="*" element={<Navigate to="/l" replace />} />
         </Routes>
